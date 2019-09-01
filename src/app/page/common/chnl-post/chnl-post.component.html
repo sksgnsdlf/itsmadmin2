@@ -1,0 +1,131 @@
+<div class='row'>
+    <div class='col-4'>
+        <div class="title d-flex flex-row align-items-center">
+            <div>채널정보</div>
+            <button type="button" class="btn btn-primary" (click)="selectedChnl={disp_yn:'1'};openModal(addChnlModal)">추가</button>
+        </div>
+        <!-- <div class="add-btn-div"></div> -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive list-table">
+                    <table class="table" style="margin:0">
+                        <colgroup>
+                            <col width="40%">
+                            <col width="40%">
+                            <col width="20%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>채널명</th>
+                                <th>앱경로</th>
+                                <th>표시여부</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class='highlight' *ngFor="let item of chnlList" (click)="selectedChnl = item; openModal(addChnlModal)">
+                                <td>{{item.chnl_nm}}</td>
+                                <td>{{item.app_path}}</td>
+                                <td>{{item.disp_yn=='0'?'N':'Y'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="width:5rem"></div>
+    <div class='col-4'>
+        <div class="title d-flex flex-row align-items-center">
+            <div>게시물분야</div>
+            <button type="button" class="btn btn-primary" (click)="selectedCls = {topic:null}; openModal(addClsModal)">추가</button>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive list-table">
+                    <table class="table" style="margin:0">
+                        <colgroup>
+                            <col width="50%">
+                            <col width="50%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>분야명</th>
+                                <th>채널</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class='highlight' *ngFor="let item of clsList" (click)="selectedCls = item; openModal(addClsModal)">
+                                <td>{{item.post_div_nm}}</td>
+                                <td>{{item.chnl_nm}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 채널 등록  모달 -->
+<ng-template #addChnlModal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">채널 등록</h4>
+        <button type="button" class="close" aria-label="Close" (click)="getChnl(); d('Cross click')">
+        <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label for="typeahead-basic">채널명 </label>
+            <input type="text" name="chnlNm" class="form-control" [(ngModel)]="selectedChnl.chnl_nm" #chnlNm="ngModel" />
+        </div>
+        <div class="form-group">
+            <label for="typeahead-basic">앱 경로</label>
+            <input type="text" name="appPath" class="form-control" [(ngModel)]="selectedChnl.app_path" #appPath="ngModel" />
+        </div>
+        <div class="form-group">
+            <label for="typeahead-basic">표시여부</label>
+            <div class="row" style="margin:0 0.1rem;">
+                <div>
+                    <input id="disp_1" type="radio" style="margin-right:0.3rem"name="dispYn1" #dispYn1="ngModel" value="1" [(ngModel)]="selectedChnl.disp_yn">
+                    <label for="disp_1">표시</label>
+                </div>
+                <div>
+                    <input id="disp_2" type="radio" style="margin-left:1rem; margin-right:0.3rem" name="dispYn2" #dispYn2="ngModel" value="0" [(ngModel)]="selectedChnl.disp_yn">
+                    <label for="disp_2">미표시</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-info" (click)="addChnl(selectedChnl)">저장</button>
+        <button type="button" class="btn btn-inverse" (click)="getChnl(); d('Cross click')">닫기</button>
+    </div>
+</ng-template>
+
+<!-- 게시물분야 등록  모달 -->
+<ng-template #addClsModal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">게시물분야 등록</h4>
+        <button type="button" class="close" aria-label="Close" (click)="getCls(); d('Cross click')">
+        <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label for="typeahead-basic">분류명</label>
+            <input type="text" name="divNm" class="form-control" [(ngModel)]="selectedCls.post_div_nm" #divNm="ngModel" />
+        </div>
+        <div class="form-group">
+            <label for="typeahead-basic">채널</label>
+            <select class="form-control" name="chnl" [(ngModel)]="selectedCls.topic" #chnl="ngModel">
+                <option [value]="null">선택</option>
+                <option *ngFor="let item of chnlList" [ngValue]="item.topic">{{item.chnl_nm}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-info" (click)="addCls(selectedCls)">저장</button>
+        <button type="button" class="btn btn-inverse" (click)="getCls(); d('Cross click')">닫기</button>
+    </div>
+</ng-template>

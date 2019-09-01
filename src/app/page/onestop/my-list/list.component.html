@@ -1,0 +1,93 @@
+<!-- search 부분 -->
+<div class="search-container">
+    <div class="form-group">
+        <label class="search-title" class="wt5">등록일자</label>
+        <itsm-calendar-split [(fromDt)]="from_dt" [(toDt)]="to_dt" title="등록일자"></itsm-calendar-split>
+    </div>
+    <div class="form-group">
+        <label for="typeahead-basic" class="wt6">민원인 성명</label>
+        <input id="typeahead-basic" class="form-control wt10" name="name" type="text" [(ngModel)]="civil_nm" #name="ngModel" (keyup.enter)="getList()"/>
+    </div>
+    <div class="form-group">
+        <label for="typeahead-basic" class="wt6">민원인 전화</label>
+        <input id="typeahead-basic" class="form-control wt10" name="tel" type="text" [(ngModel)]="civil_tel_no" #tel="ngModel" (keyup.enter)="getList()"/>
+    </div>
+    <div class="form-group">
+        <label for="typeahead-basic" class="wt3">내용</label>
+        <input id="typeahead-basic" class="form-control wt10" name="context" type="text" [(ngModel)]="complaints_txt" #context="ngModel" (keyup.enter)="getList()"/>
+    </div>    
+</div>
+<div class="search-container">
+    <div class="form-group">
+        <select class="form-control" name="" id="" [(ngModel)]="receipt_mthd" (change)="getList()">
+            <option value="">접수방법</option>
+            <option [value]="item.id" *ngFor="let item of recvList; let i = index">{{item.name}}</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <select class="form-control" name="" id="" [(ngModel)]="proc_state" (change)="getList()">
+            <option value="">처리상태</option>
+            <option [value]="item.id" *ngFor="let item of procList; let i = index">{{item.name}}</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <select class="form-control" name="" id="" [(ngModel)]="cls_no" (change)="getList();">
+            <option value="">항목분류</option>
+            <option [value]="item.id" *ngFor="let item of searchCateList; let i = index">{{item.name}}</option>
+        </select>
+    </div>
+    <button type="button" class="btn btn-primary ml-auto" style="margin-right:1rem" (click)="getList()">조회</button>
+</div>  
+<!-- 테이블 -->
+<div class="col-lg-12" style="padding:0">
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive list-table"> 
+                <table class="table">
+                <colgroup>
+                    <col width="4%">
+                    <col width="6%">
+                    <col width="18%">
+                    <col width="5%">
+                    <col width="6%">
+                    <col width="4%">
+                    <col width="5%">
+                    <col width="5%">
+                    <col width="4%">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="noLLine">접수 번호</th>
+                        <th>접수 일시</th>
+                        <th>민원 내용</th>
+                        <th>민원인</th>
+                        <th>분류</th>
+                        <th>만료 일수</th>
+                        <th>만료 기한</th>
+                        <th>접수 방법</th>
+                        <th>처리 상태</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="highlight" *ngFor="let item of complainList.data; let i = index" (click)="goDetail(item)">
+                        <td style="text-align: center">{{item.case_no}}</td>
+                        <td style="text-align: center">{{item.receipt_dttm }}</td>
+                        <td style="text-align: left">{{item.complaints_txt}}</td>
+                        <td style="text-align: center">{{item.civil_nm}}</td>
+                        <td style="text-align: left">{{item.cls_nm}}</td>
+                        <td style="text-align: center">{{item.due_day}}</td>
+                        <td style="text-align: center">{{item.due_date}}</td>
+                        <td style="text-align: center">{{item.receipt_mthd_nm}}</td>
+                        <td style="text-align: list">{{item.proc_state_nm}}</td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div> 
+<div class="list-pagination">
+    <ngb-pagination class="d-flex justify-content-center" (pageChange)="getList($event)" [collectionSize]="collectionSize" [maxSize]="maxPage" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+    <div class="total-page" style="text-align: center">총 {{total}} 건, {{totalPage}} 페이지 </div>
+</div>

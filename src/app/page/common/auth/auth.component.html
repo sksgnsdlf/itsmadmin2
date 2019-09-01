@@ -1,0 +1,112 @@
+<div class="row" style="padding:1rem;padding-bottom:0;">
+  <div class="col-3">
+    <itsm-tree-view [height]="440" [data]="auths" (OnClick)="getAuthMemeber($event)"></itsm-tree-view>
+  </div>
+  <div class="col-8">
+    <div class="card">
+      <div class="card-body">
+        <div class="row" style="margin:0;margin-bottom: 0.5rem;">
+          <select class="form-control col-2" style="margin:0;" name="role" id="role" [(ngModel)]="selectedOrgId">
+            <option value="-1" *ngIf="session.isAdmin()">전체</option>
+            <option *ngFor="let item of orgList; let i = index" [value]="item.id">{{item.name}}</option>
+          </select>
+          <div class="form-group col-4" style="margin:0;">
+            <label for="name">소속명</label>
+            <input class="form-control" name="dept" [(ngModel)]="userDept" (keyup.enter)="getOffical(1)" #dept="ngModel" />
+          </div>
+          <div class="form-group col-5" style="margin:0;">
+            <label for="name">이름</label>
+            <input class="form-control" name="names" [(ngModel)]="userNmSearch" (keyup.enter)="getOffical(1)" #names="ngModel" />
+          </div>
+          <button type="button" class="btn btn-info col-1" (click)="getOffical(1)">조회</button>
+        </div>
+        <div class="row" style="margin:0;min-height:200px; height:200px; overflow-y:auto; margin-bottom: 0.5rem;">
+          <table class="table list-table">
+            <colgroup>
+              <col width="5%">
+              <col width="15%">
+              <col width="15%">
+              <col width="10%">
+              <col width="40%">
+              <col width="15%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th class="noLLine">선택</th>
+                <th>성명</th>
+                <th>로그인계정</th>
+                <th>소속기관</th>
+                <th>소속부서</th>
+                <th>휴대전화</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of offList; let i = index">
+                <td>
+                  <input type="checkbox" [(ngModel)]="item.selected">
+                </td>
+                <td>{{item.user_nm}}</td>
+                <td>{{item.login_accnt}}</td>
+                <td>{{item.org_nm}}</td>
+                <td>{{item.dept_nm}}</td>
+                <td>{{item.cp_no}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="list-pagination">
+          <ngb-pagination class="d-flex justify-content-center" (pageChange)="getOffical($event)" [collectionSize]="collectionSize"
+            [maxSize]="maxPageSize" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+        </div>
+        <div class="row">
+          <div class="col-5">
+          </div>
+          <div class="col-2">
+            <button type="button" class="btn align-self-center" (click)="remove()"><i class="icon-arrow-up"></i></button>
+            <button type="button" class="btn align-self-center" style="float: right;" (click)="add()"><i class="icon-arrow-down"></i></button>
+          </div>
+          <div class="col-5">
+          </div>
+        </div>
+        <h4>권한자 목록</h4>
+        <div style="text-align:center">{{selectedAuth.auth_nm}} / 총 {{authMember.length}} 명</div>
+        <div class="row" style="margin:0;min-height:280px; height:280px; overflow-y:auto;">
+          <table class="table list-table">
+            <colgroup>
+              <col width="5%">
+              <col width="15%">
+              <col width="15%">
+              <col width="10%">
+              <col width="40%">
+              <col width="15%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th class="noLLine">선택</th>
+                <th>성명</th>
+                <th>로그인계정</th>
+                <th>소속기관</th>
+                <th>소속부서</th>
+                <th>휴대전화</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of authMember; let i = index">
+                <td>
+                  <input type="checkbox" [(ngModel)]="item.selected">
+                </td>
+                <td>{{item.user_nm}}</td>
+                <td>{{item.login_accnt}}</td>
+                <td>{{item.org_nm}}</td>
+                <td>{{item.dept_nm}}</td>
+                <td>{{item.cp_no?item.cp_no:item.cp_no2}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-1">
+  </div>
+</div>

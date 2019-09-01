@@ -1,0 +1,35 @@
+<div class="d-flex" style="max-width:75rem; margin-bottom:1rem"><button class="btn btn-primary ml-auto" (click)="back()">목록으로</button></div>
+
+<div class="card" style="max-width:75rem;">
+  <div class="card-body"> 
+    <p class="title">공무원정보</p>
+    <itsm-table [table]="basicInfoTable"></itsm-table>
+    
+    <p class="title">어플리케이션 정보</p>
+    <itsm-table [table]="appInfoTable"></itsm-table>
+
+    <p class="title">가입 사이트 정보</p>
+    <itsm-table [table]="joinSiteInfoTable"></itsm-table>
+
+    <p class="title">회원증 정보</p>
+    <div class="box" *ngFor="let item of membershipCard; let idx = index">
+      <hr *ngIf="idx > 0">
+      <div class="user-card">
+        <p>시설명: {{item.facility_nm}}</p>
+        <p class="d-flex">
+          <span>회원증번호 : {{item.card_no}}</span>
+          <span class="ml-auto">{{item.start_dt}} ~ {{item.close_dt}}</span>
+        </p>
+      </div>
+    </div>
+
+    <p class="title">회원단말 정보</p>
+    <itsm-table [table]="deviceInfoTable"></itsm-table>
+    
+    <p class="title">회원속성정보</p>
+    <itsm-table [table]="userAttrInfoTable"></itsm-table>
+
+    <p class="title">마일리지 적립내역 (최근 10건)</p>
+    <itsm-table [table]="mileageInfoTable"></itsm-table>
+  </div>
+</div>

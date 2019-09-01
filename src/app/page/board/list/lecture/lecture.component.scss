@@ -1,0 +1,66 @@
+@import '../../../../../styles.scss';
+.list-table{
+    letter-spacing: -0.06rem;
+    tr th, tr td{
+        text-align: center;
+        border:1px solid $tb-border-color;
+    }
+    tr th{
+        background-color:$tb-col-color;
+    }
+    
+    tbody .highlight:hover{
+        background-color: $tb-hover-color;
+        cursor:pointer;
+    }
+}
+.form-group{
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom:1rem;
+    label{
+        flex-basis:13%;
+        margin:0;
+        text-align: right;
+        padding-right:1rem;
+        span{
+            color:red;
+        }
+    }
+    .input-group, .form-control{
+        flex-basis:15%;
+    }
+    
+    .label-modal{
+        flex-basis:17%!important;
+    }
+    .input-modal{
+        flex-basis:75%!important;
+    }
+    .medium{
+        flex-basis:30%;
+    }
+    .long{
+        flex-basis:50%;
+    }
+    .alert{
+        margin:0;
+        margin-left:1rem;
+    }
+}
+.form-modal{
+    justify-content: center!important;
+}
+.fixed {
+    position:fixed;
+    bottom:7rem;
+    right:4rem;
+}
+.kogle-image{
+    height: 2rem;
+    margin-right: 2rem;
+}
+itsm-ckeditor{
+    flex-basis:50%;
+}

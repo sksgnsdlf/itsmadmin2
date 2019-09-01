@@ -1,0 +1,11 @@
+{
+  "name": "itsm-ui",
+  "version": "0.0.1",
+  "author": "hansol-shin <hansol@itsm.co.kr>",
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/core": "^6.0.0-rc.0 || ^6.0.0",
+    "@ng-bootstrap/ng-bootstrap": "^2.2.1"
+  }
+}

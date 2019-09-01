@@ -1,0 +1,202 @@
+<div class="form-group button-group d-flex justify-content-end">
+  <button type="button" style="margin-right: 5px;" class="btn btn-inverse" (click)="backClicked()">돌아가기</button><!-- 뒤로가기 -->
+  <button type="button" style="margin-right: 5px;" class="btn btn-info" (click)="openModal(applModal)">수기등록</button><!-- 수기등록 팝업 -->
+  <button type="button" style="margin-right: 5px;" class="btn btn-primary" (click)="getExcel()">엑셀저장</button><!-- 명단 엑셀 저장 -->
+</div>
+<div class="post-info-container">
+  <!-- 게시물 정보 -->
+  <div class="card">
+    <div style="padding:1rem;padding-bottom:0;font-weight: bold">게시물 정보</div>
+    <div class="card-body">
+      <itsm-table [table]="detailTable"></itsm-table>
+    </div>
+  </div>
+</div>
+<div class="post-info-container">
+  <!-- 신청·접수자 명단 -->
+  <div class="card">
+    <div class="d-flex flex-row justify-content-between" style="padding:1rem">
+      <div style="font-weight: bold">신청·접수자 명단</div>
+      <div class="form-group" style="margin:0">
+        <button type="button" style="margin-right: 5px;" class="btn btn-inverse" (click)="openModal(updApplStateModal)">접수변경</button><!-- 접수변경 -->
+        <button type="button" style="margin-right: 5px;" class="btn btn-info" (click)="openModal(updSelectRsltModal)">선발변경</button><!-- 선발변경 -->
+        <button type="button" style="margin-right: 5px;" class="btn btn-primary" (click)="openModal(sendMsgModal)">알림전송</button><!-- 알림 푸시 전송 -->
+      </div>
+    </div>
+    <div class="search-container">
+      <div class="form-group">
+          <label for="typeahead-basic" class="wt5">항목구분</label>
+          <div class="option-container">
+            <select class="form-control" [(ngModel)]="searchForm.searchType" (change)="optionSelected('searchType')">
+                <option value='null'>항목구분1</option>
+                <option *ngFor="let item of option.searchType" [ngValue]="item.cd">{{item.cd_nm}}</option>
+            </select>
+            <select *ngIf="searchForm.searchType == null" class="form-control">
+                <option value='null'>항목구분2</option>
+            </select>
+            <select *ngIf="searchForm.searchType == 1" class="form-control" [(ngModel)]="searchForm.searchValue" (change)="optionSelected('searchValue')">
+                <option value='null'>항목구분2</option>
+                <option *ngFor="let item of option.appl_state" [ngValue]="item.cd">{{item.cd_nm}}</option>
+            </select>
+            <select *ngIf="searchForm.searchType == 2" class="form-control" [(ngModel)]="searchForm.searchValue" (change)="optionSelected('searchValue')">
+                <option value='null'>항목구분2</option>
+                <option *ngFor="let item of option.select_result" [ngValue]="item.cd">{{item.cd_nm}}</option>
+            </select>
+            <select *ngIf="searchForm.searchType == 3" class="form-control" [(ngModel)]="searchForm.searchValue" (change)="optionSelected('searchValue')">
+                <option value='null'>항목구분2</option>
+                <option *ngFor="let item of option.payment_state" [ngValue]="item.cd">{{item.cd_nm}}</option>
+            </select>
+          </div>
+      </div>
+
+      <div class="form-group">
+          <label for="typeahead-basic" class="wt7">이름ㆍ연락처</label>
+          <input id="typeahead-basic" class="form-control wt14" name="nameTel" type="text" [(ngModel)]="searchForm.nmOrTel" #nameTel="ngModel"/>
+      </div>
+      <div class="form-group">
+          <label class="search-title" class="wt5">가입일자</label>
+          <itsm-calendar [(fromDt)]="searchForm.fromDt" [(toDt)]="searchForm.toDt" title="가입일자"></itsm-calendar>
+      </div>
+
+      <button type="button" class="btn btn-info" (click)="searchApplUser()">조회</button>
+    </div> 
+    <div class="card-body">
+      <div class="table-responsive list-table" style="overflow:unset">
+        <table class="table">
+          <colgroup>
+            <col width="5%">
+            <col width="15%">
+            <col width="15%">
+            <col width="15%">
+            <col width="10%">
+            <col width="10%">
+            <col width="10%">
+            <col width="10%">
+            <col width="10%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th (click)="selectAllUser()"><input type="checkbox" style="transform:scale(1.5)"/></th>
+              <th>신청자명</th>
+              <th>연락처</th>
+              <th>접수일시</th>
+              <th>신청수량</th>
+              <th>접수상태</th>
+              <th>선발상태</th>
+              <th>결제상태</th>
+              <th>첨부파일</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlight" *ngFor="let item of applUserList; let idx = index" (click)="applUserDetail = item; openModal(applDetailModal)">
+              <td (click)="item.selected = !item.selected;$event.stopPropagation();updSelectedAppl(); "><input type="checkbox" style="transform:scale(1.5)" [checked]="item.selected"/></td>
+              <td>{{item.civil_nm}}</td>
+              <td>{{item.cp_no}}</td>
+              <td>{{item.receipt_dttm}}</td>
+              <td>{{item.appl_cnt}}</td>
+              <td>{{item.appl_state_nm}}</td>
+              <td>{{item.select_rslt_nm}}</td>
+              <td>{{item.payment_state}}</td>
+              <td *ngIf="!item.add_file_url"></td>
+              <td *ngIf="item.add_file_url" (click)="downloadFile(item.add_file_url);$event.stopPropagation();"><i class="fa fa-file-text-o"></i></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="list-pagination">
+      <ngb-pagination class="d-flex justify-content-center" (pageChange)="searchApplUser($event)" [collectionSize]="collectionSize" [maxSize]="maxPage" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+      <div class="total-page" style="text-align: center">총 {{total}} 건, {{totalPage}} 페이지 </div>
+    </div>
+  </div>
+</div>
+<!-- 이하 팝업들 -->
+<!-- 신청접수정보 상세(수정) -->
+<ng-template #applDetailModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">신청접수정보 상세(수정)</h4>
+    <div class="form-group" style="margin:0">
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div class="modal-body">
+    <div class="card">
+      <div class="card-body">
+        <itsm-form-inflater [customBtn]='applDetailModalBtn' [hideTitle]='true' [options]='applDetailModalConfig' [(value)]='applUserDetail' (OnSubmitted)="updApplDetail('all')" (OnDeleteClicked)="dltAppl(applUserDetail.appl_no)"></itsm-form-inflater>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- 수기등록 -->
+<ng-template #applModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">수기등록</h4>
+    <div class="form-group" style="margin:0">
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div class="modal-body">
+    <div class="card">
+      <div class="card-body">
+        <itsm-form-inflater [options]='applModalConfig' [customBtn]='applModalBtn' [hideTitle]='true' [(value)]='applForm' (OnSubmitted)="addApplUser()"></itsm-form-inflater>
+      </div>
+    </div>
+  </div>
+</ng-template>
+<!-- 알림 메세지 전송 -->
+<ng-template #sendMsgModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">알림 메세지 전송</h4>
+    <div class="form-group" style="margin:0">
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div class="modal-body">
+    <div class="card">
+      <div class="card-body">
+        <div class="form-group">
+          <label style="font-weight: bold">선택한 사용자에게 알림전송</label>
+          <div>(스마트포항 사용자에게는 PUSH로 비사용자에게는 SMS로 전송됩니다)</div>
+          <textarea rows="4" style="width:100%" [(ngModel)]="pushMsg"></textarea>
+          <div>#성명은 신청자 명으로, <br>#선발결과는 신청자의 선발결과로 자동입력됩니다.</div>
+        </div>
+        <div class="form-group" style="margin:0">
+          <button type="button" class="btn btn-info" (click)="pushApplUser()">전송</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+<!-- 접수상태변경 -->
+<ng-template #updApplStateModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">접수상태변경</h4>
+    <div class="form-group" style="margin:0">
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div class="modal-body">
+    <div class="card">
+      <div class="card-body">
+        <itsm-form-inflater [options]='updApplStateModalConfig' [customBtn]='updApplStateModalBtn' [hideTitle]='true' [(value)]='updApplStateForm' (OnSubmitted)="updApplDetail('applState')"></itsm-form-inflater>
+      </div>
+    </div>
+  </div>
+</ng-template>
+<!-- 선발상태변경 -->
+<ng-template #updSelectRsltModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">선발상태변경</h4>
+    <div class="form-group" style="margin:0">
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div class="modal-body">
+    <div class="card">
+      <div class="card-body">
+        <itsm-form-inflater [options]='updSelectRsltModalConfig' [customBtn]='updSelectRsltModalBtn' [hideTitle]='true' [(value)]='updSelectRsltForm' (OnSubmitted)="updApplDetail('selectRslt')"></itsm-form-inflater>
+      </div>
+    </div>
+  </div>
+</ng-template>

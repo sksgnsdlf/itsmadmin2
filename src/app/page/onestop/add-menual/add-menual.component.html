@@ -1,0 +1,152 @@
+<div class="row">
+  <div class="col-3">
+    <itsm-tree-view [data]="data" (OnClick)="select($event)"></itsm-tree-view>
+  </div>
+  <div class="col-6">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">{{edit?'수정 - ' + newMenual.info_no:'신규'}}</h4>
+        <form #codeForm="ngForm" (ngSubmit)="save()">
+          <div style="text-align: right;">
+            <button style="display: inline;" *ngIf="edit" type="button" class="btn btn-inverse"
+              (click)="edit = false;codeForm.resetForm({})">신규</button>
+            <button style="display: inline;margin-left: 10px" *ngIf="isAdmin && edit" type="button"
+              class="btn btn-inverse" (click)="openAsgnPopup(null, content)">부서지정</button>
+          </div>
+          <div *ngIf="edit">
+            <label>관리부서</label>
+            <ul *ngIf="managers">
+              <li *ngFor="let manager of managers; let i = index">
+                {{manager.dept_nm}}
+              </li>
+            </ul>
+            <p *ngIf="managers == ''">지정된 관리부서가 없습니다.</p>
+          </div>
+          <div class="form-group">
+            <label for="sub">제목</label>
+            <input id="sub" name="sub" class="form-control" required minlength="3" [(ngModel)]="newMenual.subject"
+              #sub="ngModel" [disabled]="edit && !editAuth">
+            <div *ngIf="sub.invalid && (sub.dirty || sub.touched)" class="alert alert-danger">
+              <div *ngIf="sub.errors.required"> 필수항목입니다. </div>
+              <div *ngIf="sub.errors.minlength"> 3자리 이상 입력하세요. </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="name">분류</label>
+            <select class="form-control" name="cd" required [(ngModel)]="newMenual.cls_no" #cd="ngModel" [disabled]="edit && !editAuth">
+              <option value="-1">선택해주세요</option>
+              <option *ngFor="let item of data" [ngValue]="item.code">{{item.cd_nm}}</option>
+            </select>
+            <div *ngIf="cd.invalid && (cd.dirty || cd.touched)" class="alert alert-danger">
+              <div *ngIf="cd.errors.required"> 필수항목입니다. </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="txt">내용</label>
+            <itsm-ckeditor name="ckedit" #ck [ngStyle]="{'display': 'block'}" required
+              [(ngModel)]="newMenual.content_txt" [language]="'ko'" #ckedit="ngModel" [readonly]="edit && !editAuth" ></itsm-ckeditor>
+          </div>
+          <div class="form-group">
+            <label for="keyword">키워드</label>
+            <input id="keyword" name="keyword" class="form-control" required [(ngModel)]="newMenual.keyword"
+            [disabled]="edit && !editAuth" #keyword="ngModel">
+            <div *ngIf="keyword.invalid && (keyword.dirty || keyword.touched)" class="alert alert-danger">
+              <div *ngIf="keyword.errors.required"> 필수항목입니다. </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="linkUrl">링크URL</label>
+            <input id="linkUrl" name="linkUrl" class="form-control" [(ngModel)]="newMenual.link_url"
+            [disabled]="edit && !editAuth">
+          </div>
+          <div class="form-group">
+            <label for="openYN">시민공개</label>
+            <div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="openYN" id="openY" value="Y"
+                  [(ngModel)]="newMenual.open_yn" #openYN="ngModel" [disabled]="edit && !editAuth">
+                <label class="form-check-label" for="openYN">공개</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="openYN" id="openN" value="N"
+                  [(ngModel)]="newMenual.open_yn" [disabled]="edit && !editAuth">
+                <label class="form-check-label" for="openYN">비공개</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="userNm">등록자</label>
+            <input id="userNm" name="userNm" class="form-control" [(ngModel)]="newMenual.user_nm" disabled>
+          </div>
+          <div class="form-group">
+            <label for="updDttm">변경일시</label>
+            <input id="updDttm" name="updDttm" class="form-control" [(ngModel)]="newMenual.upd_dttm" disabled>
+          </div>
+          <button *ngIf="!edit" type="button" style="margin-right: 5px;" class="btn btn-inverse"
+            (click)="codeForm.resetForm({})">초기화</button>
+          <button *ngIf="edit && editAuth" type="button" style="margin-right: 5px;" class="btn btn-danger"
+            (click)="delete()">삭제</button>
+          <button *ngIf="(edit && editAuth) || !edit" type="submit" style="margin-right: 5px;" class="btn btn-info"
+            [disabled]="!codeForm.valid">저장</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 부서지정 모달 -->
+<ng-template #content let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">관리부서 지정</h4>
+    <div class="form-group" style="margin:0">
+      <button type="button" class="btn btn-inverse" (click)="c('Cross click')">닫기</button>
+    </div>
+  </div>
+
+  <!-- 조직도 -->
+  <div class="d-flex">
+    <div style="width:30%">
+      <div class="inner pad15">
+        <itsm-tree-view [height]="480" [data]="depts" (OnClick)="selectDept($event)"></itsm-tree-view>
+      </div>
+    </div>
+    <div style="width:70%; margin-left:1rem;">
+      <div class="row">
+        <div class="form-group" style="width:100% !important; margin:20px;">
+          <input id="selectedOrg" name="selectedOrg" class="form-control"  style="width:80% !important;" [(ngModel)]="selectedOrg">
+          <button type="button" class="btn" (click)="managerAddBtn()" style="margin-left: 10px">추가</button>
+        </div>
+      </div>
+
+      <div class="table-responsive list-table" style="overflow:unset">
+        <table class="table">
+          <colgroup>
+            <col width="10%">
+            <col width="40%">
+            <col width="20%">
+            <col width="15%">
+            <col width="15%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>NO</th>
+              <th>부서명</th>
+              <th>등록일시</th>
+              <th>등록자</th>
+              <th>삭제</th>
+            </tr>
+          </thead>
+          <tbody style="max-height: 480px; overflow: scroll;">
+            <tr *ngFor="let manager of managers; let i = index">
+              <td>{{i+1}}</td>
+              <td>{{manager.dept_nm}}</td>
+              <td>{{manager.rgs_de}}</td>
+              <td>{{manager.user_nm}}</td>
+              <td><button class="btn" (click)="managerDelBtn(manager)">삭제</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,113 @@
+<div class="row" style="padding:1rem;padding-bottom:0;">
+  <div class="col-3">
+    <itsm-tree-view [height]="440" [data]="groups" (OnClick)="selectGroup($event)" [delete]="true" (OnDelete)="deleteGroup($event.id)"></itsm-tree-view>
+    <div class="card">
+      <div class="card-body">
+        <h4>신규 그룹 등록</h4>
+        <div class="row" style="margin:0;">
+          <div class="form-group col-9" style="margin:0;padding-left:0;">
+            <input class="form-control" name="groupName" [(ngModel)]="name" #groupName="ngModel" />
+          </div>
+          <button type="button" class="btn btn-info col-2" style="margin-left:0.5rem" (click)="addGroup()">등록</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-4">
+    <div class="card">
+      <div class="card-body">
+        <h4>구성원 리스트</h4>
+        <div *ngIf="selectedGroup">
+          <div style="font-weight: bold;">{{selectedGroup.name}}</div>
+          <div class="ml-auto">총 {{members.length}}명</div>
+        </div>
+        <div class="table-responsive list-table scroll" style="height: 620px;">
+          <table class="table ">
+            <colgroup>
+              <col width="5%">
+              <col width="25%">
+              <col width="40%">
+              <col width="30%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th><input type="checkbox" [(ngModel)]="groupAll" (change)="groupSelectAll()" name="memsSelectedA"
+                    #memsSelectedA="ngModel"></th>
+                <th>회원명</th>
+                <th>전화번호</th>
+                <th>회원구분</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of members">
+                <td><input type="checkbox" [(ngModel)]="item.selected" name="memsSelected" #memsSelected="ngModel"></td>
+                <td>{{item.name}}</td>
+                <td>{{item.tel}}</td>
+                <td>{{item.role}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-1">
+    <div style="padding-top:195px;" class="d-flex flex-column">
+      <button type="button" class="btn align-self-center" style="margin-bottom:20px" (click)="remove()"><i class="icon-arrow-right"></i></button>
+      <button type="button" class="btn align-self-center" (click)="add()"><i class="icon-arrow-left"></i></button>
+    </div>
+  </div>
+
+  <div class="col-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="row" style="margin:0;">
+          <select class="form-control col-4" name="role" id="role" [(ngModel)]="role">
+            <option [value]="null">회원구분</option>
+            <option *ngFor="let item of roles" [value]="item.id">{{item.name}}</option>
+          </select>
+          <div class="form-group col-8" style="padding-right:0">
+            <label for="name">이름</label>
+            <input class="form-control" name="names" [(ngModel)]="nameSearch" (keyup.enter)="searchUser()" #names="ngModel" />
+          </div>
+        </div>
+        <div class="row" style="margin:0; margin-bottom: 1rem;">
+          <div class="form-group col-10" style="margin:0; padding-left:0">
+            <label style="flex-basis:45%" for="tel">전화번호 </label>
+            <input class="form-control" name="tels" [(ngModel)]="telSearch" (keyup.enter)="searchUser()" #tels="ngModel" />
+          </div>
+          <button type="button" class="btn btn-info col-2" (click)="searchUser()">조회</button>
+        </div>
+        <div class="table-responsive list-table scroll" style="height: 550px;">
+          <table class="table">
+            <colgroup>
+              <col width="5%">
+              <col width="20%">
+              <col width="40%">
+              <col width="30%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th><input type="checkbox" [(ngModel)]="listAll" (change)="listSelectAll()" name="listSelectedA"
+                    #listSelectedA="ngModel"></th>
+                <th>회원명</th>
+                <th>전화번호</th>
+                <th>회원구분</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of lists">
+                <td><input type="checkbox" [(ngModel)]="item.selected" name="listSelected" #listSelected="ngModel"></td>
+                <td>{{item.name}}</td>
+                <td>{{item.tel}}</td>
+                <td>{{item.role}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-1">
+  </div>
+</div>

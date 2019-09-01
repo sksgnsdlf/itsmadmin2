@@ -1,0 +1,148 @@
+<div class="form-group button-group d-flex justify-content-end">
+  <button type="button" style="margin-right: 5px;" class="btn btn-inverse" (click)="backClicked()">돌아가기</button><!-- 뒤로가기 -->
+  <!--<button type="button" style="margin-right: 5px;" class="btn btn-info" (click)="openModal(applModal)">수기등록</button>--><!-- 수기등록 팝업 -->
+  <button type="button" style="margin-right: 5px;" class="btn btn-primary" (click)="getExcel()">엑셀저장</button><!-- 명단 엑셀 저장 -->
+</div>
+<div class="post-info-container">
+  <!-- 게시물 정보 -->
+  <div class="card">
+    <div style="padding:1rem;padding-bottom:0;font-weight: bold">게시물 정보</div>
+    <div class="card-body">
+      <itsm-table [table]="detailTable"></itsm-table>
+    </div>
+  </div>
+</div>
+<div class="post-info-container">
+  <!-- 결제자 명단 -->
+  <div class="card">
+    <div class="d-flex flex-row justify-content-between" style="padding:1rem">
+      <div style="font-weight: bold">결제자 명단</div>
+    </div>
+    <div class="search-container">
+      <div class="form-group">
+        <label for="typeahead-basic" class="wt8">결제상태</label>
+        <select class="form-control" [(ngModel)]="searchForm.payment_state" (change)="optionSelected('searchType')">
+            <option value='null'>상태</option>
+            <option *ngFor="let item of option.payment_state" [ngValue]="item">{{item}}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="wt5">결제일자</label>
+        <itsm-calendar [(fromDt)]="searchForm.fromDt" [(toDt)]="searchForm.toDt" title="가입일자"></itsm-calendar>
+      </div>
+      <div class="form-group">
+        <label for="typeahead-basic" class="wt7">이름ㆍ연락처</label>
+        <input id="typeahead-basic" class="form-control wt14" name="nameTel" type="text" [(ngModel)]="searchForm.nmOrTel" #nameTel="ngModel"/>
+      </div>
+      <button type="button" class="btn btn-info"(click)="searchBillUser()">조회</button>
+    </div> 
+    <div class="card-body">
+      <itsm-table [table]="userTable" clickable="true" (onRowClicked)="setUserDetail($event);openModal(applDetailModal)"></itsm-table>
+    </div>
+    <div class="list-pagination">
+      <ngb-pagination class="d-flex justify-content-center" (pageChange)="searchBillUser($event)" [collectionSize]="collectionSize" [maxSize]="maxPage" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+      <div class="total-page" style="text-align: center">총 {{total}} 건, {{totalPage}} 페이지 </div>
+    </div>
+  </div>
+</div>
+<!-- 이하 팝업들 -->
+<!-- 신청접수정보 상세(수정) -->
+<ng-template #applDetailModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">신청접수정보 상세</h4>
+    <div class="form-group" style="margin:0">
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div id="applModal" class="modal-body">
+    <div class="card" style="margin:0">
+      <div class="card-body">
+        <form #saveForm="ngForm" (ngSubmit)="save()">
+          <!-- 결제관련 정보 -->
+          <div style="font-weight:bold">결제정보</div>
+          <hr>
+          <div class="form-group">
+            <label for="typeahead-basic">신청자명</label>
+            <div style="width:100%;display:flex;">
+              <input id="typeahead-basic" name="civilNm" type="text" required [(ngModel)]="applUserDetail.civil_nm" class="form-control long" #civilNm="ngModel" readonly/>
+              <div *ngIf="civilNm.invalid && (civilNm.dirty || civilNm.touched)" class="alert alert-danger">
+                  <div *ngIf="civilNm.errors.required"> 필수항목입니다. </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic">휴대전화</label>
+            <div style="width:100%;display:flex;">
+              <input id="typeahead-basic" name="cpNo" type="text" required [(ngModel)]="applUserDetail.cp_no" class="form-control long" #cpNo="ngModel" readonly/>
+              <div *ngIf="cpNo.invalid && (cpNo.dirty || cpNo.touched)" class="alert alert-danger">
+                  <div *ngIf="cpNo.errors.required"> 필수항목입니다. </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic">결제종류</label>
+            <div style="width:100%;display:flex;">
+              <select class="form-control long" name="payTyp" [(ngModel)]="applUserDetail.payment_typ" #payTyp="ngModel" disabled>
+                  <option *ngFor="let item of option.payment_typ" [ngValue]="item.cd">{{item.cd_nm}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic">접수비용</label>
+            <div style="width:100%;display:flex;">
+              <input id="typeahead-basic" name="applAmt" type="text" required [(ngModel)]="postInfo.appl_amt" class="form-control medium" #applAmt="ngModel" readonly/>
+              <div *ngIf="applAmt.invalid && (applAmt.dirty || applAmt.touched)" class="alert alert-danger">
+                  <div *ngIf="applAmt.errors.required"> 필수항목입니다. </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic">신청수량</label>
+            <div style="width:100%;display:flex;">
+              <input id="typeahead-basic" name="applCnt" type="number" required [(ngModel)]="applUserDetail.appl_cnt" class="form-control short" #applCnt="ngModel" readonly/>
+              <div *ngIf="applCnt.invalid && (applCnt.dirty || applCnt.touched)" class="alert alert-danger">
+                  <div *ngIf="applCnt.errors.required"> 필수항목입니다. </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic">결제금액</label>
+            <div style="width:100%;display:flex;">
+              <input id="typeahead-basic" name="payAmt" type="text" [(ngModel)]="applUserDetail.total_amt" class="form-control medium" #payAmt="ngModel" readonly/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic" style="align-self:flex-start">메모</label>
+            <textarea id="typeahead-basic" name="memo" type="text" [(ngModel)]="applUserDetail.memo_txt" class="form-control" #memo="ngModel" readonly></textarea>
+          </div>
+          <!-- 이하 환불관련 -->
+          <div style="font-weight:bold">환불정보</div>
+          <hr>
+          <div class="form-group">
+            <label for="typeahead-basic">환불요청일시</label>
+            <div style="width:100%;display:flex;">
+              <itsm-calendar noRange="true" [disabled]="true" [(fromDt)]="applUserDetail.refund_req_dttm" title="환불요청일시"></itsm-calendar>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic">환불승인번호</label>
+            <div style="width:100%;display:flex;">
+              <input id="typeahead-basic" name="refundApprovalId" type="text" [(ngModel)]="applUserDetail.refund_approval_id" class="form-control long" #refundApprovalId="ngModel" readonly/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic">환불금액</label>
+            <div style="width:100%;display:flex;">
+              <input *ngIf="applUserDetail.refund_approval_id" id="typeahead-basic" name="refundAmt" type="text" [(ngModel)]="applUserDetail.total_amt" class="form-control medium" #refundAmt="ngModel" readonly/>
+              <input *ngIf="!applUserDetail.refund_approval_id" id="typeahead-basic" type="text" class="form-control medium" readonly/>
+            </div>
+          </div>
+          <div class="form-group justify-content-center">
+            <!-- <button type="button" style="margin-left: 1rem;" class="btn btn-inverse" (click)="saveForm.resetForm({})">환불정보</button> -->
+            <button type="submit" style="margin-left: 1rem;" class="btn btn-info"  (click)="d('OK click')">확인</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</ng-template>

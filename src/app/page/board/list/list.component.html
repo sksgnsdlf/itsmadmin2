@@ -1,0 +1,58 @@
+<society-select (OnChange) = "societySelected($event)"></society-select>
+
+
+<ngb-tabset (tabChange)="beforeChange($event)">
+  <ngb-tab *ngFor="let item of boardList; let idx = index" [title]="item.board_tab_nm" [id]="idx">
+    <ng-template ngbTabContent>
+      <div class="card">
+        <div class="card-body">
+          <div class="search-container">
+            <div class="form-group">
+              <label for="typeahead-basic" class="wt5">검색항목</label>
+              <div class="option-container">
+                <select class="form-control" [(ngModel)]="searchForm.searchType">
+                  <option [value]=null>항목</option>
+                  <option *ngFor="let item of option.searchType" [ngValue]="item">{{item}}</option>
+                </select>
+                <input id="typeahead-basic" class="form-control wt14" type="text" [(ngModel)]="searchForm.searchTxt" />
+              </div>
+            </div>
+            <div class="form-group" [hidden]="board_tab == 5 || board_tab == 6 || board_tab == 7 || board_tab == 8">
+              <label for="typeahead-basic" class="wt7">게시상태</label>
+              <select class="form-control" [(ngModel)]="searchForm.post_state">
+                <option [value]=null>상태</option>
+                <option *ngFor="let item of option.state.post" [ngValue]="item.code">{{item.name}}</option>
+              </select>
+            </div>
+            <div class="form-group" [hidden]="board_tab != 5">
+              <label for="typeahead-basic" class="wt7">진행상태</label>
+              <select class="form-control" [(ngModel)]="searchForm.post_state">
+                <option [value]=null>상태</option>
+                <option *ngFor="let item of option.state.survey" [ngValue]="item.code">{{item.name}}</option>
+              </select>
+            </div>
+            <div class="form-group" [hidden]="board_tab != 6">
+              <label for="typeahead-basic" class="wt7">노출상태</label>
+              <select class="form-control" [(ngModel)]="searchForm.post_state">
+                <option [value]=null>상태</option>
+                <option *ngFor="let item of option.state.prod" [ngValue]="item.code">{{item.name}}</option>
+              </select>
+            </div>
+            <div class="form-group" [hidden]="board_tab != 7">
+              <label for="typeahead-basic" class="wt7">운영상태</label>
+              <select class="form-control" [(ngModel)]="searchForm.post_state">
+                <option [value]=null>상태</option>
+                <option *ngFor="let item of option.state.space" [ngValue]="item.code">{{item.name}}</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-info" (click)="search(1)">조회</button>
+            <button type="button" class="btn btn-primary ml-auto" [disabled]="board_typ==8 || board_typ=='8'" (click)="open(society_no, board_tab, board_typ)">게시물등록</button>
+          </div>
+          <itsm-table [table]="listTable" clickable="true" (onRowClicked)="getPostDetail($event)"></itsm-table>
+          <ngb-pagination class="d-flex justify-content-center" [collectionSize]="data.total" [(page)]="page"
+            (pageChange)="search($event)"></ngb-pagination>
+        </div>
+      </div>
+    </ng-template>
+  </ngb-tab>
+</ngb-tabset>

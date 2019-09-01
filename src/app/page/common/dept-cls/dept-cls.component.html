@@ -1,0 +1,47 @@
+<div class="col-9" style="text-align:right">
+  <button class="btn btn-primary" (click)="save()">저장</button>
+</div>
+<div class='row'>
+  <div class='col-2'>
+    <div class="title">단체분류</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="list" *ngFor="let item of cls" (click)="clsClicked(item)" [ngClass]="{'clicked': item.clicked}">
+          {{item.cls_nm}}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class='col-3'>
+    <div class="title">담당부서</div>
+    <div class="card">
+      <div class="card-body">
+        <select class="form-control" [(ngModel)]="org" (change)="setOrg(org)" name="orgss" #orgss="ngModel">
+          <option *ngFor="let item of orgs" [value]="item.id">{{item.name}}</option>
+        </select>
+        <div class="dept-list" *ngFor="let item of clsDepts[selected_cls]" [ngStyle]="{ 'display':item.org_no==org?'':'none' }"
+          (click)="item.selected = !item.selected">
+          <input type="checkbox" [(ngModel)]="item.selected" style="margin-right:0.1rem;" />
+          <a>{{item.dept_nm}}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-1">
+    <div style="text-align: center; margin:auto 0;padding-top:220px;" class="d-flex flex-column center">
+      <button type="button" class="btn align-self-center" style="margin-bottom:2rem" (click)="remove()"><i class="icon-arrow-right"></i></button>
+      <button type="button" class="btn align-self-center" (click)="add()"><i class="icon-arrow-left"></i></button>
+    </div>
+  </div>
+  <div class='col-3'>
+    <div class="title">부서목록</div>
+    <div class="card">
+      <div class="card-body">
+        <select class="form-control" [(ngModel)]="org" (change)="setOrg(org)" name="orgss" #orgss="ngModel">
+          <option *ngFor="let item of orgs" [value]="item.id">{{item.name}}</option>
+        </select>
+        <itsm-tree-view [height]="400" [checkbox]="true" [data]="depts" (OnClick)="getSelectedDept($event)"></itsm-tree-view>
+      </div>
+    </div>
+  </div>
+</div>

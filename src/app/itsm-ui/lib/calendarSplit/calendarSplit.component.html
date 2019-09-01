@@ -1,0 +1,62 @@
+
+<div class="input-group" [ngStyle]="{'width':width}">
+  <div class="input-group" style="width:45%">
+    <input type="text" class="form-control" style="width:70%" [value]="fromDt?fromDt:''" readonly
+    ngbDatepicker #d1="ngbDatepicker" (dateSelect)="onDateSelectionFrom($event)" [displayMonths]="1" [(ngModel)]="fromDate" />
+    <div class="input-group-append">
+      <button *ngIf="disabled" class="btn btn-outline-secondary" (click)="d2.close();d1.toggle()" type="button" disabled>
+        <i class="fa fa-calendar"></i>
+      </button>
+      <button *ngIf="!disabled" class="btn btn-outline-secondary" (click)="d2.close();d1.toggle()" type="button">
+        <i class="fa fa-calendar"></i>
+      </button>
+    </div>
+    <!--
+    <ngb-datepicker *ngIf="noRange&&dpOpen1" [(ngModel)]="fromDate" style="position: absolute; z-index: 99999999; background-color: white; top: 100%;" (select)="onDateSelectionFrom($event)" [displayMonths]="2"></ngb-datepicker>
+      -->
+  </div>
+
+  
+
+  <div class="input-group" style="width:45%;margin-left: 2%">
+    <input type="text" class="form-control" style="width:70%" [value]="toDt?toDt:''" readonly
+    ngbDatepicker #d2="ngbDatepicker" (dateSelect)="onDateSelectionTo($event)" [displayMonths]="1" [(ngModel)]="toDate" />
+    <div class="input-group-append">
+      <button *ngIf="disabled" class="btn btn-outline-secondary" (click)="d1.close();d2.toggle()" type="button" disabled>
+        <i class="fa fa-calendar"></i>
+      </button>
+      <button *ngIf="!disabled" class="btn btn-outline-secondary" (click)="d1.close();d2.toggle()" type="button">
+        <i class="fa fa-calendar"></i>
+      </button>
+    </div>
+    <!--
+    <ngb-datepicker *ngIf="noRange&&dpOpen2" [(ngModel)]="toDate" style="position: absolute; z-index: 99999999; background-color: white; top: 100%;" (select)="onDateSelectionTo($event)" [displayMonths]="2"></ngb-datepicker>
+      -->
+  </div>
+</div>
+
+
+<!--
+<div>
+  <input class="form-control" placeholder="yyyy-mm-dd"
+    name="dp" [displayMonths]="displayMonths" [navigation]="navigation" [outsideDays]="outsideDays"
+    [showWeekNumbers]="showWeekNumbers" ngbDatepicker #d1="ngbDatepicker"  [(ngModel)]="fromDate">
+    <div class="input-group-append">
+        <button *ngIf="disabled" class="btn btn-outline-secondary" (click)="d1.toggle()" type="button" disabled>
+          <i class="fa fa-calendar"></i>
+        </button>
+        <button *ngIf="!disabled" class="btn btn-outline-secondary" (click)="d1.toggle()" type="button">
+          <i class="fa fa-calendar"></i>
+        </button>
+      </div>
+
+
+
+  <input class="form-control" placeholder="yyyy-mm-dd"
+  name="dp" [displayMonths]="displayMonths" [navigation]="navigation" [outsideDays]="outsideDays"
+  [showWeekNumbers]="showWeekNumbers" ngbDatepicker #d2="ngbDatepicker"  [(ngModel)]="toDate">
+<div class="input-group-append">
+  <button class="btn btn-outline-secondary calendar" (click)="d2.toggle()" type="button"></button>
+</div>
+</div>
+-->

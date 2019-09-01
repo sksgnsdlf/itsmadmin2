@@ -1,0 +1,101 @@
+<div class="row">
+  <div class="col-3">
+    <ul class="list-group">
+      <li *ngFor="let item of orgs" class="list-group-item" [ngClass]="{ active: org == item.no }" style="cursor: pointer;" (click)="org = item.no;getList()">
+        {{item.name}}
+      </li>
+    </ul>
+  </div>
+  <div class="col-9">
+    <div class="card">
+      <div class="card-body">
+        <div class="clearfix mb-2">
+          <button class="btn btn-primary float-right" (click)="edit=null;body={ orgNo: org };open(content)">추가</button>
+        </div>
+        <div class="table-responsive list-table" style="overflow:unset">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>시설명</th>
+                <th>NFC 프로토콜</th>
+                <th>회원증 설명</th>
+                <th>수정일시</th>
+                <th>등록일시</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="highlight" *ngFor="let item of list" (click)="edit=item.no;body=item;open(content)">
+                <td>{{item.no}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.nfcProtocol}}</td>
+                <td>{{item.cardTxt}}</td>
+                <td>{{item.updDttm | date}}</td>
+                <td>{{item.regDttm | date}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #content let-c="close" let-d="dismiss">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">시설 등록</h4>
+      <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form #formCtrl="ngForm">
+        <div class="form-group">
+          <label for="org_no">*기관명</label>
+          <select class="form-control" id="org_no" [(ngModel)]="body.orgNo" name="orgNo" #orgNo="ngModel" required>
+            <option *ngFor="let item of orgs" [value]="item.no">{{item.name}}</option>
+          </select>
+          <div *ngIf="orgNo.invalid && (orgNo.dirty || orgNo.touched)" class="alert alert-danger">
+            <div *ngIf="orgNo.errors.required"> 필수항목입니다. </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="name">*시설명</label>
+          <input id="name" name="name" class="form-control" [(ngModel)]="body.name" #name="ngModel" required>
+          <div *ngIf="name.invalid && (name.dirty || name.touched)" class="alert alert-danger">
+            <div *ngIf="name.errors.required"> 필수항목입니다. </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="cardTxt">회원증 설명</label>
+          <input id="cardTxt" name="cardTxt" class="form-control" [(ngModel)]="body.cardTxt">
+        </div>
+        <div class="form-group" *ngIf="edit">
+          <label for="regDttm">등록일시</label>
+          <div class="input-group">
+            <input id="regDttm" class="form-control" placeholder="yyyy-mm-dd" name="regDttm" disabled [ngModel]="body.regDttm | date:'yyyy-MM-dd HH:mm'">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" disabled type="button">
+                <i class="fa fa-calendar"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" *ngIf="edit">
+          <label for="updDttm">변경일시</label>
+          <div class="input-group">
+            <input id="updDttm" class="form-control" placeholder="yyyy-mm-dd" name="regDttm" disabled [value]="body.updDttm | date:'yyyy-MM-dd HH:mm'">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" disabled type="button">
+                <i class="fa fa-calendar"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button *ngIf="!edit" type="button" style="margin-right: 5px;" class="btn btn-inverse" (click)="formCtrl.resetForm({})">초기화</button>
+      <button *ngIf="edit" type="button" style="margin-right: 5px;" class="btn btn-danger" (click)="delete()">삭제</button>
+      <button [disabled]="!formCtrl.valid" type="button" class="btn btn-info" (click)="save()">저장</button>
+    </div>
+  </ng-template>

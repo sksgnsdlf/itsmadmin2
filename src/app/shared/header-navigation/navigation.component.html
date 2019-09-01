@@ -1,0 +1,14 @@
+<!-- ============================================================== -->
+<!-- toggle and nav items -->
+<!-- ============================================================== -->
+<div class="d-flex justify-content-between align-items-center">
+        <div (click)="toggleSidebar.emit()" class="nav-item m-l-10"> <a class="nav-link sidebartoggler text-muted waves-effect waves-dark"
+                href="javascript:void(0)"><i class="ti-menu"></i></a> </div>
+        <div style="font-size:1.3rem; font-weight:bold; margin-left:1rem">포항시 모바일플랫폼</div>
+        <div style="margin-left:1rem">{{user_nm}}</div>
+        <div style="margin-left:1rem">로그인 유효시간 {{login_effective_time}}</div>
+        <div class="form-group d-flex align-items-center" style="margin:0; margin-left:1rem">
+                <button type="button" class="btn btn-outline-info" style="margin-right: 0.5rem;" (click)="downloadManual()">매뉴얼</button>
+                <button type="button" class="btn btn-primary" (click)="logout()">로그아웃</button>
+        </div>
+</div>

@@ -1,0 +1,61 @@
+<div class="card">
+  <div class="card-body">
+    <div class="d-flex justify-content-between">
+      <div class="form-inline">
+        <div class="form-group" class="mr-3">
+          <select id="class" class="form-control" [(ngModel)]="selectedState">
+            <option value="null">전체</option>
+            <option *ngFor="let item of state" [value]="item.id">{{item.name}}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="date" class="mr-2">게시기간</label>
+          <itsm-calendar [(fromDt)]="startDt" [(toDt)]="endDt"></itsm-calendar>
+        </div>
+      </div>
+      <button class="btn" (click)="search()">조회</button>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <div class="clearfix mb-2">
+      <button class="btn btn-primary float-right" (click)="body={};edit=false;open(content)">추가</button>
+    </div>
+    <div class="table-responsive list-table" style="overflow:unset">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>게시 시작일</th>
+            <th>게시 종료일시</th>
+            <th>게시 상태</th>
+            <th>등록일시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of data.list; let idx=index;" (click)="select(item);edit=true;open(content)">
+            <td>{{item.no}}</td>
+            <td>{{item.start_dttm}}</td>
+            <td>{{item.close_dttm}}</td>
+            <td>{{item.post_state_nm}}</td>
+            <td>{{item.reg_dttm}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ngb-pagination class="d-flex justify-content-center" [collectionSize]="data.total" [(page)]="page" (pageChange)="search($event)"></ngb-pagination>
+  </div>
+</div>
+
+<ng-template #content let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <itsm-form-inflater #form [options]='formConfig' [(value)]='body' (ref)="ref($event)" (OnSubmitted)="save()" (OnDeleteClicked)="delete()" [edit]="edit"></itsm-form-inflater>
+  </div>
+</ng-template>

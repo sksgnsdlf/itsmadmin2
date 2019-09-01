@@ -1,0 +1,133 @@
+<!-- 버튼 -->
+<!-- <div class="d-flex form-group" style="max-width:75rem"> -->
+<div class="d-flex form-group">
+  <button class="btn btn-primary ml-auto" (click)="pushPopup(pushModal)">푸시 전송</button>
+</div>
+
+<!-- search 부분 -->
+<!-- <div class="search-container" style="max-width:75rem"> -->
+<div class="search-container">
+  <div class="form-group">
+    <label for="typeahead-basic" class="wt5">사이트</label>
+    <div class="option-container">
+      <select class="form-control" [(ngModel)]="org">
+        <option value="" *ngIf="session.isAdmin()">전체</option>
+        <option *ngFor="let item of orgList" [value]="item.id">{{item.name}}</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">회원구분</label>
+    <select class="form-control" [(ngModel)]="role">
+      <option value="전체">전체</option>
+      <option *ngFor="let item of roles" [value]="item.id">{{item.name}}</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+      <label class="search-title" class="wt5">가입기간</label>
+      <itsm-calendar [(fromDt)]="startDate" [(toDt)]="endDate" title="가입기간"></itsm-calendar>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic" class="wt4">이름</label>
+    <input class="form-control" [(ngModel)]="search" (keyup.enter)="filter()"/>
+  </div>
+  <button type="button" class="btn btn-info ml-auto" (click)="filter()">조회</button>
+</div> 
+<!-- 테이블 -->
+<!-- <div class="col-lg-12" style="padding:0;max-width:75rem"> -->
+<div class="col-lg-12" style="padding:0;">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive list-table"> 
+        <table class="table">
+          <colgroup>
+            <col width="10%">
+            <col width="12%">
+            <col width="12%">
+            <col width="12%">
+            <col width="12%">
+            <col width="12%">
+            <col width="12%">
+            <col width="18%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>행번호</th>
+              <th>회원번호</th>
+              <th>로그인계정</th>
+              <th>이름</th>
+              <th>휴대전화</th>
+              <th>앱설치여부</th>
+              <th>신분구분</th>
+              <th>통합회원가입일시</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of list; let i = index" (click)="openDetail(item.id)" class="highlight">
+              <td>{{total - ((this.page-1) * this.pageSize + i)}}</td>
+              <td>{{item.id}}</td>
+              <td>{{item.loginid?item.loginid:'소셜회원'}}</td>
+              <td>{{item.name}}</td>
+              <td>{{item.tel}}</td>
+              <td>{{item.app>0?'Y':'N'}}</td>
+              <td>{{item.role}}</td>
+              <td>{{item.regDate}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div> 
+<div class="list-pagination" style="max-width:75rem">
+    <ngb-pagination class="d-flex justify-content-center" (pageChange)="paging($event)" [collectionSize]="collectionSize" [maxSize]="maxPage" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+    <div class="total-page" style="text-align: center">총 {{total}} 건, {{totalPage}} 페이지 </div>
+</div>
+<!-- 푸시 모달 -->
+<ng-template #pushModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">모바일 플랫폼 회원에게 푸시 보내기(준비중)</h4>
+    <div class="form-group" style="margin:0">
+      <button type="button" class="btn btn-inverse" (click)="clear();d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div class="modal-body" style="background-color:#f0f2f4">
+    <div style="margin:1rem">
+      <div class="d-flex justify-content-between">
+        <div class="form-group d-flex align-items-center">
+            <label class="wt5" style="margin:0">푸시 제목</label>
+            <input class="form-control wt16" [(ngModel)]="push.title" type="text" placeholder="푸시 제목">
+        </div>
+        <div class="form-group d-flex align-items-center">
+          <label class="wt5" style="margin:0">발신 명</label>
+          <input class="form-control wt10" [(ngModel)]="push.sender" type="text" placeholder="발신 명">
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div class="d-flex flex-column" style="width:45%; margin:0; margin-bottom:0.5rem">
+              <div class="form-group d-flex align-items-center" style="margin:0;margin-bottom:0.5rem">
+                <input [(ngModel)]="push.isReserve" [value]="true" type="checkbox" id="reservation" name="" style="transform:scale(1.5)">
+                <label for="reservation" style="margin:0; margin-left:0.5rem">예약 발송</label>
+              </div>
+              <div class="form-group d-flex align-items-center" style="margin:0">
+                <itsm-calendar [(fromDt)]="push.reserveDate" [disabled]="!push.isReserve" noRange="true" title="예약일자" width="10rem"></itsm-calendar>
+                <input class="form-control wt8" [disabled]="!push.isReserve" type="text" format="hh:mm" placeholder="hh:mm:ss" style="margin-left:1rem" [(ngModel)]="push.reserveTime">
+              </div>
+            </div>
+            <div class="border" style="width:50%;margin-left:0.5rem; margin-bottom:0.5rem">
+              <p style="margin: 8px 5px; font-size: 0.8em; font-weight: bold;">푸시발송시 알림창에 표시할 사진을 선택합니다. (안드로이드 전용)</p>
+              <input #inputFile (change)="checkFileType($event)" type="file">
+            </div>
+          </div>
+          <itsm-ckeditor (onLoad)="OnEditorLoaded()" name="ckedit" #ck [ngStyle]="{'display': 'block'}" [(ngModel)]="messageEditor" [language]="'ko'" #ckedit="ngModel"></itsm-ckeditor>
+          <div class="form-group d-flex justify-content-center" style="margin:0;margin-top:1rem">
+            <button (click)="send()" class="btn btn-primary">푸시 전송</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

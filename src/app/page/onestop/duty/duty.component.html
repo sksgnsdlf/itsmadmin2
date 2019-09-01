@@ -1,0 +1,182 @@
+<!-- search 부분 -->
+<div class="search-container">
+    <div class="form-group ">
+        <label for="typeahead-basic" class="wt5">당직기간</label>
+        <itsm-calendar [(fromDt)]="from_dt" [(toDt)]="to_dt" title="등록일자"></itsm-calendar>
+    </div>
+    <div class=" ml-auto">
+        <button type="button" class="btn btn-info " (click)="print()">당직일지 출력</button>
+        <button type="button" class="btn btn-info ml-3" (click)="excel()">당직일지 엑셀저장</button>
+    </div>
+</div>
+<div class="search-container">
+    <div class="form-group ">
+        <label for="typeahead-basic" class="wt5">기관선택</label>
+        <select class="form-control wt8" [(ngModel)]="org_no">
+            <option *ngIf="loginSession.isAdmin()" value="">전체</option>
+            <option *ngFor="let item of orgList" [value]="item.id">{{item.name}}</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label class="search-title" class="wt5">당직장소</label>
+        <select class="form-control wt8" [(ngModel)]="duty_site">
+            <option *ngFor="let item of locationList" [value]="item.id">{{item.name}}</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label class="search-title" class="wt5">당직구분</label>
+        <select class="form-control wt8" [(ngModel)]="duty_typ">
+            <option *ngFor="let item of typList" [value]="item.id">{{item.name}}</option>
+        </select>
+    </div>
+    <button type="button" class="btn btn-info" (click)="getDutyList()">조회</button>
+    <button type="button" class="btn btn-primary ml-auto" (click)="openAsgnPopup(null, content)">당직자 등록</button>
+</div>
+<div class="col-lg-12" style="padding:0">
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive list-table">
+                <table class="table">
+                    <colgroup>
+                        <col width="2%">
+                        <col width="5%">
+                        <col width="6%">
+                        <col width="8%">
+                        <col width="5%">
+                        <col width="21.5%">
+                        <col width="6%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>장소</th>
+                            <th>당직구분</th>
+                            <th>당직일</th>
+                            <th>당직자</th>
+                            <th>소속</th>
+                            <th>책임자</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight" *ngFor="let item of dutyList; let i = index" [ngClass]="{'selected': selectedRow == i}">
+                            <td><input type="checkbox" [checked]="selectedRow == i" (change)="selectedRow = (selectedRow == i ? -1 : i);"></td>
+                            <td style="cursor: pointer" (click)="openAsgnPopup(item, content)">{{item.duty_site_nm}}</td>
+                            <td style="cursor: pointer" (click)="openAsgnPopup(item, content)">{{item.duty_typ_nm}}</td>
+                            <td style="cursor: pointer" (click)="openAsgnPopup(item, content)">{{ datecal(item.duty_dt)}}</td>
+                            <td style="cursor: pointer" (click)="openAsgnPopup(item, content)">{{item.user_nm}}</td>
+                            <td style="cursor: pointer" (click)="openAsgnPopup(item, content)">{{item.dept_nm}}</td>
+                            <td style="cursor: pointer" (click)="openAsgnPopup(item, content)">
+                                {{item.chief_yn ? 'O' : 'X'}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- <div class="list-pagination">
+    <ngb-pagination class="d-flex justify-content-center" (pageChange)="getSurveyList($event)" [collectionSize]="collectionSize"
+        [maxSize]="maxPage" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+    <div class="total-page" style="text-align: center">총 {{total}} 건, {{totalPage}} 페이지 </div>
+</div> -->
+
+<div class="print-area" style="background: white;">
+    <br />
+    기관명: {{duty_info.org_nm}}<br />
+    당직장소: {{duty_info.duty_site}}<br />
+    당직일자: {{duty_info.duty_dt | amDateFormat: 'YYYY-MM-DD'}}<br />
+    당직구분: {{duty_info.duty_typ}}<br />
+    당직사령: <ng-container *ngIf="duty_info.chief">{{duty_info.chief + ' 확인 (인)'}}</ng-container><br />
+    당직자: {{duty_info.no_chief}}<br />
+    <br />
+    <table class="brdList marT10" style="display: block; border: black 1px solid;">
+        <colgroup>
+            <col width="6%">
+            <col width="4%">
+            <col width="8%">
+            <col width="5%">
+            <col width="18%">
+            <col width="4%">
+        </colgroup>
+        <thead>
+            <tr>
+                <th style="border: 1px solid black">접수일시</th>
+                <th style="border: 1px solid black">신고자</th>
+                <th style="border: 1px solid black">신고내용</th>
+                <th style="border: 1px solid black">진행상태</th>
+                <th style="border: 1px solid black">조치결과</th>
+                <th style="border: 1px solid black">접수자</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of complaint_data">
+                <td style="border: 1px solid black; text-align: center;">{{item.receipt_dttm | date: 'yyyy-MM-dd'}}</td>
+                <td style="border: 1px solid black; text-align: center;">{{item.civil_nm}}</td>
+                <td style="padding: 3px; border: 1px solid black;">{{item.complaints_txt}}</td>
+                <td style="border: 1px solid black; text-align: center;">{{item.proc_state_nm}}</td>
+                <td style="padding: 3px; border: 1px solid black; text-align: left;" [innerHTML]="item.proc_result"></td>
+                <td style="border: 1px solid black; text-align: center;">{{item.reg_user_nm}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- 지도에서 찾기 모달 -->
+<ng-template #content let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">당직자 관리</h4>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div id="dutyModal" class="modal-body">
+        <div class="form-group ">
+            <label for="typeahead-basic">당직기간</label>
+            <input id="typeahead-basic" name="dutyDt" type="text" [ngModel]="dutyData.duty_dt | date : 'yyyy-MM-dd'"
+                class="form-control long" #dutyDt="ngModel" readonly />
+        </div>
+        <div class="form-group ">
+            <label for="typeahead-basic">기관선택</label>
+            <select class="form-control wt8" [(ngModel)]="dutyData.org_no" [disabled]="dutyData.reg_dttm">
+                <option *ngIf="loginSession.isAdmin()" value="">전체</option>
+                <option *ngFor="let item of orgList" [value]="item.id">{{item.name}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="search-title">당직장소</label>
+            <select class="form-control wt8" [(ngModel)]="dutyData.duty_site" [disabled]="dutyData.reg_dttm">
+                <option *ngFor="let item of locationList" [value]="item.id">{{item.name}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="search-title">당직구분</label>
+            <select class="form-control wt8" [(ngModel)]="dutyData.duty_typ" [disabled]="dutyData.reg_dttm">
+                <option *ngFor="let item of typList" [value]="item.id">{{item.name}}</option>
+            </select>
+        </div>
+
+        <div class="form-group ">
+            <label for="typeahead-basic">당직자</label>
+            <input id="typeahead-basic" name="userNm" type="text" [(ngModel)]="dutyData.user_nm" class="form-control medium"
+                #userNm="ngModel" readonly />
+        </div>
+        <div class="form-group ">
+            <label for="typeahead-basic">당직소속</label>
+            <input id="typeahead-basic" name="deptNm" type="text" [(ngModel)]="dutyData.dept_nm" class="form-control long"
+                #deptNm="ngModel" readonly />
+        </div>
+        <div class="form-group ">
+            <label for="typeahead-basic">책임자</label>
+            <input id="typeahead-basic" name="chiefYn" type="checkbox" [(ngModel)]="dutyData.chief_yn" #chiefYn="ngModel" />
+        </div>
+        <div class="form-group ">
+            <label for="typeahead-basic" class="wt5">개선요구</label>
+            <textarea rows="" cols="" style="height: 150px" class="form-control long" (change)="textareaInput($event, 'req')">{{dutyData.duty_txt}}</textarea>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-info" *ngIf="dutyData.reg_dttm" (click)="deleteDuty()">삭제</button>
+        <button type="button" class="btn btn-primary" (click)="saveAsng()">저장</button>
+    </div>
+</ng-template>

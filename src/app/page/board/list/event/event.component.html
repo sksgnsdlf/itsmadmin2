@@ -1,0 +1,604 @@
+<form #saveForm="ngForm" (ngSubmit)="save()">
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>제목</label>
+    <input id="typeahead-basic" name="subj" type="text" required [(ngModel)]="info.subj" class="form-control medium"
+      #subj="ngModel" />
+    <div *ngIf="subj.invalid && (subj.dirty || subj.touched)" class="alert alert-danger">
+      <div *ngIf="subj.errors.required"> 필수항목입니다. </div>
+    </div>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>분야</label>
+    <select class="form-control" name="postDiv" required [(ngModel)]="info.post_div" #postDiv="ngModel">
+      <option *ngFor="let item of options.div" [ngValue]="item.id">{{item.name}}</option>
+    </select>
+    <div *ngIf="postDiv.invalid && (postDiv.dirty || postDiv.touched)" class="alert alert-danger">
+      <div *ngIf="postDiv.errors.required"> 필수항목입니다. </div>
+    </div>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>저작권표시</label>
+    <div style="flex-direction: column;">
+      <div style="margin-bottom: 0.5rem;">※ 폰트, 이미지 등 <span style="color:red; font-weight:bold;">저작권 침해</span> 사례에 유의하여
+        선택하시기 바랍니다.</div>
+      <div class="custom-control custom-radio" *ngFor="let item of kogl; let idx = index" style="margin-bottom: 0.3rem;">
+        <input type="radio" id="koglSelected{{idx}}" name="koglSelected" required class="custom-control-input" value="{{item.value}}"
+          [(ngModel)]="info.copyright_txt" #koglSelected="ngModel">
+        <label class="custom-control-label" for="koglSelected{{idx}}"><img class="kogle-image" [src]="item.image" alt="공공누리 저작권">{{item.nm}}</label>
+        <div *ngIf="koglSelected.invalid && (koglSelected.dirty || koglSelected.touched)" class="alert alert-danger">
+          <div *ngIf="koglSelected.errors.required"> 필수항목입니다. </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic">키워드</label>
+    <tag-input class="form-control long" name="hashtag" [(ngModel)]="hashTag" [identifyBy]="'id'" #hashtag="ngModel"  [placeholder]="'+키워드 입력 후 엔터'" [secondaryPlaceholder]="'+키워드 입력 후 엔터'"></tag-input>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>내용</label>
+    <itsm-ckeditor (onLoad)="OnEditorLoaded()" name="ckedit" #ck [ngStyle]="{'display': 'block'}" required [(ngModel)]="info.post_txt"
+      [language]="'ko'" #ckedit="ngModel"></itsm-ckeditor>
+    <div *ngIf="ckedit.invalid && (ckedit.dirty || ckedit.touched)" class="alert alert-danger">
+      <div *ngIf="ckedit.errors.required"> 필수항목입니다. </div>
+    </div>
+  </div>
+  <!-- 대표이미지 -->
+  <div class="form-group">
+    <label for="typeahead-basic">썸네일</label>
+    <div [ngStyle]="{'display': (!image && !thumbInfo.add_file_url )?'none':'block'}" style="width:50%; height:50%;">
+      <img style="width: 100%; height:100%;" [src]="thumbInfo.add_file_url?thumbInfo.add_file_url:image" lt="">
+    </div>
+    <input #inputImage style="display: none;" (change)="checkImageType($event)" type="file">
+    <button type="button" [ngStyle]="{'margin-left':(!image && !thumbInfo.add_file_url )?'none': '1rem'}" class="btn btn-info"
+      (click)="openImage()">가져오기</button>
+    <button type="button" [ngStyle]="{'margin-left':(!image && !thumbInfo.add_file_url )?'none': '1rem'}" class="btn btn-info"
+      (click)="deleteFile(contentCheck, null, thumbInfo, true)">파일삭제</button>
+  </div>
+  <!-- 첨부파일 -->
+  <div class="form-group">
+    <label for="typeahead-basic" style="align-self:flex-start; margin-top:0.5rem; flex-direction:column;">첨부파일
+      <input #inputFile style="display: none;" (change)="checkFileType($event)" type="file">
+    </label>
+    <div style="width:50%">
+      <div class="card long">
+        <div class="card-body" style="height:150px; overflow: auto;">
+          <div class="input-group mb-3" *ngFor="let item of fileInfo; let idx = index">
+            <div class="form-control">{{item.file_nm}}</div>
+            <div class="input-group-append" (click)="deleteFile(contentCheck,idx, item, false)">
+              <button class="btn btn-info" type="button"><i class="icon-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="btn btn-info" (click)="openFile()">가져오기</button>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">일정</label>
+    <itsm-calendar [(fromDt)]="info.start_dt" [(toDt)]="info.end_dt"></itsm-calendar>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">시간정보 </label>
+    <input id="typeahead-basic" name="timeInfo" type="text" [(ngModel)]="info.time_info" class="form-control medium"
+      #timeInfo="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">이용료정보</label>
+    <input id="typeahead-basic" name="feeInfo" type="text" [(ngModel)]="info.fee_info" class="form-control medium"
+      #feeInfo="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">관람연령 </label>
+    <input id="typeahead-basic" name="ageInfo" type="text" [(ngModel)]="info.age_info" class="form-control medium"
+      #ageInfo="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">담당자명</label>
+    <input id="typeahead-basic" name="userNm" type="text" [(ngModel)]="info.user_nm" class="form-control medium"
+      #userNm="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">담당자부서</label>
+    <input id="typeahead-basic" name="deptDispnm" type="text" [(ngModel)]="info.dept_disp_nm" class="form-control medium"
+      #deptDispnm="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">담당자전화</label>
+    <input id="typeahead-basic" name="officalTelNo" type="text" [(ngModel)]="info.official_tel_no" class="form-control medium"
+      #officalTelNo="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">문의전화</label>
+    <input id="typeahead-basic" name="helpdeskTel" type="text" [(ngModel)]="info.helpdesk_tel" class="form-control medium"
+      #helpdeskTel="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">교통정보</label>
+    <textarea class="form-control long" name="introTxt" rows="5" [(ngModel)]="info.directions" #introTxt="ngModel"></textarea>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">관련 URL</label>
+    <input id="typeahead-basic" name="linkUrl" type="text" [(ngModel)]="info.link_url" class="form-control medium"
+      #linkUrl="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">장소 위치</label>
+    <input id="typeahead-basic" name="addr1" type="text" class="form-control long addr1" [(ngModel)]="info.addr1"
+      readonly #addr1="ngModel" />
+    <button type="button" class="btn btn-info" style="margin-left:1rem;" (click)="openMap(content22)">지도에서 찾기</button>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">장소(읍면동)</label>
+    <select class="form-control" name="district" [(ngModel)]="info.district_nm" (change)="getDistrict()" #district="ngModel">
+      <option *ngFor="let item of options.districts" [ngValue]="item.district_nm">{{item.district_nm}}</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">장소설명</label>
+    <input id="typeahead-basic" name="placeNm" type="text" [(ngModel)]="info.place_nm" class="form-control medium"
+      #placeNm="ngModel" />
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic">주관/주최</label>
+    <input id="typeahead-basic" name="hostnm1" type="text" [(ngModel)]="info.host_nm" class="form-control medium"
+      #hostnm1="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">기획사</label>
+    <input id="typeahead-basic" name="agencyNm" type="text" [(ngModel)]="info.agency_nm" class="form-control medium"
+      #agencyNm="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">장르</label>
+    <input id="typeahead-basic" name="genreTxt" type="text" [(ngModel)]="info.genre_txt" class="form-control medium"
+      #genreTxt="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">티켓정보</label>
+    <textarea class="form-control long" name="ticketInfo" rows="5" [(ngModel)]="info.ticket_info" #introTxt="ngModel"></textarea>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">할인정보</label>
+    <textarea class="form-control long" name="discountInfo" rows="5" [(ngModel)]="info.discount_info" #introTxt="ngModel"></textarea>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">예매안내</label>
+    <textarea class="form-control long" name="reserveInfo" rows="5" [(ngModel)]="info.reserve_info" #introTxt="ngModel"></textarea>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">예매안내URL</label>
+    <input id="typeahead-basic" name="ticketUrl" type="text" [(ngModel)]="info.ticket_url" class="form-control medium"
+      #genreTxt="ngModel" />
+  </div>
+  <!-- 필수값 -->
+  <!-- <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>출결체크방식</label>
+    <select class="form-control" name="attendCd" [(ngModel)]="info.attend_cd" #attendCd="ngModel">
+      <option value="null" selected>출결체크 안함</option>
+      <option *ngFor="let item of options.attend" [ngValue]="item.id">{{item.name}}</option>
+    </select>
+  </div> -->
+  <!-- 비콘이벤트 추가 -->
+  <div class="form-group">
+    <label for="typeahead-basic" style="align-self:flex-start; margin-top:0.5rem;">비콘이벤트</label>
+    <div style="width:50%">
+      <button type="button" class="btn btn-info" (click)="getBeacon(contentBeacon)" style="margin-bottom: 0.5rem;">설정</button>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="basic-addon1">행사강좌일시</span>
+        </div>
+        <input type="text" class="form-control" [value]=" info.event_start_dttm? info.event_start_dttm + '~' + info.event_end_dttm: null"
+          placeholder="YYYY-MM-DD 00:00 ~  YYYY-MM-DD 00:00" aria-label="YYYY-MM-DD 00:00 ~  YYYY-MM-DD 00:00" disabled
+          aria-describedby="basic-addon1">
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive list-table">
+            <table class="table" style="margin:0">
+              <colgroup>
+                <col width="20%">
+                <col width="40%">
+                <col width="40%">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>단말번호</th>
+                  <th>uuid</th>
+                  <th>맥어드레스</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of beacons">
+                  <td>{{item.beacon_no}}</td>
+                  <td>{{item.uuid}}</td>
+                  <td>{{item.mac_addr}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>댓글허용</label>
+    <div class="custom-control custom-radio" *ngFor="let item of yesOrNo; let idx = index">
+      <input type="radio" id="cmntYn{{idx}}" name="cmntYn" required class="custom-control-input" value="{{item.value}}"
+        [(ngModel)]="info.cmnt_yn" #cmntYn="ngModel">
+      <label class="custom-control-label" for="cmntYn{{idx}}">{{item.nm}}</label>
+      <div *ngIf="cmntYn.invalid && (cmntYn.dirty || cmntYn.touched)" class="alert alert-danger">
+        <div *ngIf="cmntYn.errors.required"> 필수항목입니다. </div>
+      </div>
+    </div>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>만족도조사</label>
+    <div class="custom-control custom-radio" *ngFor="let item of yesOrNoResearch; let idx = index">
+      <input type="radio" id="researchYn{{idx}}" name="researchYn" required class="custom-control-input" value="{{item.value}}"
+        [(ngModel)]="info.research_yn" #researchYn="ngModel">
+      <label class="custom-control-label" for="researchYn{{idx}}">{{item.nm}}</label>
+      <div *ngIf="researchYn.invalid && (researchYn.dirty || researchYn.touched)" class="alert alert-danger">
+        <div *ngIf="researchYn.errors.required"> 필수항목입니다. </div>
+      </div>
+    </div>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>공개범위</label>
+    <select class="form-control" name="openTarget" required [(ngModel)]="info.open_target" #openTarget="ngModel">
+      <option *ngFor="let item of options.openTarget" [ngValue]="item.id">{{item.name}}</option>
+    </select>
+    <button type="button" class="btn btn-info" (click)="getMbrCls(contentMmrCls)" [hidden]="info.open_target !=3" style="margin-left: 0.5rem;">회원
+      종류 선택</button>
+    <!-- <div *ngIf="openTarget.invalid && (openTarget.dirty || openTarget.touched)" class="alert alert-danger">
+      <div *ngIf="openTarget.errors.required"> 필수항목입니다. </div>
+    </div> -->
+  </div>
+  <div class="form-group" [hidden]="info.open_target !=3">
+    <label for="typeahead-basic" style="align-self:flex-start; margin-top:0.5rem;">기관 단체 회원 종류</label>
+    <div style="width:60%">
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive list-table">
+            <table class="table" style="margin:0">
+              <thead>
+                <tr>
+                  <th>회원 종류 명</th>
+                  <th>관리 메모</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of memberCls">
+                  <td>{{item.mbr_typ_nm}}</td>
+                  <td>{{item.memo_txt}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>게시상태</label>
+    <select class="form-control" name="postState" required [(ngModel)]="info.post_state" #postState="ngModel">
+      <option *ngFor="let item of options.state" [ngValue]="item.id">{{item.name}}</option>
+    </select>
+    <div *ngIf="postState.invalid && (postState.dirty || postState.touched)" class="alert alert-danger">
+      <div *ngIf="postState.errors.required"> 필수항목입니다. </div>
+    </div>
+  </div>
+  <div *ngIf="isAppl">
+    <H4 style="color: #398bf7 !important; margin:15px;">신청ㆍ접수 정보 등록</H4>
+    <!-- 신청접수 정보 등록 시 필수값 -->
+    <div class="form-group">
+      <label for="typeahead-basic"><span *ngIf="isAppl">*</span>진행상태</label>
+      <select class="form-control" name="state" [(ngModel)]="applInfo.state" [required]="isAppl" #state="ngModel">
+        <option *ngFor="let item of optionsAppl.state" [ngValue]="item.id">{{item.name}}</option>
+      </select>
+      <div *ngIf="state.invalid && (state.dirty || state.touched) && isAppl" class="alert alert-danger">
+        <div *ngIf="state.errors.required"> 필수항목입니다. </div>
+      </div>
+    </div>
+    <!-- 신청접수 정보 등록 시 필수값 -->
+    <div class="form-group">
+      <label for="typeahead-basic"><span *ngIf="isAppl">*</span>신청안내</label>
+      <textarea class="form-control long" name="applTxt" rows="5" [(ngModel)]="applInfo.appl_txt" [required]="isAppl"
+        #applTxt="ngModel"></textarea>
+      <div *ngIf="applTxt.invalid && (applTxt.dirty || applTxt.touched) && isAppl" class="alert alert-danger">
+        <div *ngIf="applTxt.errors.required"> 필수항목입니다. </div>
+      </div>
+    </div>
+    <!-- 신청접수 정보 등록 시 필수값 -->
+    <div class="form-group">
+      <label for="typeahead-basic"><span *ngIf="isAppl">*</span>회원전용</label>
+      <div class="custom-control custom-radio" *ngFor="let item of yesOrNoMbr; let idx = index">
+        <input type="radio" id="mbrYn{{idx}}" name="mbrYn" class="custom-control-input" value="{{item.value}}"
+          [required]="isAppl" [(ngModel)]="applInfo.mbr_only_yn" #mbrYn="ngModel">
+        <label class="custom-control-label" for="mbrYn{{idx}}">{{item.nm}}</label>
+      </div>
+    </div>
+    <!-- 신청접수 정보 등록 시 필수값 -->
+    <div class="form-group">
+      <label for="typeahead-basic"><span *ngIf="isAppl">*</span>접수대상</label>
+      <textarea class="form-control long" name="clsPersonTxt" rows="5" [(ngModel)]="applInfo.cls_person_txt" [required]="isAppl"
+        #clsPersonTxt="ngModel"></textarea>
+      <div *ngIf="clsPersonTxt.invalid && (clsPersonTxt.dirty || clsPersonTxt.touched) && isAppl" class="alert alert-danger">
+        <div *ngIf="clsPersonTxt.errors.required"> 필수항목입니다. </div>
+      </div>
+    </div>
+    <!-- 신청접수 정보 등록 시 필수값 -->
+    <div class="form-group">
+      <label for="typeahead-basic"><span *ngIf="isAppl">*</span>온라인 접수기간</label>
+      <itsm-calendar [(fromDt)]="applInfo.start_dt" [(toDt)]="applInfo.end_dt" style="margin-right:0.5rem"></itsm-calendar>
+      <input class="form-control short" name="startTm" type="time" [(ngModel)]="applInfo.start_tm" #startTm="ngModel">
+      <span style="margin: 1rem">~</span>
+      <input class="form-control short" name="closeTm" type="time" [(ngModel)]="applInfo.end_tm" #closeTm="ngModel">
+    </div>
+    <!-- 신청접수 정보 등록 시 필수값 -->
+    <div class="form-group">
+      <label for="typeahead-basic"><span *ngIf="isAppl">*</span>전체모집</label>
+      <input type="number" name="applCnt" min="0" max="10000" class="form-control" [required]="isAppl" [(ngModel)]="applInfo.appl_cnt"
+        #applCnt="ngModel" />
+      <div *ngIf="applCnt.invalid && (applCnt.dirty || applCnt.touched) && isAppl" class="alert alert-danger">
+        <div *ngIf="applCnt.errors.required"> 필수항목입니다. </div>
+      </div>
+    </div>
+    <!-- 신청접수 정보 등록 시 필수값 -->
+    <div class="form-group">
+      <label for="typeahead-basic"><span *ngIf="isAppl">*</span>온라인 접수</label>
+      <div class="custom-control custom-radio" *ngFor="let item of yesOrNoOnline; let idx = index">
+        <input type="radio" id="onlineYn{{idx}}" name="onlineYn" class="custom-control-input" value="{{item.value}}" [required]="isAppl"
+          [(ngModel)]="applInfo.online_yn" (click)="setOnlineCNT(item.value)" #onlineYn="ngModel">
+        <label class="custom-control-label" for="onlineYn{{idx}}">{{item.nm}}</label>
+        <div *ngIf="onlineYn.invalid && (onlineYn.dirty || onlineYn.touched) && isAppl" class="alert alert-danger">
+          <div *ngIf="onlineYn.errors.required"> 필수항목입니다. </div>
+        </div>
+      </div>
+    </div>
+    <!-- 신청접수 정보 등록 시 필수값 -->
+    <div class="form-group">
+      <label for="typeahead-basic"><span *ngIf="isAppl">*</span>온라인 접수인원</label>
+      <input type="number" name="onlineCnt" min="0" max="10000" class="form-control" [required]="applInfo.online_yn == '1'" [(ngModel)]="applInfo.online_cnt" [disabled]="applInfo.online_yn != '1'"
+        #onlineCnt="ngModel" /> 
+        <div style="color:#398bf7; padding-left: 1rem"> * 전체 모집인원 중 온라인으로 모집할 인원을 지정하세요.</div>
+      <div *ngIf="onlineCnt.invalid && (onlineCnt.dirty || onlineCnt.touched) && isAppl" class="alert alert-danger">
+        <div *ngIf="onlineCnt.errors.required"> 필수항목입니다. </div>
+      </div>
+    </div>
+    <!-- 신청접수 정보 등록 시 필수값 -->
+    <div class="form-group">
+      <label for="typeahead-basic"><span *ngIf="isAppl">*</span>선발방식</label>
+      <select class="form-control" name="selectTyp" [(ngModel)]="applInfo.select_typ" [required]="isAppl" #selectTyp="ngModel">
+        <option *ngFor="let item of optionsAppl.select" [ngValue]="item.id">{{item.name}}</option>
+      </select>
+      <div *ngIf="selectTyp.invalid && (selectTyp.dirty || selectTyp.touched) && isAppl" class="alert alert-danger">
+        <div *ngIf="selectTyp.errors.required"> 필수항목입니다. </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="typeahead-basic">인당 신청가능수</label>
+      <input type="number" name="personRestrictCnt" min="0" max="10000" class="form-control" [(ngModel)]="applInfo.person_restrict_cnt"
+        #personRestrictCnt="ngModel" />
+    </div>
+    <!-- 신청접수 정보 등록 시 필수값 -->
+    <div class="form-group">
+      <label for="typeahead-basic">결제방식</label>
+      <select class="form-control" name="paymentTyp" [(ngModel)]="applInfo.payment_typ" #paymentTyp="ngModel">
+        <option *ngFor="let item of optionsAppl.payment" [ngValue]="item.id">{{item.name}}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="typeahead-basic">접수비용안내</label>
+      <textarea class="form-control long" name="applAmtTxt" rows="5" [(ngModel)]="applInfo.appl_amt_txt" #applAmtTxt="ngModel"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="typeahead-basic">접수비</label>
+      <input id="typeahead-basic" name="applAmt" type="text" [(ngModel)]="applInfo.appl_amt" class="form-control medium"
+        #applAmt="ngModel" />원
+    </div>
+    <!-- 추가 항목 추가 -->
+    <p>추가 항목은 최대5개 까지 추가할 수 있습니다. 신청 접수자에 추가로 입력받을 정보의 항목명을 입력하세요. </p>
+    <div class="form-group">
+      <label for="typeahead-basic" style="align-self:flex-start; margin-top:0.5rem;">추가항목</label>
+      <div style="width:50%">
+        <div class="input-group mb-3">
+          <input type="text" class="form-control medium" name="addItemInfo2" aria-describedby="basic-addon1"
+            [(ngModel)]="addItemInfo" #addItemInfo2="ngModel">
+          <button type="button" class="btn btn-info" (click)="addApplItem()">추가</button>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="table-responsive list-table">
+              <table class="table" style="margin:0">
+                <colgroup>
+                  <col width="15%">
+                  <col width="70%">
+                  <col width="15%">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>항목명</th>
+                    <th>삭제</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of addItem; let idx = index">
+                    <td>{{idx+1}}</td>
+                    <td>{{item}}</td>
+                    <td style="cursor:pointer" (click)="deleteApplItem(idx)"><i class="icon-trash"></i></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="form-group fixed">
+
+    <ngb-alert [dismissible]="false" *ngIf="showAlert">
+      <strong *ngIf="saveResult">{{saveString}}</strong>
+      <strong *ngIf="!saveForm.valid">필수사항을 입력해주세요.</strong>
+      <strong *ngIf="saveForm.valid && !saveResult">{{saveString}}</strong>
+    </ngb-alert>
+    <!-- <button type="button" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-inverse" (click)="saveForm.resetForm({});">초기화</button> -->
+    <button type="button" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-inverse" (click)="goList()">목록으로</button>
+    <button type="button" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-inverse" (click)="isAppl=!isAppl;">{{applInfo.post_no?"신청ㆍ접수정보수정":"신청ㆍ접수정보입력"}}</button>
+    <button type="button" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-inverse" (click)="delete()"
+      [disabled]="!post_no">삭제</button>
+    <button type="submit" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-info" (click)="alertControl()"
+      [disabled]="!saveForm.valid">저장</button>
+  </div>
+</form>
+
+<!-- 지도에서 찾기 모달 -->
+<ng-template #content22 let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">지도에서 찾기</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div id="map" style="width:100%; height:400px; margin-bottom: 1rem;"></div>
+    <div class="form-group form-modal">
+      <div class="input-group input-modal">
+        <input type="text" class="form-control" [(ngModel)]="search_map" (keyup.enter)="searchAddressToCoordinateInput()">
+        <div class="input-group-append" (click)="searchAddressToCoordinateInput()">
+          <span class="input-group-text"><i class="mdi mdi-account-search" style="width:1rem"></i></span>
+        </div>
+      </div>
+      <button type="button" class="btn btn-info" style=" margin-left:0.3rem;" (click)="d('Cross click')">선택</button>
+      <button type="button" class="btn btn-info" style=" margin-left:0.3rem;" (click)="d('Cross click'); clearMapData()">초기화</button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- 확인 모달 -->
+<ng-template #contentCheck let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">삭제 </h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    파일 혹은 이미지가 서버에서 삭제됩니다. 정말로 삭제하시겠습니까 ?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info" (click)="d('Save click')">취소</button>
+    <button type="button" class="btn btn-info" (click)="c('Cross click')">삭제</button>
+  </div>
+</ng-template>
+
+<!-- 비콘 모달 -->
+<ng-template #contentBeacon let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">비콘 이벤트 등록 </h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="typeahead-basic"><span>*</span>일정</label>
+      <itsm-calendar [(fromDt)]="beaconEvent.start_dt" [(toDt)]="beaconEvent.end_dt"></itsm-calendar>
+    </div>
+    <div class="form-group">
+      <label for="typeahead-basic"><span>*</span>시작시간</label>
+      <input class="form-control" type="time" name="eventStartTime" [(ngModel)]="beaconEvent.start_time"
+        #eventStartTime="ngModel" />
+      <label for="typeahead-basic"><span>*</span>종료시간</label>
+      <input class="form-control" type="time" name="eventEndTime" [(ngModel)]="beaconEvent.end_time" #eventEndTime="ngModel" />
+      <label for="typeahead-basic" style="flex-basis:20%;"><span>*</span>지급포인트</label>
+      <input class="form-control" type="number" min=0 name="eventPoint" [(ngModel)]="beaconEvent.get_point" #eventPoint="ngModel" />
+    </div>
+    <div class="form-group">
+      <label for="typeahead-basic"><span>*</span>참여혜택</label>
+      <input class="form-control" style="flex-basis:85%;" type="text" name="eventBeaconTxt" [(ngModel)]="beaconEvent.beacon_txt"
+        #eventBeaconTxt="ngModel" />
+    </div>
+    <div class="form-group">
+      <label for="typeahead-basic"><span>*</span>안내 url</label>
+      <input class="form-control" style="flex-basis:85%;" type="text" name="eventLinkUrl" [(ngModel)]="beaconEvent.link_url"
+        #eventLinkUrl="ngModel" />
+    </div>
+    <div class="card">
+      <div class="card-body" style="padding:0;">
+        <div class="table-responsive list-table">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>사용</th>
+                <th>단말번호</th>
+                <th>uuid</th>
+                <th>맥어드레스</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="highlight" *ngFor="let item of beaconDevice; let idx = index" (click)="item.selected =!item.selected">
+                <td><input type="checkbox" [checked]="item.selected"></td>
+                <td>{{item.beacon_no}}</td>
+                <td>{{item.uuid}}</td>
+                <td>{{item.mac_addr}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info" (click)="d('Cross click')">취소</button>
+    <button type="button" class="btn btn-info" (click)="saveBeaconEvent()">저장</button>
+  </div>
+</ng-template>
+
+<!-- 게시물 공개설정  모달 -->
+<ng-template #contentMmrCls let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">게시물 공개설정 회원 등록 </h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="card">
+    <div class="card-body" style="padding:0;">
+      <div class="table-responsive list-table">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>사용</th>
+              <th>회원종류 명</th>
+              <th>관리메모</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlight" *ngFor="let item of optionsmemberCls; let idx = index" (click)="item.selected =!item.selected">
+              <td><input type="checkbox" [checked]="item.selected"></td>
+              <td>{{item.mbr_typ_nm}}</td>
+              <td>{{item.memo_txt}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info" (click)="d('Cross click')">취소</button>
+    <button type="button" class="btn btn-info" (click)="c('Save click')">저장</button>
+  </div>
+</ng-template>

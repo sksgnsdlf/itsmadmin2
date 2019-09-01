@@ -1,0 +1,52 @@
+<div class="form-group button-group d-flex justify-content-end">
+  <button type="button" style="margin-right: 5px;" class="btn btn-inverse" (click)="backClicked()">돌아가기</button><!-- 뒤로가기 -->
+  <!-- <button type="button" style="margin-right: 5px;" class="btn btn-primary" (click)="getExcel()">엑셀저장</button>명단 엑셀 저장 -->
+</div>
+<div class="post-info-container">
+  <!-- 게시물 정보 -->
+  <div class="card">
+    <div style="padding:1rem;padding-bottom:0;font-weight: bold">게시물 정보</div>
+    <div class="card-body">
+      <itsm-table [table]="detailTable"></itsm-table>
+    </div>
+  </div>
+</div>
+<div class="post-info-container">
+  <!-- 결제자 명단 -->
+  <div class="card">
+    <div class="d-flex flex-row justify-content-between" style="padding:1rem">
+      <div style="font-weight: bold">결제자 명단</div>
+    </div>
+    <div class="d-flex flex-row" style="padding-left:1rem">
+      <div>평가 수 : {{postInfo.cnt}} </div>
+      <div style="padding-left: 20px;">만족도 평가 평균 값 : {{postInfo.sum ?(postInfo.sum / postInfo.cnt):'-'}}</div>
+    </div>
+    <!-- 검색 만들어라고 하실거같아서 일단 둡니다 -->
+    <!-- <div class="search-container">
+      <div class="form-group">
+        <label for="typeahead-basic" class="wt8">결제상태</label>
+        <select class="form-control" [(ngModel)]="searchForm.payment_state" (change)="optionSelected('searchType')">
+            <option value='null'>상태</option>
+            <option *ngFor="let item of option.payment_state" [ngValue]="item">{{item}}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="wt5">결제일자</label>
+        <itsm-calendar [(fromDt)]="searchForm.fromDt" [(toDt)]="searchForm.toDt" title="가입일자"></itsm-calendar>
+      </div>
+      <div class="form-group">
+        <label for="typeahead-basic" class="wt7">이름ㆍ연락처</label>
+        <input id="typeahead-basic" class="form-control wt14" name="nameTel" type="text" [(ngModel)]="searchForm.nmOrTel" #nameTel="ngModel"/>
+      </div>
+      <button type="button" class="btn btn-info"(click)="searchBillUser()">조회</button>
+    </div>  -->
+    <div class="card-body">
+      <itsm-table [table]="userTable"></itsm-table>
+    </div>
+    <div class="list-pagination">
+      <ngb-pagination class="d-flex justify-content-center" (pageChange)="searchBillUser($event)" [collectionSize]="collectionSize"
+        [maxSize]="maxPage" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+      <div class="total-page" style="text-align: center">총 {{total}} 건, {{totalPage}} 페이지 </div>
+    </div>
+  </div>
+</div>

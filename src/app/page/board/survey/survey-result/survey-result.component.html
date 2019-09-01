@@ -1,0 +1,69 @@
+<div class="form-group button-group d-flex justify-content-end" style="margin:0">
+  <button type="button" style="margin-right: 5px;margin-bottom:1rem" class="btn btn-inverse" (click)="backClicked()">돌아가기</button><!-- 뒤로가기 -->
+</div>
+<!-- 설문 정보 -->
+<div class="survey-info-container">  
+  <div class="card">
+    <div style="padding:1rem;padding-bottom:0;font-weight: bold">설문 정보</div>
+    <div class="card-body">
+      <itsm-table [table]="table"></itsm-table>
+    </div>
+  </div>
+</div>
+<!-- 답변 내역 -->
+<div class="survey-item-container">
+  <div class="card">
+    <div style="padding:1rem;padding-bottom:0;font-weight: bold">설문 정보</div>
+    <button type="button" class="btn btn-info align-self-end" style="margin-right:2rem"(click)="getSurveyDetailExcel()">답변내역 저장</button>
+    <div class="card-body">
+      <div class="survey-item" *ngFor="let item of surveyItem; let idx = index;" style="margin-bottom:1rem;">
+        <div>{{idx+1}}. {{item.item_nm}}</div> 
+        <!-- 객관식의 경우 -->
+        <div *ngIf="item.item_typ == '2'" style="padding:1rem">
+          <ng-container *ngFor="let multi of item.multi" >
+            <div>{{multi.choice_txt}}</div>
+            <div class="progress mb-2" style="height:1rem;">
+              <div class="progress-bar" role="progressbar" [ngStyle]="{ width: multi.choice_percent + '%' }" aria-valuemin="0" aria-valuemax="100">{{multi.choice_percent}}%</div>
+            </div>
+          </ng-container>
+        </div>
+        <!-- 주관식의 경우 -->
+        <div *ngIf="item.item_typ == '1'">
+          
+        </div>
+        <!-- 답변 상세 -->
+        <button *ngIf="!item.detailOpen" type="button" class="btn btn-info align-self-center" (click)="item.detailOpen=!item.detailOpen">답변상세보기</button>
+        <button *ngIf="item.detailOpen" type="button" class="btn btn-info align-self-center" (click)="item.detailOpen=!item.detailOpen">답변상세닫기</button>
+        <div *ngIf="item.detailOpen" class="table-responsive  list-table appl-list-table" style="overflow:unset">
+          <table class="table">
+            <colgroup>
+              <col width="5%">
+              <col width="10%">
+              <col width="15%">
+              <col width="50%">
+              <col width="20%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>성명</th>
+                <th>휴대전화</th>
+                <th>응답내용</th>
+                <th>참가일시</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="highlight" *ngFor="let answer of item.answer; let answer_idx = index">
+                <td>{{answer_idx+1}}</td>
+                <td>{{answer.civil_nm}}</td>
+                <td>{{answer.civil_cp_no}}</td>
+                <td>{{answer.answer_txt}}</td>
+                <td>{{answer.join_dttm}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

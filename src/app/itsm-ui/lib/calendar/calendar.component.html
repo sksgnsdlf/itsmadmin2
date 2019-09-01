@@ -1,0 +1,21 @@
+
+<div class="input-group" [ngStyle]="{'width':width}">
+  <input type="text" *ngIf="!noRange" class="form-control" [value]="fromDt?(fromDt+(fromDt?' ~ ':'')+toDt):''" readonly/>
+  <input type="text" *ngIf="noRange" class="form-control" [value]="fromDt?fromDt:''" readonly/>
+  <div class="input-group-append">
+    <button *ngIf="disabled" class="btn btn-outline-secondary" (click)="dpOpen=!dpOpen" type="button" disabled>
+      <i class="fa fa-calendar"></i>
+    </button>
+    <button *ngIf="!disabled" class="btn btn-outline-secondary" (click)="dpOpen=!dpOpen" type="button">
+      <i class="fa fa-calendar"></i>
+    </button>
+  </div>
+  <ngb-datepicker *ngIf="noRange&&dpOpen" style="position: absolute; z-index: 99999999; background-color: white; top: 100%;" (select)="onDateSelection($event)" [displayMonths]="2"></ngb-datepicker>
+  <ngb-datepicker *ngIf="!noRange&&dpOpen" #dp style="position: absolute; z-index: 99999999; background-color: white; top: 100%;" (select)="onDateSelection($event)" [displayMonths]="2" [dayTemplate]="t">
+  </ngb-datepicker>
+  <ng-template #t let-date="date" let-focused="focused">
+    <span class="custom-day" [class.focused]="focused" [class.range]="isRange(date)" [class.faded]="isHovered(date) || isInside(date)" (mouseenter)="hoveredDate = date" (mouseleave)="hoveredDate = null">
+      {{ date.day }}
+    </span>
+  </ng-template>
+</div>

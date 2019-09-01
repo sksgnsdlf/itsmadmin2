@@ -1,0 +1,53 @@
+.form-group{
+    .push-label{
+            display:flex;
+            flex-direction: row;
+            .alert{
+                margin:0;
+                padding-top:0;
+                padding-bottom:0;
+                margin-left:1rem;
+            }
+    }
+    .push-alert{
+        display:flex;
+        flex-basis: 20% !important;
+        align-items:flex-start;
+        align-self: center !important;
+        display: inline-block  !important;
+        padding: 6px 12px;
+        margin:0;
+        margin-left:1rem;
+    }
+}
+.form-modal{
+    justify-content: center!important;
+}
+.fixed {
+    position:fixed;
+    bottom:7rem;
+    right:4rem;
+}
+
+.on{
+    color:#fff;
+    background:#398bf7;
+    border-color: #398bf7;
+}
+
+@import '../../../../styles.scss';
+.list-table{
+    letter-spacing: -0.06rem;
+    tr th, tr td{
+        text-align: center;
+        border:1px solid $tb-border-color;
+    }
+    tr th{
+        background-color:$tb-col-color;
+    }
+    
+    tbody .highlight:hover{
+        background-color: $tb-hover-color;
+        cursor:pointer;
+    }
+}

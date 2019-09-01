@@ -1,0 +1,53 @@
+<!-- search 부분 -->
+<div class="search-container">
+        <div class="form-group">
+          <div class="input-group">
+            <div class="form-control"><a href="http://8282.ipohang.org/portal/" target="_blank">빨리콜 민원매뉴얼</a></div>
+            <div class="input-group-append">
+              <span class="input-group-text help"><a class="fa fa-question"></a>
+                <div class="content">
+                  <div class="left_text">
+                    빨리콜 민원매뉴얼 바로가기<br />
+                    -인터넷익스플로러(IE)에서만 작동합니다.<br />
+                    -브라우저설정에서 "신뢰할 수 있는 사이트"로 등록<br /><br />
+                    id = 본인이름<br />
+                    pw = pohang1234!<br /><br />
+                    1. 탑 메뉴에서 "매뉴얼관리"를 클릭<br />
+                    2. 좌측메뉴에서 "매뉴얼리스트"를 클릭<br />
+                  </div>
+                  <div>
+                    <img src="assets/images/onestop/8282_manual.jpg" alt="">
+                  </div>
+                </div>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="typeahead-basic" class="wt6">내용, 키워드:</label>
+          <input id="typeahead-basic" class="form-control wt14" type="text" [(ngModel)]="searchTxt" (keyup.enter)="getMenual()" />
+        </div>
+        <button type="button" class="btn btn-info" (click)="getMenual()">조회</button>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-body">
+            <ngb-tabset (tabChange)="beforeChange($event)">
+              <ngb-tab *ngFor="let item of categoryList; let idx = index" [title]="item.name" [id]="idx">
+                <ng-template ngbTabContent>
+                  <div class="tab_box">
+                    <dl class="acd_type">
+                      <ng-container *ngFor="let item of showedMenualList">
+                        <dt (click)="item.on = !item.on">
+                          <span>{{item.subject}}</span>
+                        </dt>
+                        <div class="dd" [innerHTML]="item.content_txt | safeHtml" [ngStyle]="{'display': item.on ? 'block' : 'none'}"></div>
+                      </ng-container>
+                    </dl>
+                  </div>
+                </ng-template>
+              </ngb-tab>
+            </ngb-tabset>
+          </div>
+        </div>
+      </div>

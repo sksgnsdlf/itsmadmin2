@@ -1,0 +1,148 @@
+<div class="row">
+  <div class="col-3">
+    <ul class="list-group">
+      <li *ngFor="let item of data" class="list-group-item" [ngClass]="{ active: item.no == body.no }" style="cursor: pointer;" (click)="select(item)">
+        {{item.name}}
+      </li>
+    </ul>
+  </div>
+  <div class="col-6">
+    <div class="card">
+      <div class="card-body">
+        <form #orgForm="ngForm" (ngSubmit)="save()">
+          <div style="text-align: right;">
+            <button style="display: inline;" *ngIf="edit" type="button" class="btn btn-inverse" (click)="edit = null;orgForm.resetForm({});initData();">신규</button>
+          </div>
+          
+          <div class="form-group">
+            <label for="name">*기관명</label>
+            <input id="name" name="name" class="form-control" [(ngModel)]="body.name" required #name="ngModel">
+            <div *ngIf="name.invalid && (name.dirty || name.touched)" class="alert alert-danger">
+              <div *ngIf="name.errors.required"> 필수항목입니다. </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="domain">*도메인</label>
+            <input id="domain" name="domain" class="form-control" required [(ngModel)]="body.domain" #domain="ngModel">
+            <div *ngIf="domain.invalid && (domain.dirty || domain.touched)" class="alert alert-danger">
+              <div *ngIf="domain.errors.required"> 필수항목입니다. </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="certUseYN">통합인증</label>
+            <div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="certUseYN" id="certUseY" value="1" [(ngModel)]="body.certUseYN" #certUseYN="ngModel">
+                <label class="form-check-label" for="certUseY">사용</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="certUseYN" id="certUseN" value="0" [(ngModel)]="body.certUseYN">
+                <label class="form-check-label" for="certUseN">비사용</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex">
+            <label for="image">아이콘
+              <a (click)="openFile()" class="ml-2">
+                <img src="assets/images/add_person_ico.gif" alt="">
+              </a>
+            </label>
+            <div class="flex-grow-1 text-center">
+              <div (click)="openFile()" class="d-inline-block border" style="width: 70px; height: 70px;">
+                <img *ngIf="body.iconUri||image" style="width: 100%; height: 100%;" [src]="body.iconUri?body.iconUri:image" >
+              </div>
+              <input #inputFile style="display: none;" (change)="checkFileType($event)" type="file" name="image">
+              <img class="float-right" (click)="clearimg()" src="assets/images/delete_ico.png" alt="">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="authUri">인증 위임 URL</label>
+            <input id="authUri" name="authUri" class="form-control" [(ngModel)]="body.authUri" #authUri="ngModel" >
+          </div>
+          <div class="form-group">
+            <label for="apiUri">API 호출 정보</label>
+            <input id="apiUri" name="apiUri" class="form-control" [(ngModel)]="body.apiUri" #domain="ngModel">
+          </div>
+          <div class="form-group">
+            <label for="autoLoginYN">자동 로그인</label>
+            <div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="autoLoginYN" id="autoLoginY" value="1" [(ngModel)]="body.autoLoginYN" #autoLoginYN="ngModel" >
+                <label class="form-check-label" for="autoLoginY">사용</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="autoLoginYN" id="autoLoginN" value="0" [(ngModel)]="body.autoLoginYN" >
+                <label class="form-check-label" for="autoLoginN">비사용</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="imgOpenYN">프로필 공개 여부</label>
+            <div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="imgOpenYN" id="imgOpenY" value="1" [(ngModel)]="body.imgOpenYN" #imgOpenYN="ngModel">
+                <label class="form-check-label" for="imgOpenY">공개</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="imgOpenYN" id="imgOpenN" value="0" [(ngModel)]="body.imgOpenYN">
+                <label class="form-check-label" for="imgOpenN">비공개</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="cpOpenYN">프로필 공개 여부</label>
+            <div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="cpOpenY" id="cpOpenY" value="1" [(ngModel)]="body.cpOpenYN" #cpOpenYN="ngModel">
+                <label class="form-check-label" for="cpOpenY">공개</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="cpOpenN" id="cpOpenN" value="0" [(ngModel)]="body.cpOpenYN">
+                <label class="form-check-label" for="cpOpenN">비공개</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="tenantNm">*기관 연결 정보</label>
+            <input id="tenantNm" name="tenantNm" class="form-control" [(ngModel)]="body.tenantNm" #tenantNm="ngModel" >
+            <div *ngIf="tenantNm.invalid && (tenantNm.dirty || tenantNm.touched)" class="alert alert-danger">
+              <div *ngIf="tenantNm.errors.required"> 필수항목입니다. </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="dispYN">기관 표시</label>
+            <div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="dispYN" id="dispY" value="1" [(ngModel)]="body.dispYN" #dispYN="ngModel">
+                <label class="form-check-label" for="dispY">기관</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="dispYN" id="dispY2" value="2" [(ngModel)]="body.dispYN">
+                <label class="form-check-label" for="dispY2">사이트</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="dispYN" id="dispN" value="0" [(ngModel)]="body.dispYN">
+                <label class="form-check-label" for="dispN">표시안함</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="edit">
+            <label for="updDttm">변경일시</label>
+            <div class="input-group">
+              <input id="updDttm" class="form-control" placeholder="yyyy-mm-dd" name="regDttm" [value]="body.updDttm | date:'yyyy-MM-dd HH:mm'" readonly>
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" disabled type="button">
+                  <i class="fa fa-calendar"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button *ngIf="!edit" type="button" style="margin-right: 5px;" class="btn btn-inverse" (click)="orgForm.resetForm({});initData();">초기화</button>
+          <button *ngIf="edit" type="button" style="margin-right: 5px;" class="btn btn-danger" (click)="delete()">삭제</button>
+          <button type="submit" style="margin-right: 5px;" class="btn btn-info" [disabled]="!orgForm.valid">저장</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

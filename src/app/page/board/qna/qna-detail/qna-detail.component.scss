@@ -1,0 +1,12 @@
+.rows{
+    display:flex;
+    flex-direction: column;
+    div{
+        width: 100%;
+        background-color: rgb(240, 242, 244);
+        color: #67757c;
+        border: 1px solid #ced4da;
+        max-height:10rem;
+        overflow-y:scroll
+    }
+}

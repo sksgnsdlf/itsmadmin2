@@ -1,0 +1,38 @@
+@import '../../../../../src/styles.scss';
+.card {
+    width: 100%;
+    font-size: 1em;
+    input.search {
+        margin-bottom: 20px;
+    }
+
+    ul {
+        &.level1 {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        padding-left: 10px;
+        list-style: none;
+        ul {
+            margin-top: 5px;
+        }
+        li {
+            cursor: pointer;
+            padding: 2px 0;
+            color: gray;
+            &:hover {
+                background-color: $tb-hover-color;
+            }
+            &.sub {
+                padding-left: 20px;
+                background: url(folder_off.png) no-repeat 3px 6px;
+            }
+            &.on {
+                background: url(folder_on.png) no-repeat 3px 6px;
+            }
+            input {
+                margin-right: 5px;
+            }
+        }
+    }
+}

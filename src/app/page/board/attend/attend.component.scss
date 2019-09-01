@@ -1,0 +1,27 @@
+@import '../../../../styles.scss';
+.search-society{
+    display:flex; 
+    flex-direction:row; 
+    justify-content:space-between;
+    padding: 2rem 3rem;
+    .form-group{
+        display:flex; 
+        flex-direction:row; 
+        align-items:center; 
+        margin:0;
+        label{
+            margin:0;
+            width:10rem;
+        }
+        button{
+            margin-left:1rem;
+        }
+    }
+}
+tr th, tr td{
+    text-align:center;
+}
+tbody .highlight:hover{
+    background-color: $tb-hover-color;
+    cursor:pointer;
+}

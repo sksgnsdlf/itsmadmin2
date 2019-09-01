@@ -1,0 +1,40 @@
+<!-- 단체 선택 select -->
+<society-select (OnChange) = "optionSelected($event)"></society-select>
+
+<!-- search 부분 -->
+<div class="search-container">
+  <div class="form-group">
+    <label for="typeahead-basic" class="wt5">검색항목</label>
+    <div class="option-container">
+      <select class="form-control" [(ngModel)]="searchForm.searchType">
+          <option [value]='null'>항목</option>
+          <option *ngFor="let item of option.searchType" [ngValue]="item">{{item}}</option>
+      </select>
+      <input id="typeahead-basic" class="form-control wt10" type="text" [(ngModel)]="searchForm.searchTxt"/>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="search-title" class="wt5">등록일자</label>
+    <itsm-calendar [(fromDt)]="searchForm.fromDt" [(toDt)]="searchForm.toDt" title="등록일자"></itsm-calendar>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic" class="wt5">진행상태</label>
+    <select class="form-control" [(ngModel)]="searchForm.state">
+      <option [value]='null'>상태</option>
+      <option *ngFor="let item of option.state" [ngValue]="item.id">{{item.name}}</option>
+    </select>
+  </div>
+  <button type="button" class="btn btn-info" (click)="getSurveyList()">검색</button>
+</div>   
+<!-- 테이블 -->
+<div class="col-lg-12" style="padding:0">
+  <div class="card">
+    <div class="card-body">
+      <itsm-table [table]="listTable" clickable="true" (onRowClicked)="gotoResultPage($event)"></itsm-table>
+    </div>
+  </div>
+</div>
+<div class="list-pagination">
+  <ngb-pagination class="d-flex justify-content-center" (pageChange)="getSurveyList($event)" [collectionSize]="collectionSize" [maxSize]="maxPage" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+  <div class="total-page" style="text-align: center">총 {{total}} 건, {{totalPage}} 페이지 </div>
+</div>

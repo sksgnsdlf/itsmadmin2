@@ -1,0 +1,87 @@
+<div class="row">
+  <div class="col-3">
+    <itsm-tree-view [data]="data" (OnClick)="select($event)"></itsm-tree-view>
+  </div>
+  <div class="col-6">
+    <div class="card">
+      <div class="card-body">
+        <itsm-form-inflater #form [options]='formConfig' [(value)]='body' 
+          (OnSubmitted)="save()" (OnDeleteClicked)="delete()">
+          <ng-container fi-after *ngIf="selectedDeptList?.length">
+            <h5>담당부서</h5>
+            <table class="table border mb-4">
+              <thead>
+                <th>구분</th>
+                <th>부서명</th>
+                <th></th>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let item of selectedDeptList; let i = index">
+                  <tr *ngIf="!item.deleted">
+                    <td>{{item.dvsn == 1 ? '기관' : '업체'}}</td>
+                    <td>
+                      {{item.dept_nm}}
+                    </td>
+                    <td class="btn_wrap">
+                      <button class="btn btn-sm btn-outline-info mr-3" (click)="editDept(item)">수정</button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="item.deleted = true; item.new = false; item.edited = false;">삭제</button>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </ng-container>
+        </itsm-form-inflater>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <div class="card w-100">
+          <div class="card-body">
+            <h5 class="card-title">담당부서지정</h5>
+            <div class="d-flex justify-content-between">
+              <div class="form-inline">
+                <select class="form-control mr-1" [(ngModel)]="selectedOrgId">
+                  <option value="-1">기관</option>
+                  <option *ngFor="let item of orgs" [value]="item.id">{{item.name}}</option>
+                </select>
+                <input type="text" class="form-control" id="name" placeholder="부서명(2자 이상)" [(ngModel)]="dept_search" (keyup.enter)="getDept()">
+              </div>
+              <button class="btn" (click)="getDept()">검색</button>
+            </div>
+            <table class="table" *ngIf="deptList?.length">
+              <tbody>
+                <tr *ngFor="let item of deptList">
+                  <td>{{item.name}}</td>
+                  <td><button class="btn btn-sm btn-outline-info mr-3" (click)="selectDept(item, 1)">선택</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card w-100">
+          <div class="card-body">
+            <h5 class="card-title">업체지정</h5>
+            <div class="d-flex justify-content-between">
+              <div class="form-inline">
+                <input type="text" class="form-control" id="name" placeholder="업체명" [(ngModel)]="partner_search" (keyup.enter)="getBPartner()">
+              </div>
+              <button class="btn" (click)="getBPartner()">검색</button>
+            </div>
+            <table class="table" *ngIf="partnerList?.length">
+              <tbody>
+                <tr *ngFor="let item of partnerList">
+                  <td>{{item.name}}</td>
+                  <td><button class="btn btn-sm btn-outline-info mr-3" (click)="selectDept(item, 2)">선택</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

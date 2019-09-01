@@ -1,0 +1,22 @@
+@import '../../../../styles.scss';
+tr td, tr th{
+    text-align:center;
+    border:1px solid $tb-border-color;
+}
+tr th{
+    background-color:$tb-col-color;
+}
+.clickable:hover td {
+    cursor: pointer;
+    background-color:$tb-hover-color!important;
+}
+td .ico_r {
+    margin-right: 5px;
+}
+tr.active td {
+    background-color:$tb-hover-color !important;
+}
+.btn_wrap{
+    border:1px solid $tb-border-color;
+    border-radius: 1rem;
+}

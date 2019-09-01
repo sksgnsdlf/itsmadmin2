@@ -1,0 +1,36 @@
+<div *ngIf="table.attr" class="table-responsive" style="overflow:unset; letter-spacing: -0.06rem;">
+    <table class="table">
+        <colgroup>
+            <col *ngFor="let col of table.cols" [attr.width]="col.width">
+        </colgroup>
+        <thead *ngIf="table.attr.table_dir == 'col'">
+            <tr>
+                <th *ngFor="let col of table.cols" [ngStyle]="thStyle[col.value]">{{col.value}}</th>
+            </tr>
+        </thead>
+        <!-- 컬럼이 왼쪽에 있을 경우 -->
+        <tbody *ngIf="table.attr.table_dir == 'row'">
+            <tr *ngFor="let row of table.rows">
+                <td *ngFor="let col of row; let idx = index" [attr.colspan]="row.length==2&&idx==1?3:1" [ngStyle]="tdStyle[col.value]">
+                    <div *ngIf="(col.typ == 'label' || col.typ == 'text')" [ngStyle]="divStyle[col.value]">{{col.data_typ != 'number' ? col.value : col.value|number }}</div>
+                    <div *ngIf="col.typ == 'html'" [ngStyle]="divStyle[col.value]" [innerHtml]="col.value"></div>
+                    <div *ngIf="col.typ == 'img'" [ngStyle]="divStyle[col.value]"><img style="width: 50%;" [src]="col.value" alt=""></div>
+                </td>
+            </tr>
+        </tbody>
+        <!-- 컬럼이 위에 있을 경우 -->
+        <tbody *ngIf="table.attr.table_dir == 'col'">
+            <tr *ngFor="let row of table.rows; let idx = index" [ngClass]="{'highlight':clickable}" >
+                <ng-container *ngFor="let col of row" >
+                    <td *ngIf="!col.hidden" [ngStyle]='tdStyle[col.key+"_"+col.value]' (click)="onRowClicked.emit(row)">
+                        <!-- <div [hidden]="true">{{setStyle()}}</div> -->
+                        <div *ngIf="!col.type">{{col.value}}</div>
+                        <div *ngIf="col.type == 'html'" [innerHtml]="col.value"></div>
+                        <input *ngIf="col.type == 'checkbox'" type="checkbox" [(ngModel)]="col.value" (change)="onRowChanged.emit(row);setStyle()" style="transform: scale(1.5)">
+                        <input *ngIf="col.type == 'text'" style="width:100%" type="text" [(ngModel)]="col.value" (input)="onRowChanged.emit(row);setStyle()">
+                    </td>
+                </ng-container>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,68 @@
+<div class="row">
+  <div class="col-3">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+          <div class="form-inline">
+            <div class="form-group" class="mr-3">
+              <label for="org" class="d-inline-block mr-2">기관</label>
+              <select id="org" class="form-control" [(ngModel)]="selectedOrgNo">
+                <option value="-1" *ngIf="session.isAdmin()">전체</option>
+                <option *ngFor="let item of orgs" [value]="item.id">{{item.name}}</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn" (click)="getBeacon()">조회</button>
+        </div>
+        <table class="table">
+          <thead>
+            <th>단말번호</th>
+            <th>MAC</th>
+            <!-- <th></th> -->
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of beacons" style="cursor: pointer;" (click)="select(item)">
+              <td>{{item.id}}</td>
+              <td>{{item.mac}}</td>
+              <!-- <td><i class="mdi mdi-delete" (click)="delete(item.id)" style="cursor: pointer; font-size: 1.5em;"></i></td> -->
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">비콘 정보 관리</h5>
+        <itsm-form-inflater [options]='formConfig' [(value)]="body" (OnSubmitted)="save()" (OnDeleteClicked)="delete(body.id)"></itsm-form-inflater>
+        <ng-container *ngIf="form?.edit">
+          <hr>
+          <h5 class="card-title">연결된 강좌 목록</h5>
+          <div class="table-responsive list-table"> 
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>강좌 종류</th>
+                  <th>강좌명</th>
+                  <th>설치장소</th>
+                  <th>시작일시</th>
+                  <th>종료일시</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of courses">
+                  <td>{{item.type}}</td>
+                  <td>{{item.name}}</td>
+                  <td>{{item.place}}</td>
+                  <td>{{item.startDate}}</td>
+                  <td>{{item.endDate}}</td>
+                </tr>  
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

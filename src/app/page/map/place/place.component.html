@@ -1,0 +1,103 @@
+<div class="search-container">
+  <div class="form-group">
+    <label for="typeahead-basic" class="wt4" style="margin-left: -0.5rem">운영상태</label>
+    <div class="option-container">
+      <select class="form-control" [(ngModel)]="oper_state">
+        <option value="" >전체</option> <!-- *ngIf="session.isAdmin()" -->
+        <option value="1">운영중</option> <!-- *ngFor="let item of orgList" -->
+        <option value="0">미운영중</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+      <label for="typeahead-basic" class="wt4">사용여부</label>
+      <div class="option-container">
+        <select class="form-control" [(ngModel)]="use_yn">
+          <option value="1">사용</option> <!-- *ngFor="let item of orgList" -->
+          <option value="0">미사용</option>
+        </select>
+      </div>
+    </div>
+  <div class="form-group">
+    <label class="search-title" class="wt2" style="margin-left: -3rem">분류</label>
+    <select class="form-control wt8"  [(ngModel)]="place_cls1" style="margin-right:1rem;" (onchange)="place_cls2=''">
+      <option *ngIf="loginSession.isAdmin()" value="-1" selected="selected">전체</option>
+      <option *ngFor="let lv1item of data; let indx = index" [value]="indx">{{lv1item.cls_nm}}</option>
+    </select>
+    <select class="form-control wt8" [(ngModel)]="place_cls2" [disabled]="(place_cls1 < 0 || !place_cls1)" >
+      <option *ngIf="loginSession.isAdmin()" value="">전체</option>
+      <option *ngFor="let lv2item of (place_cls1 > -1 && place_cls1) ? data[place_cls1].lv2 : []" [value]="lv2item.cls_cd">
+        {{lv2item.cls_nm}}
+      </option>
+    </select>
+   </div>
+   <div class="form-group">
+      <label class="search-title" class="wt3" style="margin-left: -0.5rem">장소명</label>
+      <input class="form-control" type="text" style="width:12.5em;" [(ngModel)]="place_nm" (keyup.enter)="filter()">
+    <label for="typeahead-basic" class="wt3" style="margin-left: 0.5rem">등록일</label>
+      <itsm-calendar-split [(fromDt)]="from_dt" [(toDt)]="to_dt" title="등록일자"></itsm-calendar-split>
+      <button type="button" class="btn btn-info" style="margin-right:1rem;" (click)="filter()">조회</button>
+      <button type="button" class="btn btn-primary" (click)="goto_add_group_page()">등록</button>
+   </div>
+</div>
+<div class="total-page" style="text-align: right" >
+    페이지당 표시수
+      <select (ngModelChange)="onChange($event)" [(ngModel)]="pageSize"  >
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+        <option [value]="30">30</option>
+      </select>
+</div>
+<div class="col-lg-12" style="padding:0" >
+  <div class="card" >
+     <div class="card-body">       
+        <div class="table-responsive list-table" style="text-align: center"> 
+            <table class="table" >
+            <colgroup>
+                <col width="5%">
+                <col width="7%">
+                <col width="6%">
+                <col width="5%">
+                <col width="10%">
+                <col width="15%">
+                <col width="30%">
+                <col width="12%">
+                <col width="12%">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th class="noLLine">No</th>
+                    <th>운영상태</th>
+                    <th>사용여부</th>
+                    <th>분류</th>
+                    <th>상세분류</th>
+                    <th>장소명</th>
+                    <th>위치</th>
+                    <th>등록일</th>
+                    <th>수정일</th>
+                </tr>
+            </thead>
+            <tbody > 
+                <tr *ngFor="let item of list; let i = index" class="highlight" (click)="openDetail(item.place_no)"> <!--  [(ngModel)]="list" -->
+                    <td>{{total - ((this.page-1) * this.pageSize + i)}}</td>
+                    <td style="text-align: center">{{item.oper_state_nm}}</td>
+                    <td style="text-align: center">{{item.use_yn == '1' ?'사용':'미사용' }}</td>
+                    <td style="text-align: center">{{item.place_cls_nm}}</td>
+                    <td style="text-align: center">{{item.place_cls_nm2}}</td>
+                    <td style="text-align: center">{{item.place_disp}}</td>
+                    <td style="text-align: center">{{item.location}}</td>
+                    <td style="text-align: center">{{item.reg_dttm}}</td>
+                    <td style="text-align: center">{{item.upd_dttm}}</td>
+            </tbody>
+            </table>
+          </div> 
+        <div class="list-pagination">
+            <div class="total-page" style="text-align: right">
+              <ngb-pagination class="d-flex justify-content-center" (pageChange)="paging($event)" [collectionSize]="collectionSize" [maxSize]="maxPage" 
+              [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+              총 {{total}} 건, {{totalPage}} 페이지
+           </div>
+       </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,205 @@
+<!-- 단체 선택 select -->
+<society-select (OnChange) = "societySelected($event)"></society-select>
+<!-- 게시판 리스트 -->
+<div class="card">
+  <div class="card-body">
+    <!-- 검색 옵션 및 게시판 등록 -->
+    <div class="card-body-header">
+      <div class="form-group d-flex justify-content-end" style="margin:1rem;">
+        <button type="button" class="btn btn-info" (click)="openBoardDetailModal(postBoardModal)" [disabled]="!society_no">게시판등록</button>
+      </div>
+    </div>
+    <!-- 게시판 테이블 -->
+    <div class="card-body-table">
+      <div class="table-responsive">
+        <table class="table">
+          <colgroup>
+            <col width="5%">
+            <col width="20%">
+            <col width="15%">
+            <col width="17%">
+            <col width="17%">
+            <col width="8%">
+            <col width="10%">
+            <col width="8%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>게시판명</th>
+              <th>유형</th>
+              <th>등록일시</th>
+              <th>수정일시</th>
+              <th>표시순서</th>
+              <th>공개범위</th>
+              <th>사용상태</th>
+            </tr>
+          </thead>
+          <tbody>
+          <!-- 테이블 Row 드래그로 disp_ord 변경 -->
+          <!-- <tr *ngFor="let item of boardList; let idx = index" class="clickable-row" (click)="openBoardDetailModal(postBoardModal, item)"
+              [dragDirective]='item' [dragHightlight]="'highlight'" dropDirective (startDrag)="startDrag(idx)"
+              (dropEvent)="addDropItem(idx)"> -->
+              
+          <!-- 테이블 Row 드래그로 disp_ord 변경 부분 제거-->
+            <tr *ngFor="let item of boardList; let idx = index" class="clickable-row" (click)="openBoardDetailModal(postBoardModal, item)">
+              <td>{{idx+1}}</td>
+              <td>{{item.board_tab_nm}}</td>
+              <td>{{item.board_typ_nm}}</td>
+              <td>{{item.reg_dttm}}</td>
+              <td>{{item.upd_dttm}}</td>
+              <td>{{item.disp_ord}}</td>
+              <td>{{item.open_target_nm}}</td>
+              <td>{{item.use_state == '1' ? '사용' : '미사용'}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 게시판 수정, 저장 모달 -->
+<ng-template #postBoardModal let-c="close" let-d="dismiss" size="lg">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">게시판 관리(수정)</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body" style="max-height:45rem;overflow-y:scroll" [ngStyle]="{'opacity':addManagerModalOpen?'0.3':''}">
+    <!-- [ngStyle]="{'background-color':addManagerModalOpen?'#3d3e3f':''}" -->
+    <form #saveForm="ngForm" (ngSubmit)="postBoard()">
+      <div class="form-group">
+        <label class="col-form-label">*게시판 종류</label>
+        <select class="form-control" name="boardType" required [(ngModel)]="postBody.board_typ" #boardType="ngModel">
+          <option [value]='null'>종류를 선택해주세요</option>
+          <option *ngFor="let item of boardOption.type" [ngValue]="item.cd">{{item.cd_nm}}</option>
+        </select>
+        <div *ngIf="boardType.invalid && (boardType.dirty || boardType.touched)" class="alert alert-danger">
+          <div *ngIf="boardType.errors.required"> 필수항목입니다. </div>
+        </div>
+        <div *ngIf="postBody.board_typ" class="board_note" style="margin:0.5rem 0.5rem 0 0.5rem">❊
+          {{getBoardTypeTxt()}}</div>
+      </div>
+      <div class="form-group">
+        <label class="col-form-label">*게시판 명</label>
+        <input type="text" class="form-control" name="boardNm" required [(ngModel)]="postBody.board_tab_nm" #boardNm="ngModel">
+        <div *ngIf="boardNm.invalid && (boardNm.dirty || boardNm.touched)" class="alert alert-danger">
+          <div *ngIf="boardNm.errors.required"> 필수항목입니다. </div>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="postBody.board_tab">
+        <label class="col-form-label">*표시 순서</label>
+        <input type="text" class="form-control" name="dispOrd" [required]="postBody.board_tab" [(ngModel)]="postBody.disp_ord" #dispOrd="ngModel">
+        <div *ngIf="dispOrd.invalid && (dispOrd.dirty || dispOrd.touched)" class="alert alert-danger">
+          <div *ngIf="dispOrd.errors.required"> 필수항목입니다. </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-form-label">*공개범위</label>
+        <select class="form-control" name="openTarget" required [(ngModel)]="postBody.open_target" #openTarget="ngModel">
+          <option [value]='null'>범위를 선택해주세요</option>
+          <option *ngFor="let item of boardOption.target" [ngValue]="item.cd">{{item.cd_nm}}</option>
+        </select>
+        <div *ngIf="openTarget.invalid && (openTarget.dirty || openTarget.touched)" class="alert alert-danger">
+          <div *ngIf="openTarget.errors.required"> 필수항목입니다. </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-form-label">*사용여부</label><br>
+        <div class="form-check form-check-inline" *ngFor="let item of boardOption.use_state; let i = index">
+          <input class="form-check-input" [id]="item.cd_nm + i" type="radio" name="useState" [(ngModel)]="postBody.use_state"
+            value="{{item.cd}}" #useState="ngModel">
+          <label class="form-check-label" [for]="item.cd_nm + i">{{item.cd_nm}}</label>
+          <div *ngIf="useState.invalid && (useState.dirty || useState.touched)" class="alert alert-danger">
+            <div *ngIf="useState.errors.required"> 필수항목입니다. </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-form-label d-flex align-items-center">관리회원
+          <span class="d-flex align-items-center" style="margin-left:1rem;" (click)="openAddManager(addManagerModal)">
+            <i class="mdi mdi-plus-box" style="font-size:1.5rem;cursor:pointer"></i><span>추가</span>
+          </span>
+        </label>
+        <div class="table-responsive">
+          <table class="table" style="margin:0">
+            <colgroup>
+              <col width="20%">
+              <col width="20%">
+              <col width="50%">
+              <col width="10%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>이름</th>
+                <th>회원구분</th>
+                <th>연락처</th>
+                <th>삭제</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of postBody.auth_user">
+                <td>{{item.user_nm}}</td>
+                <td>{{item.mngr_cd_nm}}</td>
+                <td>{{item.cp_no?item.cp_no:item.tel_no?item.tel_no:''}}</td>
+                <td (click)="editAuthUser(item,'delete')"><i class="icon-trash"></i></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="form-control d-flex flex-row justify-content-end" style="border:none; padding:0;">
+        <button type="button" style="margin-right: 5px;" class="btn btn-inverse" (click)="initPostBody()">초기화</button>
+        <button type="submit" style="margin-right: 5px;" class="btn btn-info" [disabled]="!saveForm.valid">저장</button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+<ng-template #addManagerModal let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">회원 검색</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body" style="min-height:30rem;overflow-y:scroll">
+    <div class="form-group form-modal">
+      <div class="label-modal">회원목록</div>
+    </div>
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body" style="padding:0;">
+          <div class="table-responsive">
+            <table class="table">
+              <colgroup>
+                <col width="30%">
+                <col width="30%">
+                <col width="40%">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>이름</th>
+                  <th>회원구분</th>
+                  <th>연락처</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of authCandidateList; let idx = index" class="clickable-row" (click)="editAuthUser(item,'add');c('Save click')">
+                  <td>{{item.user_nm}}</td>
+                  <td>{{item.mngr_cd_nm}}</td>
+                  <td>{{item.cp_no?item.cp_no:item.tel_no?item.tel_no:''}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- <div class="modal-footer">
+    <button type="button" class="btn btn-info" (click)="c('Save click')">선택 완료</button>
+  </div> -->
+</ng-template>

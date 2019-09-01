@@ -1,0 +1,167 @@
+<!-- 단체 선택 select -->
+<society-select (OnChange) = "societySelected($event)"></society-select>
+
+<!-- search 부분 -->
+<div class="search-container">
+  <div class="form-group">
+    <label for="typeahead-basic" class="wt5">진행상태</label>
+    <select class="form-control" [(ngModel)]="searchForm.state">
+      <option [value]='null'>상태</option>
+      <option *ngFor="let item of option.state" [ngValue]="item.cd">{{item.cd_nm}}</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic" class="wt7">이름ㆍ휴대전화</label>
+    <input id="typeahead-basic" class="form-control wt14" name="nameTel" type="text" [(ngModel)]="searchForm.nmOrTel" #nameTel="ngModel"/>
+  </div>
+  <div class="form-group">
+    <label class="search-title" class="wt5">예약일자</label>
+    <itsm-calendar [(fromDt)]="searchForm.fromDt" [(toDt)]="searchForm.toDt" title="시작일자"></itsm-calendar>
+</div>
+  <button type="button" class="btn btn-info" (click)="getInplaceList()">조회</button>
+  <button type="button" class="btn btn-info ml-auto" (click)="setInplaceDetail();openModal(inplaceDetailModal)">수기등록</button>
+</div>  
+<!-- 테이블 -->
+<div class="col-lg-12" style="padding:0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive list-table"> 
+        <table class="table">
+          <colgroup>
+            <col width="5%">
+            <col width="20%">
+            <col width="10%">
+            <col width="15%">
+            <col width="7.5%">
+            <col width="15%">
+            <col width="10%">
+            <col width="10%">
+            <col width="7.5%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>시설·공간 명</th>
+              <th>예약자명</th>
+              <th>연락처</th>
+              <th>진행상태</th>
+              <th>신청/취소일자</th>
+              <th>예약일자</th>
+              <th>결제금액</th>
+              <th>첨부<br>파일</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlight" *ngFor="let item of inplaceList; let idx = index" (click)="setInplaceDetail(item);openModal(inplaceDetailModal)">
+              <td>{{idx+1}}</td>
+              <td style="text-align:left">{{item.room_nm}}</td>
+              <td>{{item.civil_nm}}</td>
+              <td>{{item.cp_no}}</td>
+              <td>{{item.state_nm}}</td>
+              <td>{{item.cancel_yn=='1'?item.cancel_dttm:item.appl_dttm}}</td>
+              <td>{{item.rsrv_dt}}</td>
+              <td>{{approval_amt | number}}</td>
+              <td *ngIf="!item.add_file_url"></td>
+              <td *ngIf="item.add_file_url" (click)="downloadFile(item.add_file_url);$event.stopPropagation();"><i class="fa fa-file-text-o"></i></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="list-pagination">
+  <ngb-pagination class="d-flex justify-content-center" (pageChange)="getInplaceList($event)" [collectionSize]="collectionSize" [maxSize]="maxPage" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+  <div class="total-page" style="text-align: center">총 {{total}} 건, {{totalPage}} 페이지 </div>
+</div>
+
+
+<!-- 이하 팝업들 -->
+<!-- 신청접수정보 상세(수정) 및 등록 -->
+<ng-template #inplaceDetailModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">{{inplaceDetail.rsrv_no?'신청접수정보 상세(수정)':'신청접수정보 등록'}}</h4>
+    <div class="form-group" style="margin:0">
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div class="modal-body">
+    <div class="card">
+      <div class="card-body">
+        <form #saveForm="ngForm" (ngSubmit)="saveInplaceDetail()">
+          <div class="form-group" *ngIf="!inplaceDetail.rsrv_no">
+            <label for="typeahead-basic"><span>*</span>시설·공간</label>
+            <select class="form-control" [(ngModel)]="inplaceDetail.room_no" required (change)="optionSelected('inplace')" name="inplace" #inplace="ngModel">
+              <option [value]='null'>시설·공간 명</option>
+              <option *ngFor="let item of option.room" [ngValue]="item.room_no">{{item.room_nm}}</option>
+            </select>
+            <div *ngIf="inplace.invalid && (inplace.dirty || inplace.touched)" class="alert alert-danger">
+              <div *ngIf="inplace.errors.required"> 필수항목입니다. </div>
+            </div>
+          </div>
+          <!-- 상세정보일 경우 readonly -->
+          <div class="form-group">
+            <label for="typeahead-basic"><span>*</span>신청자명</label>
+            <input id="typeahead-basic" class="form-control" name="civilNm" type="text" required [(ngModel)]="inplaceDetail.civil_nm" #civilNm="ngModel" [readonly]="inplaceDetail.rsrv_no"/>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic"><span>*</span>휴대전화</label>
+            <input id="typeahead-basic" class="form-control" name="cpNo" type="text" required [(ngModel)]="inplaceDetail.cp_no" #cpNo="ngModel" [readonly]="inplaceDetail.rsrv_no"/>
+            <div *ngIf="cpNo.invalid && (cpNo.dirty || cpNo.touched)" class="alert alert-danger">
+              <div *ngIf="cpNo.errors.required"> 필수항목입니다. </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic"><span>*</span>진행상태</label>
+            <select class="form-control" [(ngModel)]="inplaceDetail.state" required name="state" #state="ngModel">
+              <option [value]='null'>상태</option>
+              <option *ngFor="let item of option.state" [ngValue]="item.cd">{{item.cd_nm}}</option>
+            </select>
+            <div *ngIf="state.invalid && (state.dirty || state.touched)" class="alert alert-danger">
+              <div *ngIf="state.errors.required"> 필수항목입니다. </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic">신청일시</label>
+            <input id="typeahead-basic" class="form-control" name="applDttm" type="text" [(ngModel)]="inplaceDetail.appl_dttm" #applDttm="ngModel" readonly/>
+          </div>
+          <!-- 예약일자 -->
+          <div class="form-group">
+              <label class="search-title">예약일자</label>
+              <itsm-calendar noRange="true" [(fromDt)]="inplaceDetail.rsrv_dt" title="예약일자"></itsm-calendar>
+          </div>
+          <div class="form-group" *ngIf="inplaceDetail.rsrv_no">
+            <label for="typeahead-basic">취소일시</label>
+            <input id="typeahead-basic" class="form-control" name="cancelDttm" type="text" [(ngModel)]="inplaceDetail.cancel_dttm" #cancelDttm="ngModel" readonly/>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic">기본이용요금</label>
+            <input id="typeahead-basic" class="form-control" name="baseAmt" type="text" [(ngModel)]="inplaceDetail.base_amt" #baseAmt="ngModel" readonly/>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic">납부대상금액</label>
+            <input id="typeahead-basic" class="form-control" name="payAmt" type="text" [(ngModel)]="inplaceDetail.pay_amt" #payAmt="ngModel"/>
+            <div *ngIf="cpNo.invalid && (cpNo.dirty || cpNo.touched)" class="alert alert-danger">
+              <div *ngIf="cpNo.errors.required"> 필수항목입니다. </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic">결제승인금액</label>
+            <input id="typeahead-basic" class="form-control" name="approvalAmt" type="text" [(ngModel)]="inplaceDetail.approval_amt" #approvalAmt="ngModel"/>
+          </div>
+          <div class="form-group">
+            <label for="typeahead-basic"><span>*</span>메모</label>
+            <textarea id="typeahead-basic" class="form-control" name="memo" type="text" required [(ngModel)]="inplaceDetail.rsrv_memo" #memo="ngModel"></textarea>
+            <div *ngIf="memo.invalid && (memo.dirty || memo.touched)" class="alert alert-danger">
+              <div *ngIf="memo.errors.required"> 필수항목입니다. </div>
+            </div>
+          </div>
+          <div class="form-group d-flex justify-content-center">
+            <button type="submit" class="btn btn-info" [disabled]="!saveForm.valid">저장</button>
+            <button type="button" *ngIf="inplaceDetail.rsrv_no" style="margin-left: 1rem;" class="btn btn-danger" (click)="deleteInplace()">삭제</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</ng-template>

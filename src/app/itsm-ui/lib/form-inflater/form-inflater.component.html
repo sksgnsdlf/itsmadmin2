@@ -1,0 +1,97 @@
+<h4 class="card-title" [hidden]='hideTitle'>{{edit?'수정':'신규'}}</h4>
+<form [formGroup]="fiForm" (ngSubmit)="OnSubmitted.emit()">
+  <div *ngIf="!customBtn" style="text-align: right;">
+    <button style="display: inline;" *ngIf="edit" type="button" class="btn btn-inverse" (click)="edit = false;fiForm.reset()">신규</button>
+  </div>
+
+  <ng-content select="[fi-before]"></ng-content>
+
+  <ng-template ngFor let-control [ngForOf]='fiControls'>
+    <ng-container *ngTemplateOutlet="controlTemplate; context: { control: control }"></ng-container>
+  </ng-template >
+
+  <ng-content select="[fi-after]"></ng-content>
+
+  <div *ngIf="!customBtn" class="form-control d-flex flex-row" style="border:none; padding:0;" [ngClass]="buttonLoc=='left'?'justify-content-start':buttonLoc=='center'?'justify-content-center':'justify-content-end'">
+    <button *ngIf="!edit" type="button" style="margin-right: 5px;" class="btn btn-inverse" (click)="fiForm.reset()">{{buttons.reset}}</button>
+    <button *ngIf="edit" type="button" style="margin-right: 5px;" class="btn btn-danger" (click)="delete()">{{buttons.delete}}</button>
+    <button *ngIf="buttons.submit" type="submit" style="margin-right: 5px;" class="btn btn-info" [disabled]="!fiForm.valid">{{buttons.submit}}</button>
+  </div>
+  <div *ngIf="customBtn" class="form-control d-flex flex-row" style="border:none; padding:0;" [ngClass]="buttonLoc=='left'?'justify-content-start':buttonLoc=='center'?'justify-content-center':'justify-content-end'">
+    <button *ngIf="customBtn.reset" type="button" style="margin-right: 5px;" class="btn btn-inverse" (click)="fiForm.reset()">{{customBtn.reset}}</button>
+    <button *ngIf="customBtn.delete" type="button" style="margin-right: 5px;" class="btn btn-danger" (click)="delete()">{{customBtn.delete}}</button>
+    <button *ngIf="customBtn.submit" type="submit" style="margin-right: 5px;" class="btn btn-info" [disabled]="!fiForm.valid">{{customBtn.submit}}</button>
+  </div>
+</form>
+
+<ng-template #controlTemplate let-control="control">
+  <div [ngClass]="{ 'mr-3': control.type !== 'hidden' }" [ngSwitch]="control.type">
+    <!-- 그룹 -->
+    <div class="d-flex border p-3 my-3" *ngSwitchCase="'group'">
+      <ng-template  ngFor let-innerControl [ngForOf]='control.fiControls'>
+        <ng-container *ngTemplateOutlet="controlTemplate; context: { control: innerControl }"></ng-container>
+      </ng-template>
+    </div>
+    <!-- 히든 -->
+    <fi-control *ngSwitchCase="'hidden'" [control]='control' [formGroup]='fiForm'>
+      <input type="hidden" [formControlName]="control.field">
+    </fi-control>
+    <!-- 파일 -->
+    <fi-control *ngSwitchCase="'file'" [control]='control' [formGroup]='fiForm'>
+      <input type="file" [formControlName]="control.field" (change)="onFileChange($event, control)">
+    </fi-control>
+    <!-- 이미지 -->
+    <fi-control *ngSwitchCase="'image'" [control]='control' [formGroup]='fiForm'>
+      <div class="flex-grow-1 text-center">
+        <div (click)="openFile(inputFile)" class="d-inline-block border" 
+          style="cursor: pointer; overflow: hidden; max-width: 100%; min-width: 70px; min-height: 70px;" 
+          [ngStyle]="{ width: control.imageSize?control.imageSize.width:null, height: control.imageSize?control.imageSize.height:null }">
+          <img *ngIf="control.fileData || control.fc.value" style="max-width: 100%;"
+            [src]="control.fileData?control.fileData:control.fc.value" >
+        </div>
+        <input #inputFile style="display: none;" (change)="onFileChange($event, control, true)" type="file" name="image">
+        <i class="mdi mdi-delete float-right" (click)="control.fc.reset()" style="cursor: pointer; font-size: 1.5em;"></i>
+      </div>
+    </fi-control>
+    <!-- 셀렉트 -->
+    <fi-control *ngSwitchCase="'select'" [control]='control' [formGroup]='fiForm'>
+      <select class="form-control" [formControlName]="control.field">
+        <option [value]='null'>{{control.select.emptyText}}</option>
+        <ng-template [ngIf]="control.select.options">
+          <option *ngFor="let item of control.select.options" [value]="item.value">{{item.text}}</option>
+        </ng-template>
+      </select>
+    </fi-control>
+    <!-- 멀티 셀렉트 -->
+    <fi-control *ngSwitchCase="'multi'" [control]='control' [formGroup]='fiForm'>
+      <div></div>
+      <div [formArrayName]="control.field">
+        <div class="form-check form-check-inline" *ngFor="let item of control.select.options; let i = index">
+          <input class="form-check-input" [id]="control.field + i" type="checkbox" [formControlName]="i" [value]="item.value">
+          <label class="form-check-label" [for]="control.field + i">{{item.text}}</label>
+        </div>
+      </div>
+    </fi-control>
+    <!-- 라디오버튼 -->
+    <fi-control *ngSwitchCase="'radio'" [control]='control' [formGroup]='fiForm'>
+      <ng-template [ngIf]="control.select.options">
+        <div></div>
+        <div class="form-check form-check-inline" *ngFor="let item of control.select.options; let i = index">
+          <input class="form-check-input" [id]="control.field + i" type="radio" [formControlName]="control.field" [value]="item.value" (click)="radioSelect(control.field,item.value)">
+          <label class="form-check-label" [for]="control.field + i">{{item.text}}</label>
+        </div>
+      </ng-template>
+    </fi-control>
+    <!-- 기간 -->
+    <fi-control *ngSwitchCase="'period'" [control]='control' [formGroup]='fiForm'>
+      <itsm-calendar [formControlName]="control.field"></itsm-calendar>
+    </fi-control>
+    <!-- 기타 -->
+    <fi-control *ngSwitchDefault [control]='control' [formGroup]='fiForm'>
+      <input
+        class="form-control"
+        [formControlName]="control.field"
+        [placeholder]="control.placeholder" [type]='control.type' [readonly]="control.readonly" [step]='control.step?control.step:0'>
+    </fi-control>
+  </div>
+</ng-template>

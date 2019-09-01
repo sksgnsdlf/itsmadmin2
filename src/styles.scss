@@ -1,0 +1,119 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import '~perfect-scrollbar/css/perfect-scrollbar.css';
+$tb-col-color:#f0f2f4;
+$tb-border-color:#dde1e5;
+$tb-hover-color:#f4f4f4;
+.ps .ps__scrollbar-y-rail {
+    left: 3px;
+    right: auto;
+}
+.search-container{
+    display:flex;
+    padding:0 1rem;
+    padding-bottom:1rem;
+    flex-direction: row;
+    align-items:center;
+    justify-content:start;
+    .form-group{
+        margin:0;
+        margin-right:1rem;
+        display:flex;
+        flex-direction: row;
+        align-items: center;
+        label{
+            margin:0;
+            padding:0;
+            margin-right:1rem;
+            width: 5rem;
+            text-align: right;
+        }
+        .option-container{
+            display:flex;
+            flex-direction: row;
+            select{
+                width:7rem;
+            }
+        }
+        select{
+            width:8rem;
+        }
+        .ngb-dp-navigation-select >.custom-select
+        {
+              width:100% !important;
+        }
+        itsm-ckeditor{
+            width:20rem;
+        }
+    }
+    .btn-container{
+        display:flex;
+        flex-direction: row;
+        button{
+            margin-right:1rem;
+            align-self:center;
+        }
+    }
+    button{
+        height:2.5rem;
+    }
+}
+.wt3{ width:3rem!important; }
+.wt4{ width:4rem!important; }
+.wt5{ width:5rem!important; }
+.wt6{ width:6rem!important; }
+.wt7{ width:7rem!important; }
+.wt8{ width:8rem!important; }
+.wt9{ width:9rem!important; }
+.wt10{ width:10rem!important; }
+.wt12{ width:12rem!important; }
+.wt14{ width:14rem!important; }
+.wt16{ width:16rem!important; }
+.wt18{ width:18rem!important; }
+.wt20{ width:20rem!important; }
+.tb-col-color{ background-color:$tb-col-color;}
+.tb-border-color{ border:1px solid $tb-border-color;}
+//width percentage
+.wtp10{ width: 10%!important; }
+.wtp20{ width: 20%!important; }
+.wtp30{ width: 30%!important; }
+.wtp40{ width: 40%!important; }
+.wtp50{ width: 50%!important; }
+.fb10{ flex-basis: 10%!important; }
+.fb20{ flex-basis: 20%!important; }
+.fb30{ flex-basis: 30%!important; }
+.fb40{ flex-basis: 40%!important; }
+.fb50{ flex-basis: 50%!important; }
+
+
+.print-area {
+    display: none;
+}
+
+@media print {
+    div:not(.print-area) { display:none; }
+    .print-area { 
+        display: block;
+
+        h1 {
+            text-align: center;
+        }
+        h2 {
+            margin-top: 20px;
+            &::before {
+                content: '□';
+                margin-right: 10px;
+            }
+        }
+        p {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        img {
+            max-width: 60%;
+            display: block;
+            margin: auto;
+            margin-top: 20px;
+        }
+    }
+ }

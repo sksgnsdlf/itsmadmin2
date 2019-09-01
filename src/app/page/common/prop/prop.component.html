@@ -1,0 +1,111 @@
+<div class="row" style="padding:1rem;padding-bottom:0;">
+  <div class="col-3">
+    <itsm-tree-view [height]="440" [data]="attrs" (OnClick)="getAttrUser($event,1)" [delete]="true" (OnDelete)="deleteAttr($event)"></itsm-tree-view>
+    <div class="card">
+      <div class="card-body">
+        <h4>신규 회원 속성 등록</h4>
+        <div class="row" style="margin:0;">
+          <div class="form-group col-10" style="margin:0;padding-left:0;">
+            <input class="form-control" name="groupName" [(ngModel)]="addAttr.cd_nm" #groupName="ngModel" />
+          </div>
+          <button type="button" class="btn btn-info col-2" (click)="saveAttr()">등록</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-3">
+    <div class="card">
+      <div class="card-body">
+        <h4>{{seletedAttr.cd_nm?seletedAttr.cd_nm:'회원 속성 명'}}</h4>
+        <div style="float:right !important;">총 {{userTotal}}명</div>
+        <div class="table-responsive list-table scroll" style="height: 550px;">
+          <table class="table ">
+            <colgroup>
+              <col width="5%">
+              <col width="20%">
+              <col width="45%">
+              <col width="30%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th><input type="checkbox" [(ngModel)]="attrUserSelectAll" (change)="selectAll(attrUsers, attrUserSelectAll)"
+                    name="memsSelectedA" #memsSelectedA="ngModel"></th>
+                <th>번호</th>
+                <th>회원명</th>
+                <th>신분구분</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of attrUsers">
+                <td><input type="checkbox" [(ngModel)]="item.selected" name="memsSelected" #memsSelected="ngModel"></td>
+                <td>{{item.id}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.role}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="list-pagination">
+          <ngb-pagination class="d-flex justify-content-center" (pageChange)="getAttrUser(seletedAttr,$event)"
+            [collectionSize]="userTotal" [maxSize]="maxPageSize" [(page)]="userPage" aria-label="Default pagination"></ngb-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-1">
+    <div style="padding-top:195px;" class="d-flex flex-column">
+      <button type="button" class="btn align-self-center" style="margin-bottom:20px" (click)="remove()"><i class="icon-arrow-right"></i></button>
+      <button type="button" class="btn align-self-center" (click)="add()"><i class="icon-arrow-left"></i></button>
+    </div>
+  </div>
+  <div class="col-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="row" style="margin:0;margin-bottom: 1rem;">
+          <select class="form-control col-3" style="margin:0;" name="role" id="role" [(ngModel)]="selectedUserRole">
+            <option [value]="-1">신분구분</option>
+            <option *ngFor="let item of userRole" [value]="item.id">{{item.name}}</option>
+          </select>
+          <div class="form-group col-7" style="margin:0;">
+            <label for="name">이름</label>
+            <input class="form-control" name="names" [(ngModel)]="searchMember" (keyup.enter)="getMember(1)" #names="ngModel" />
+          </div>
+          <button type="button" class="btn btn-info col-2" (click)="getMember(1)">조회</button>
+        </div>
+        <div class="table-responsive list-table scroll" style="height: 550px;">
+          <table class="table">
+            <colgroup>
+              <col width="5%">
+              <col width="20%">
+              <col width="45%">
+              <col width="30%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th><input type="checkbox" [(ngModel)]="memSelectAll" (change)="selectAll(members, memSelectAll)" name="listSelectedA"
+                    #listSelectedA="ngModel"></th>
+                <th>번호</th>
+                <th>회원명</th>
+                <th>신분구분</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of members">
+                <td><input type="checkbox" [(ngModel)]="item.selected" name="listSelected" #listSelected="ngModel"></td>
+                <td>{{item.id}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.role}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="list-pagination">
+          <ngb-pagination class="d-flex justify-content-center" (pageChange)="getMember($event)" [collectionSize]="memTotal"
+            [maxSize]="maxPageSize" [(page)]="memPage" aria-label="Default pagination"></ngb-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-1">
+  </div>
+</div>

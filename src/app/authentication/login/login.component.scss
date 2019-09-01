@@ -1,0 +1,29 @@
+.install {
+    .guide {
+        display: none;
+        position: fixed;
+        background: rgba($color: grey, $alpha: 0.4);
+        padding: 20px;
+    
+        top: 5%;
+        left: 50%;
+        transform: translateX(-50%);
+        overflow: hidden;
+        
+        width: 50%;
+
+        z-index: 999;
+    
+        img {
+            width: 40% !important;
+            height: auto !important;
+            display: inline-block;
+            margin: 30px auto 0px auto;
+        }
+    }
+    &:hover {
+        .guide {
+            display: block;
+        }
+    }
+}

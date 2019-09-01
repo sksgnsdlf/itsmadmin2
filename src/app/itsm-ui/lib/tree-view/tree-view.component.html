@@ -1,0 +1,35 @@
+  <!-- Card -->
+  <div class="card">
+      <div class="card-body">
+          <h4 class="card-title" *ngIf="title">{{title}}</h4>
+          <div class="card-text">
+            <ng-content></ng-content>
+            <input class="form-control search" *ngIf="searchShow" type="text" placeholder="검색" [(ngModel)]="q" (keyup)="search(q);">
+            <ul class="level1" [hidden]="q" [ngStyle]="{ height: height + 'px' }" > 
+              <li *ngFor="let level1 of data" (click)="level1.selected = checkbox&&!level1.sub?.length?!level1.selected:null; toggleFolder(level1)" [ngClass]="{ sub: level1.sub, on: level1.expanded, off: !level1.expanded }">
+                <input *ngIf="checkbox&&!level1.sub?.length" type="checkbox" [(ngModel)]="level1.selected">
+                <a>{{level1.name}} <span *ngIf="delete" (click)="$event.stopPropagation();OnDelete.emit(level1)"class="fa fa-trash del_btn"></span></a> 
+                <ul class="level2" *ngIf="level1.expanded&&level1.sub?.length">
+                  <li *ngFor="let level2 of level1.sub" (click)="$event.stopPropagation();level2.selected = checkbox&&!level2.sub?.length?!level2.selected:null; toggleFolder(level2)" [ngClass]="{ sub: level2.sub?.length, on: level2.expanded, off: !level2.expanded }">
+                    <input *ngIf="checkbox&&!level2.sub?.length" type="checkbox" [(ngModel)]="level2.selected">	
+                    <a>{{level2.name}}</a>
+                    <ul class="level3" *ngIf="level2.expanded&&level2.sub?.length">
+                      <li *ngFor="let level3 of level2.sub" (click)="$event.stopPropagation(); level3.selected = !level3.selected; toggleFolder(level3)" >
+                        <input *ngIf="checkbox" type="checkbox" [(ngModel)]="level3.selected">
+                        <a>{{level3.name}}</a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <ul class="dep1" *ngIf="q && filterd">
+              <li *ngFor="let item of filterd" (click)="item.selected = !item.selected; OnClick.emit(item)" [ngClass]="{ sub: item.sub?.length, on: item.expanded, off: !item.expanded }">
+                <input type="checkbox" [(ngModel)]="item.selected">	
+                <a>{{item.name}}</a>
+              </li>
+            </ul>
+          </div>
+      </div>
+  </div>
+  <!-- Card -->

@@ -1,0 +1,80 @@
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <h3 class="title">종합 현황</h3>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <h5 class="card-title">서비스 이용현황</h5>
+                <canvas baseChart height="90px" [datasets]="periodData" [labels]="periodLabels" [options]="{responsive: true}"
+                    [legend]="false" [chartType]="'line'" (chartHover)="chartHovered($event)" (chartClick)="chartClicked($event)">
+                </canvas>
+            </div>
+            <div class="col-lg-3">
+                <h5 class="card-title">기관현황(분류)</h5>
+                <canvas baseChart height="220px" [data]="clsData" [labels]="clsLabels" [chartType]="'doughnut'"
+                    [legend]="false" (chartHover)="chartHovered($event)" (chartClick)="chartClicked($event)">
+                </canvas>
+            </div>
+            <div class="col-lg-3">
+                <h5 class="card-title">서비스현황(속성)</h5>
+                <canvas baseChart height="220px" [data]="boardData" [labels]="boardLabels" [chartType]="'doughnut'"
+                    [legend]="false" (chartHover)="chartHovered($event)" (chartClick)="chartClicked($event)">
+                </canvas>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <h3 class="title">조건별 현황</h3>
+        </div>
+        <div class="row search-container ">
+            <div class="form-group">
+                <label>단체분류</label>
+                <div class="search-content">
+                    <select class="form-control" [(ngModel)]="searchForm.society_cls">
+                        <option [value]="null">선택</option>
+                        <option *ngFor="let item of options.societies" [value]="item.society_cls">{{item.cls_nm}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>행정구역</label>
+                <div class="search-content">
+                    <select class="form-control" [(ngModel)]="searchForm.district_cd">
+                        <option [value]="null">선택</option>
+                        <option *ngFor="let item of options.districts" [value]="item.district_cd">{{item.district_nm}}</option>
+                    </select>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary" style="margin-right:2rem;" (click)="getConditionCharts()">조회</button>
+
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <h5 class="card-title">서비스 이용현황</h5>
+                <canvas baseChart  height="90px" [datasets]="periodData_c" [labels]="periodLabels" [options]="{responsive: true}"
+                    [legend]="false" [chartType]="'line'" (chartHover)="chartHovered($event)" (chartClick)="chartClicked($event)">
+                </canvas>
+            </div>
+            <div class="col-lg-3">
+                <h5 class="card-title">기관현황(분류)</h5>
+                <canvas baseChart height="220px" [ngClass]="{ on: noDataCls }" [data]="clsData_c" [labels]="clsLabels"
+                    [chartType]="'doughnut'" [legend]="false" (chartHover)="chartHovered($event)" (chartClick)="chartClicked($event)">
+                </canvas>
+                <canvas id="clsChart" baseChart height="220px" [ngClass]="{ on: !noDataCls }" >
+                </canvas>
+            </div>
+            <div class="col-lg-3">
+                <h5 class="card-title">서비스현황(속성)</h5>
+                <canvas baseChart height="220px" [ngClass]="{ on: noDataBoard }" [data]="boardData_c" [labels]="boardLabels"
+                    [chartType]="'doughnut'" [legend]="false" (chartHover)="chartHovered($event)" (chartClick)="chartClicked($event)">
+                </canvas>
+                <canvas id="boardChart" baseChart height="220px" [ngClass]="{ on: !noDataBoard }" >
+                </canvas>
+            </div>
+        </div>
+    </div>
+</div>

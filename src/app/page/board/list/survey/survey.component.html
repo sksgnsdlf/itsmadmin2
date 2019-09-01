@@ -1,0 +1,287 @@
+<form #saveForm="ngForm" (ngSubmit)="save()">
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>설문 제목</label>
+    <input id="typeahead-basic" name="subj" type="text" required [(ngModel)]="info.survey_subj" class="form-control medium"
+      #subj="ngModel" />
+    <div *ngIf="subj.invalid && (subj.dirty || subj.touched)" class="alert alert-danger">
+      <div *ngIf="subj.errors.required"> 필수항목입니다. </div>
+    </div>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>내용</label>
+    <itsm-ckeditor (onLoad)="OnEditorLoaded()" name="ckedit" #ck [ngStyle]="{'display': 'block'}" required [(ngModel)]="info.survey_txt"
+      [language]="'ko'" #ckedit="ngModel"></itsm-ckeditor>
+    <div *ngIf="ckedit.invalid && (ckedit.dirty || ckedit.touched)" class="alert alert-danger">
+      <div *ngIf="ckedit.errors.required"> 필수항목입니다. </div>
+    </div>
+  </div>
+  <!-- 대표이미지 -->
+  <div class="form-group">
+    <label for="typeahead-basic">대표이미지 등록</label>
+    <div [ngStyle]="{'display': (!image && !thumbInfo.img_url )?'none':'block'}" style="width:50%; height:50%;">
+      <img style="width: 100%; height:100%;" [src]="thumbInfo.img_url?thumbInfo.img_url:image" lt="">
+    </div>
+    <input #inputImage style="display: none;" (change)="checkImageType($event)" type="file">
+    <button type="button" [ngStyle]="{'margin-left':(!image && !thumbInfo.img_url )?'0': '1rem'}" class="btn btn-info"
+      (click)="openImage()">가져오기</button>
+    <button type="button" [ngStyle]="{'margin-left':(!image && !thumbInfo.img_url )?'0': '1rem'}" class="btn btn-info"
+      (click)="deleteImage(contentCheck)">파일삭제</button>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>조사기간</label>
+    <itsm-calendar [(fromDt)]="info.start_dt" [(toDt)]="info.close_dt" style="margin-right:0.5rem"></itsm-calendar>
+    <input class="form-control short" name="startTm" type="time" [(ngModel)]="info.start_tm" #startTm="ngModel">
+    <span style="margin: 1rem">~</span>
+    <input class="form-control short" name="closeTm" type="time" [(ngModel)]="info.close_tm" #closeTm="ngModel">
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>진행상태</label>
+    <select class="form-control" name="state" [(ngModel)]="info.state" #state="ngModel">
+      <option *ngFor="let item of options.state" [ngValue]="item.id">{{item.name}}</option>
+    </select>
+    <div *ngIf="state.invalid && (state.dirty || state.touched)" class="alert alert-danger">
+      <div *ngIf="state.errors.required"> 필수항목입니다. </div>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>설문참여대상</label>
+    <select class="form-control" name="surveyTarget" [(ngModel)]="info.survey_target" #surveyTarget="ngModel">
+      <option *ngFor="let item of options.target" [ngValue]="item.id">{{item.name}}</option>
+    </select>
+    <button type="button" class="btn btn-info" (click)="getMbrCls(contentMmrCls)" [hidden]="info.survey_target !=3"
+      style="margin-left: 0.5rem;">회원
+      종류 선택</button>
+    <div *ngIf="surveyTarget.invalid && (surveyTarget.dirty || surveyTarget.touched)" class="alert alert-danger">
+      <div *ngIf="surveyTarget.errors.required"> 필수항목입니다. </div>
+    </div>
+  </div>
+  <div class="form-group" [hidden]="info.survey_target !=3">
+    <label for="typeahead-basic" style="align-self:flex-start; margin-top:0.5rem;">기관 단체 회원 종류</label>
+    <div style="width:60%">
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive list-table">
+            <table class="table" style="margin:0">
+              <thead>
+                <tr>
+                  <th>회원 종류 명</th>
+                  <th>관리 메모</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of memberCls">
+                  <td>{{item.mbr_typ_nm}}</td>
+                  <td>{{item.memo_txt}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>댓글허용</label>
+    <div class="custom-control custom-radio" *ngFor="let item of yesOrNo; let idx = index">
+      <input type="radio" id="cmntYn{{idx}}" name="cmntYn" required class="custom-control-input" value="{{item.value}}"
+        [(ngModel)]="info.cmnt_yn" #cmntYn="ngModel">
+      <label class="custom-control-label" for="cmntYn{{idx}}">{{item.nm}}</label>
+      <div *ngIf="cmntYn.invalid && (cmntYn.dirty || cmntYn.touched)" class="alert alert-danger">
+        <div *ngIf="cmntYn.errors.required"> 필수항목입니다. </div>
+      </div>
+    </div>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>결과공개</label>
+    <div class="custom-control custom-radio" *ngFor="let item of yesOrNoOpen; let idx = index">
+      <input type="radio" id="openYn{{idx}}" name="openYn" required class="custom-control-input" value="{{item.value}}"
+        [(ngModel)]="info.open_yn" #openYn="ngModel">
+      <label class="custom-control-label" for="openYn{{idx}}">{{item.nm}}</label>
+      <div *ngIf="openYn.invalid && (openYn.dirty || openYn.touched)" class="alert alert-danger">
+        <div *ngIf="openYn.errors.required"> 필수항목입니다. </div>
+      </div>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">QR코드</label>
+    <input id="typeahead-basic" name="userNm" type="text" [(ngModel)]="info.qr_code" class="form-control long" #userNm="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">키워드</label>
+    <tag-input class="form-control long" name="hashtag" [(ngModel)]="hashTag" [identifyBy]="'id'" #hashtag="ngModel"  [placeholder]="'+키워드 입력 후 엔터'" [secondaryPlaceholder]="'+키워드 입력 후 엔터'"></tag-input>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">참가인원 수 </label>
+    <input type="number" name="joinCnt" min="0" max="10000" class="form-control" [(ngModel)]="info.join_cnt" readonly
+      #joinCnt="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">댓글 수 </label>
+    <input type="number" name="cmntCnt" min="0" max="10000" class="form-control" [(ngModel)]="info.cmnt_cnt" readonly
+      #cmntCnt="ngModel" />
+  </div>
+
+  <div class="form-group">
+    <label for="typeahead-basic" style="align-self:flex-start; margin-top:0.5rem;">설문항목</label>
+    <div style="width:70%">
+      <button type="button" class="btn btn-info" style="margin-bottom : 0.5rem;" (click)="openItem(contentItem)">문항추가</button>
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive list-table">
+            <table class="table">
+              <colgroup>
+                <col width="10%">
+                <col width="80%">
+                <col width="10%">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>설문 항목</th>
+                  <th>유형</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="highlight" *ngFor="let item of items; let idx = index" (click)="openItem(contentItem, item, idx)">
+                  <td>{{idx+1}}</td>
+                  <td>{{item.item_nm}}</td>
+                  <td>{{item.item_typ_nm}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="form-group fixed">
+    <ngb-alert [dismissible]="false" *ngIf="showAlert">
+      <strong *ngIf="saveResult">{{saveString}}</strong>
+      <strong *ngIf="!saveForm.valid">필수사항을 입력해주세요.</strong>
+      <strong *ngIf="saveForm.valid && !saveResult">{{saveString}}</strong>
+    </ngb-alert>
+    <!-- <button type="button" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-inverse" (click)="saveForm.resetForm({});">초기화</button> -->
+    <button type="button" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-inverse" (click)="goList()">목록으로</button>
+    <button type="button" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-inverse" (click)="delete()"
+      [disabled]="!survey_no">삭제</button>
+    <button type="submit" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-info" (click)="alertControl()"
+      [disabled]="!saveForm.valid">저장</button>
+  </div>
+</form>
+
+<!-- 확인 모달 -->
+<ng-template #contentCheck let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">삭제 </h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    이미지가 서버에서 삭제됩니다. 정말로 삭제하시겠습니까 ?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info" (click)="d('Save click')">취소</button>
+    <button type="button" class="btn btn-info" (click)="c('Cross click')">삭제</button>
+  </div>
+</ng-template>
+
+<!-- 설문 내용 등록  모달 -->
+<ng-template #contentItem let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">설문 내용 등록 </h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="typeahead-basic">문항 제목 </label>
+      <textarea class="form-control input-modal" style="margin:1.25rem; margin-top:0" [(ngModel)]="surveyItem.item_nm"
+        id="" cols="70" rows="2"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="typeahead-basic">응답유형</label>
+      <select class="form-control" name="item_typ" [(ngModel)]="surveyItem.item_typ" (change)="itemTypeSelected()"
+        #item_typ="ngModel">
+        <option *ngFor="let item of options.item" [ngValue]="item.id">{{item.name}}</option>
+      </select>
+      <label for="typeahead-basic" style="margin-left:1rem; flex-basis: 20%;" *ngIf="surveyItem.item_typ ==2">답변 허용 개수
+      </label>
+      <input type="number" name="selectCnt" min="0" max="10000" class="form-control" [(ngModel)]="surveyItem.select_cnt"
+        #selectCnt="ngModel" *ngIf="surveyItem.item_typ ==2" />
+    </div>
+    <div class="form-group" *ngIf="surveyItem.item_typ ==2">
+      <label for="typeahead-basic">답변항목추가</label>
+      <input type="text" class="form-control long" [(ngModel)]="multiInput" #selectCnt="ngModel" />
+      <button type="button" class="btn btn-info" style="margin-left:1rem;" (click)="addMulti()">추가하기</button>
+    </div>
+    <div class="card" *ngIf="surveyItem.item_typ ==2">
+      <div class="card-body" style="padding:0;">
+        <div class="table-responsive list-table">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>답변항목</th>
+                <th>삭제</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of surveyItem.multi; let idx = index">
+                <td>{{idx+1}}</td>
+                <td> <input type="text" class="form-control" [(ngModel)]="item.choice_txt" /></td>
+                <td><button style="cursor:pointer" class="btn btn-info" type="button" (click)="deleteMulti(idx)"><i
+                      class="icon-trash"></i></button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info" (click)="c('d')">삭제</button>
+    <button type="button" class="btn btn-info" (click)="c('a')">저장</button>
+    <button type="button" class="btn btn-info" (click)="d('Cross click')">닫기</button>
+  </div>
+</ng-template>
+<!-- 설문참여대상설정  모달 -->
+<ng-template #contentMmrCls let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">게시물 공개설정 회원 등록 </h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="card">
+    <div class="card-body" style="padding:0;">
+      <div class="table-responsive list-table">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>사용</th>
+              <th>회원종류 명</th>
+              <th>관리메모</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of optionsmemberCls; let idx = index" (click)="item.selected =!item.selected">
+              <td><input type="checkbox" [checked]="item.selected"></td>
+              <td>{{item.mbr_typ_nm}}</td>
+              <td>{{item.memo_txt}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info" (click)="d('Cross click')">취소</button>
+    <button type="button" class="btn btn-info" (click)="c('Save click')">저장</button>
+  </div>
+</ng-template>

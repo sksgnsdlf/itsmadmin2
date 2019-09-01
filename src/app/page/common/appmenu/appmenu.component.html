@@ -1,0 +1,13 @@
+<div class="row">
+  <div class="col-3">
+    <itsm-tree-view [data]="data" (OnClick)="select($event)"></itsm-tree-view>
+  </div>
+  <div class="col-6">
+    <div class="card">
+      <div class="card-body">
+        <itsm-form-inflater *ngIf="categoryLoaded && authLoaded" [options]='formConfig' [(value)]='body' (OnSubmitted)="save()" (OnDeleteClicked)="delete()"></itsm-form-inflater>
+      </div>
+    </div>
+  </div>
+</div>
+      

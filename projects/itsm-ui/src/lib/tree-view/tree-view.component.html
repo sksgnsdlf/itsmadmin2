@@ -1,0 +1,32 @@
+  <!-- Card -->
+  <div class="card">
+      <div class="card-body">
+          <h4 class="card-title" *ngIf="title">{{title}}</h4>
+          <div class="card-text">
+            <ng-content></ng-content>
+            <input class="form-control search" type="text" placeholder="검색" [(ngModel)]="q" (keyup)="search(q);">
+            <ul class="level1" [hidden]="q">
+              <li *ngFor="let level1 of data" [ngClass]="{ sub: level1.sub?.length, on: level1.expanded, off: !level1.expanded }">
+                <input *ngIf="checkbox&&!level1.sub?.length" type="checkbox" [(ngModel)]="level1.selected">
+                <a (click)="toggleFolder(level1)">{{level1.name}}</a>
+                <ul class="level2" *ngIf="level1.expanded&&level1.sub?.length">
+                  <li *ngFor="let level2 of level1.sub" [ngClass]="{ sub: level2.sub?.length, on: level2.expanded, off: !level2.expanded }">
+                    <input *ngIf="checkbox&&!level2.sub?.length" type="checkbox" [(ngModel)]="level2.selected">	
+                    <a (click)="toggleFolder(level2)">{{level2.name}}</a>
+                    <ul class="level3" *ngIf="level2.expanded&&level2.sub?.length">
+                      <li *ngFor="let level3 of level2.sub">
+                        <input *ngIf="checkbox" type="checkbox" [(ngModel)]="level3.selected">
+                        <a (click)="toggleFolder(level3)">{{level3.name}}</a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <ul class="dep1" *ngIf="q && fillterd">
+              <li *ngFor="let item of fillterd"><a (click)="OnClick.emit(item)">{{item.name}}</a></li>
+            </ul>
+          </div>
+      </div>
+  </div>
+  <!-- Card -->

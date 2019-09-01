@@ -1,0 +1,1137 @@
+<div class="row" style="width:80rem; margin-bottom:1rem;">
+    <button *ngIf="isCallcenterMember" type="button" class="btn btn-info" style="margin-right:0.5rem" (click)="openCallcenterPopup(callcenterModal)">콜센터
+        상담내역</button>
+    <!--
+    <button *ngIf="is_editable" type="button" class="btn btn-info" style="margin-right:0.5rem" (click)="openAsgnPopup(showAssignModal, i, 1)">직원조회</button>
+    <button type="button" class="btn btn-info" style="margin-right:0.5rem" (click)="searchCase('', 0)">목록보기</button>
+    -->
+    <button type="button" class="btn btn-info" style="margin-right:0.5rem" (click)="searchCase2()">목록보기</button>
+    <button *ngIf="reportData.complaint_no" type="button" class="btn btn-info" style="margin-right:0.5rem" (click)="getReportData()">새로고침</button>
+    <button type="button" class="btn btn-info" style="margin-right:0.5rem" (click)="refresh()">신규</button>
+    <button *ngIf="reportData.complaint_no && reportData.proc_state < 4" type="button" class="btn btn-info" style="margin-right:0.5rem" (click)="showAssignorPopups(5, cancelModal)">취소</button>
+</div>
+
+<!-- 상단 접수 상세, 분류 및 매뉴얼 검색 -->
+<div class="card" style="width:80rem;">
+    <div class="card-body row">
+        <!-- 접수 상세 -->
+        <div style="padding:1rem; width: 48rem; float: left;">
+            <div class="d-flex flex-row row-mb" *ngIf="reportData.duty_dt">
+                <div class="wt8 title">당직일자</div>
+                <div class="wt8">
+                    {{reportData.duty_dt | date }}
+                </div>
+                <div class="wt8 title" *ngIf="reportData.duty_typ_nm">당직/일직</div>
+                <div class="wt8">
+                    {{reportData.duty_typ_nm}}
+                </div>
+            </div>
+            <div class="d-flex flex-row row-mb">
+                <div class="wt8 title">근무자(소속)</div>
+                <div style="padding-right: 5px" *ngIf="!reportData.acceptNeeded">
+                    {{reportData.user_nm}} <span *ngIf="reportData.partner_nm">({{reportData.partner_nm}})</span>
+                    <ng-container *ngIf="reportData.dept_nm">({{reportData.dept_nm}})</ng-container>
+                </div>
+                <div style="padding-right: 5px" *ngIf="reportData.acceptNeeded">
+                    접수대기중인 건입니다
+                </div>
+            </div>
+            <div class="d-flex flex-row row-mb" *ngIf="reportData.receipt_dttm">
+                <div class="wt8 title">접수일시</div>
+                <div class="wt8">{{reportData.receipt_dttm | date }}</div>
+                <div class="wt8 title">접수방법</div>
+                <div class="wt8">{{reportData.receipt_mthd_nm}}</div>
+            </div>
+            <div class="d-flex flex-row row-mb align-items-center">
+                <div class="wt8 title">신고자 성명</div>
+                <div class="form-group wt14" style="margin:0">
+                    <input class="form-control wt12" type="text" [disabled]="!is_editable" [(ngModel)]="reportData.civil_nm"
+                        (ngModelChange)="onChange($event)">
+                </div>
+                <div class="wt8 title">신고자 전화번호</div>
+                <div class="form-group wt14" style="margin:0">
+                    <input class="form-control wt12" type="text" [disabled]="!is_editable" [(ngModel)]="reportData.civil_tel_no"
+                        (ngModelChange)="onChange($event)">
+                </div>
+            </div>
+            <div class="d-flex flex-row row-mb">
+                <div class="wt8 title">접수내용</div>
+                <div class="form-group" style="margin:0">
+                    <textarea class="form-control" style="width:30rem; height:5rem;" [disabled]="!is_editable"
+                        [(ngModel)]="complaintTextValue" (ngModelChange)="onChange($event)"></textarea>
+                </div>
+<!--
+                <button class="btn btn-info" style="height:5rem; padding: 25px 7px;" *ngIf="is_editable" (click)="searchCase(selectedCate.keyword_txt,1)">사례검색</button>
+             -->
+            </div>
+          <div class="d-flex flex-row row-mb">
+            <div class="wt8 title">사진정보</div>
+            <div class="w445">
+                <div class="add_img_wrap">
+                    <input #inputFile1 style="display: none;" (change)="checkFileType($event)" type="file">
+                    <a style="width: 100px; height: 100px; overflow: hidden;">
+                        <img style="width: 100%;" *ngIf="picList[0]" [src]="picList[0]" (click)="selectedImg = picList[0]">
+                    </a>
+                    <div class="input-group-append" *ngIf="picList[0] && is_editable" (click)="deleteFile(0)">
+                      <button class="btn btn-info" type="button"><i class="icon-trash"></i></button>
+                  </div>
+                    <a style="width: 100px; height: 100px; overflow: hidden;">
+                        <img style="width: 100%;" *ngIf="picList[1]" [src]="picList[1]" (click)="selectedImg = picList[1]">
+                    </a>
+                    <div class="input-group-append" *ngIf="picList[1] && is_editable" (click)="deleteFile(1)">
+                      <button class="btn btn-info" type="button"><i class="icon-trash"></i></button>
+                  </div>
+                    <a style="width: 100px; height: 100px; overflow: hidden;">
+                        <img style="width: 100%;" *ngIf="picList[2]" [src]="picList[2]" (click)="selectedImg = picList[2]">
+                    </a>
+                    <div class="input-group-append" *ngIf="picList[2] && is_editable" (click)="deleteFile(2)">
+                        <button class="btn btn-info" type="button"><i class="icon-trash"></i></button>
+                    </div>
+                    <a style="width: 100px; height: 100px; overflow: hidden;">
+                        <img style="width: 100%;" *ngIf="picList[3] && is_editable" [src]="picList[3]" (click)="selectedImg =picList[3]">
+                    </a>
+                    <div class="input-group-append" *ngIf="picList[3]" (click)="deleteFile(3)">
+                        <button class="btn btn-info" type="button"><i class="icon-trash"></i></button>
+                    </div>
+                    <button class="btn btn-info" *ngIf="picList.length < 4 && is_editable" (click)="openFile()">이미지 추가</button>
+                </div>
+                <div class="img-container" *ngIf="selectedImg">
+                    <div class="x_btn" (click)="selectedImg = ''">
+                        닫기 X
+                    </div>
+                    <img style="display: block; margin: 10px auto; width: 100%;" [src]="selectedImg">
+                </div>
+            </div>
+        </div>
+            <div class="d-flex flex-row row-mb">
+                <div class="wt8 title">위치설명</div>
+                <div class="form-group" style="margin:0">
+                    <input class="form-control" style="width:25rem" type="text" [disabled]="!is_editable" [(ngModel)]="locationSelectItem.name"
+                        (keyup.enter)="openMap(mapModal)" (ngModelChange)="onChange($event)">
+                </div>
+                <button class="btn btn-info" *ngIf="is_editable" (click)="openMap(mapModal)">지도에서 찾기</button>
+            </div>
+            <ng-container>
+                <div class="d-flex flex-row row-mb">
+                    <div class="title wt8">결과 수신 방법</div>
+                    <div class="d-flex flex-row">
+                        <div *ngFor="let item of replyMethod; let i = index" style="margin-right:0.5rem">
+                            <input type="radio"  [disabled]="!is_editable" id="replyMethod{{item.id}}" name="replyMethod" [value]="item.id" [(ngModel)]="reportData.return_mthd">
+                            <label for="replyMethod{{item.id}}" style="margin-left:0.5rem">{{item.name}}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex flex-row row-mb">
+                    <div class="title wt8">공개여부</div>
+                    <div class="d-flex flex-row">
+                        <div style="margin-right:0.5rem"><input type="radio" id="p_Y" name="public" [value]="'Y'"
+                                [(ngModel)]="reportData.open_yn"  [disabled]="!is_editable"><label for="p_Y" style="margin-left:0.5rem">공개</label></div>
+                        <div><input type="radio" id="p_N" name="public" [value]="'N'" [(ngModel)]="reportData.open_yn"  [disabled]="!is_editable"><label
+                                for="p_N" style="margin-left:0.5rem">비공개</label></div>
+                    </div>
+                </div>
+                <div class="d-flex flex-row row-mb">
+                    <div class="title wt8">처리기한</div>
+                    <div class="d-flex flex-row">
+                        <div *ngFor="let dueDayItem of dueDayMethod; let i = index" style="margin-right:0.5rem">
+                            <!-- <input type="radio" [disabled]="!is_editable" id="dueDayMethod{{dueDayItem.id}}" name="dueDayMethod" [value]="dueDayItem.id" [(ngModel)]="''+reportData.due_day"
+                            (change) = "getDueDate()"> -->
+                            <label for="dueDayMethod{{dueDayItem.id}}" style="margin-left:0.5rem">{{dueDayItem.name}}일</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group wt14" style="margin:0">
+                        <input class="form-control wt12" type="text" [(ngModel)]="reportData.due_date" disabled>
+                    </div>
+
+                </div>
+            </ng-container>
+
+            <div class="d-flex flex-row row-mb">
+                <div class="wt8 title">처리상태</div>
+                <div style="padding-right: 40px;">
+                    <ng-container>{{reportData.proc_state_nm ? reportData.proc_state_nm : '신고'}}</ng-container>
+                </div>
+                <div class="wt4 title">분류</div>
+                <div>
+                    <div *ngIf="selectedCate.id">
+                        {{selectedCate.name}}
+                    </div>
+                    <div *ngIf="!selectedCate.id" [ngStyle]="{'color': !selectedCate.id ? 'red': ''}">
+                        우측에서 분류를 선택해주세요
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex flex-row row-mb" *ngIf="selectedCate.guide_txt || selectedCate.web_url">
+                <div class="wt8 title">처리지침</div>
+                <div style="width:37rem;">
+                    <ng-container *ngIf="selectedCate.guide_txt">{{selectedCate.guide_txt}}</ng-container>
+                    <a *ngIf="selectedCate.web_url" [attr.href]="selectedCate.web_url" style="color: blue; text-decoration: underline;"
+                        target="_blank">링크</a>
+                </div>
+            </div>
+            <div class="d-flex flex-row row-mb align-items-center">
+                <div class="title wt8">{{reportData.case_no ? '접수번호' : ''}}</div>
+                <div class="form-group" style="margin:0">
+                    {{reportData.case_no}}
+                    <button class="btn btn-info" style="margin-left:0.5rem" *ngIf="reportData.acceptNeeded" (click)="accept()">저장</button>
+                    <button class="btn btn-info" style="margin-left:0.5rem" *ngIf="is_editable || cate_changed" (click)="reportData.proc_state = (!reportData.complaint_no ? 1 : reportData.proc_state); save(false, false, false, 0, null, false, 1);">{{!reportData.complaint_no
+                        ? '저장' : '접수내용 수정하기'}}</button>
+                    <!-- <button class="btn btn-info" style="margin-left:0.5rem" *ngIf="!reportData.acceptNeeded && +reportData.proc_state < 4 && reportData.complaint_no"
+                        (click)="save(false, false, false, 0, null, true);openModal(showChangeDutyModal)">접수이첩</button> -->
+                    <span style="margin-left:0.5rem" *ngIf="is_editable && !reportData.complaint_no"> (전화가 폭주할 경우 우선
+                        저장하고, 추후에 담당자를 배정하면 됩니다.)</span>
+                </div>
+            </div>
+        </div>
+        <!-- 분류 선택 -->
+        <div class="category">
+            <!-- 2018.09.27 이거는 처리 완료에도 수정 가능하도록 -->
+            <span style="font-weight: bold">분류를 선택해주세요</span>
+            <div class="search_box">
+                <input type="text" placeholder="분류명 입력후 엔터" style="width: 100%;" [(ngModel)]="cateSearchTxt"
+                    (keyup.enter)="getCategory();" (ngModelChange)="onChange($event)">
+                <span class="ico floatR" style="cursor: pointer" (click)="getCategory();"></span>
+            </div>
+            <div class="item-container">
+                <div class="item" *ngFor="let item of showed_category_list; let i = index;" (click)="checkCateChanged(item);"
+                    [ngClass]="{'selected': item.id == reportData.cls_no}">
+                    {{item.name}}
+                </div>
+                
+            </div>
+        </div>
+        <!-- 매뉴얼 검색 -->
+        <div class="quick-menual">
+            <span style="font-weight: bold">매뉴얼 검색</span>
+            <div class="search_box">
+                <input type="text" placeholder="검색어 입력후 엔터" style="width: 100%;" [(ngModel)]="searchTxt" (keyup.enter)="getMenual();">
+                <span class="ico floatR" style="cursor: pointer" (click)="getMenual();"></span>
+            </div>
+            <div class="item-container">
+                <div class="item" *ngFor="let item of showed_menual_list" (click)="openMenual(item);">
+                    &middot; {{item.subject}}
+                </div>
+            </div>
+        </div>
+        <!-- 신고배정 / 상담문의답변 탭 -->
+        <ng-container *ngIf="is_editable">
+            <div class="d-flex flex-row" style="width:100%; padding:1rem">
+                <div class="radio-btn" (mouseover)="decritiontext(0)" (mouseleave) ="decritiontext(3)" [ngClass]="{'on': reportData.receipt_typ == 2}"><a (click)="reportData.receipt_typ = 2;">불편신고배정</a></div>
+                <div class="radio-btn" (mouseover)="decritiontext(1)" (mouseleave) ="decritiontext(3)"[ngClass]="{'on': reportData.receipt_typ == 1}"><a (click)="reportData.receipt_typ = 1;">바로답변</a></div>
+                <div class="radio-btn" (mouseover)="decritiontext(2)" (mouseleave) ="decritiontext(3)"*ngIf="!reportData.acceptNeeded && +reportData.proc_state < 4 && reportData.complaint_no" [ngClass]="{'on': reportData.receipt_typ == 3}"><a (click)="save(false, false, false, 0, null, true);openModal(showChangeDutyModal)">당직실간이첩</a></div>
+                <div class="description">{{btn_description}}</div>
+            </div>
+            <hr style="width:100%; margin:0 1rem" />
+        </ng-container>
+        <!-- 상담문의탭 클릭시 내용   save(true, false); -->
+        <div class="d-flex flex-row form-group" style="width:100%;padding:1rem; margin:0" *ngIf="reportData.receipt_typ == 1">
+            <div class="wt8 title" style="text-align: left">답변내용</div>
+            <textarea class="form-control" style="width:60rem; height:5rem" [ngStyle]="{'overflow': !is_editable ? 'hidden': 'auto'}"
+                [disabled]="!is_editable" (change)="textareaInput($event, 'res')">{{reportData.answer_txt}}</textarea>
+            <button class="btn btn-info" style="padding: 25px 7px;" (click)="talk_mode = 0; popupText = reportData.answer_txt; showAssignorPopups(3, sendModal,'상담완료')" *ngIf="is_editable">상담완료</button>
+        </div>
+        <!-- 신고배정탭 클릭시 내용 -->
+        <div style="width:100%; padding: 1rem;" *ngIf="reportData.receipt_typ == 2">
+            <div class="d-flex flex-row form-group btn-left">
+                <button *ngIf="reportData.proc_state < 4 && reportData.proc_state > 0 && selectedUserList.length > 0 " class="btn btn-info ml-auto" (click)="putProcTxt();">처리내역 저장</button>
+                <button *ngIf="reportData.complaint_no && +reportData.proc_state < 4" class="btn btn-info" style="margin-left:0.5rem"
+                    (click)="getReportData(0);">새로고침</button>
+                <!--
+                <button class="btn btn-info" *ngIf="+reportData.proc_state < 4" style="margin-left:0.5rem" (click)="newRow();openAsgnPopup(showAssignModal, i, 0, q)"
+                    title="담당자를 배정하기 위해 빈행을 추가합니다.">담당자 추가</button>
+                -->
+                <button class="btn btn-info" *ngIf="+reportData.proc_state < 4" style="margin-left:0.5rem" (click)="openAsgnPopup2(showAssignModal2, i, 0, q)"
+                    title="담당자를 추가합니다.">담당자 추가</button>
+                <button class="btn btn-info" *ngIf="+reportData.proc_state < 4" style="margin-left:0.5rem" (click)="talk_mode = 1; showAssignorPopups(1, sendModal)"
+                    title="추가한 담당자를 배정합니다.">담당자 배정</button>
+                <button class="btn btn-info" *ngIf="+reportData.proc_state < 4" style="margin-left:0.5rem" (click)="cancelRow()"
+                    title="배정된 담당자를 취소합니다.">배정취소</button>
+                <!-- <a class="btn bg_purple marR10" (click)="save(false, true, true, 0)" title="신고자에게 문자를 발송합니다.">민원인 문자발송</a> -->
+                <ng-container *ngIf="+reportData.proc_state >= 5">처리완료된 민원입니다.</ng-container>
+                <button class="btn btn-info" style="margin-left:0.5rem" (click)="talk_mode = 1; showAssignorPopups(2, sendModal)" title="전화번호를 직접 입력하여 알림톡을 발송합니다.">알림톡 전송</button>
+                <button class="btn btn-info" style="margin-left:0.5rem" (click)="talk_mode = 0; showAssignorPopups(4, sendModal,'민원완료처리') " *ngIf="!isNewUserHere() && reportData.complaint_no && reportData.proc_state < 4">민원완료처리</button>
+                <!--save(true, true);-->
+            </div>
+            <div class="table-responsive list-table" style="overflow:unset">
+                <table class="table">
+                    <colgroup>
+                        <col width="5%">
+                        <col width="15%">
+                        <col width="35%">
+                        <col width="25%">
+                        <col width="15%">
+                        <col width="5%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>선택</th>
+                            <th>처리일시</th>
+                            <th>처리내용</th>
+                            <th>담당자</th>
+                            <th>소속/업체</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngFor="let item of selectedUserList; let i = index">
+                            <tr *ngIf="!item.deleted">
+                                <td><input type="checkbox" [(ngModel)]="item.selected"></td>
+                                <td>{{item.proc_dttm}}</td>
+                                <td style="padding: 0px;">
+                                    <div class="d-flex form-group" style="margin:0">
+                                        <textarea class="form-control" [disabled]="reportData.proc_state >= 5" style="width: calc(100% - 1px); border: 1px solid lightgrey;"
+                                            (change)="textareaInput($event, 'proc_txt', item)">{{item.civil_cmmt_yn=='1'?'[신고자 댓글] '+item.proc_txt : item.proc_txt}}</textarea>
+                                    </div>
+                                </td>
+                                <td style="margin:0;padding:0.5rem">
+                                    <div class="d-flex flex-column justify-content-center align-items-center">
+                                        <!--
+                                        <div class="d-flex form-group" style="padding-bottom:0.2rem; width:80%; margin:0"
+                                            *ngIf="item.isNew">
+                                            <input class="form-control" style="flex-grow: 1;border: 1px solid lightgray;"
+                                                type="text" [(ngModel)]="q" placeholder="담당자 또는 업무명으로 검색" (keyup.enter)="openAsgnPopup(showAssignModal, i, 0, q);getOrgUser()" disabled>
+                                            <i (click)="openAsgnPopup(showAssignModal, i, 0, q)" style="width:2.5rem; border:1px solid lightgrey; border-radius:5px; background-color:lightgray; border-left:none; padding:0.2rem; cursor: pointer"
+                                                class="mdi mdi-magnify"></i>
+                                        </div>
+                                         -->
+                                        <div class="d-flex justify-content-between form-group" style="width:90%; margin:0">
+                                            <input class="form-control" type="text" [placeholder]="item.proc_hst_no ? '' : '이름'"
+                                                [(ngModel)]="item.user_nm" style="text-align:center; width:35%; border: 1px solid lightgray;"
+                                                disabled>
+                                            <input class="form-control" type="text" [placeholder]="item.proc_hst_no ? '' : '전화번호'"
+                                                [(ngModel)]="item.cp_no" style="text-align:center; width:60%; border: 1px solid lightgray;"
+                                                disabled>
+                                            <i (click)="openAsgnPopup(showAssignModal, i, 0, q)" style="width:2.5rem; border:1px solid lightgrey; border-radius:5px; background-color:lightgray; border-left:none; padding:0.2rem; cursor: pointer"
+                                                class="mdi mdi-magnify" *ngIf="item.isNew"></i>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{item.dept_nm}}</td>
+                                <td>
+                                    <a *ngIf="!item.proc_hst_no" (click)="deleteRow(i);"><img src="assets/images/sub/delete_ico.png"
+                                            alt="휴지통"></a>
+                                    <a *ngIf="item.proc_hst_no && item.image_url" (click)="selected_hst_img = item.image_url"><img
+                                            style="width: 80%;" class="asgn_img" [src]="item.image_url" alt=""></a>
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 지도 모달 -->
+<ng-template #mapModal let-c="close" let-d="dismiss">
+    <div class="modal-header align-items-center">
+        <h4 class="modal-title" id="modal-basic-title">지도에서 찾기</h4>
+        <div class="form-group" style="margin:0">
+            <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+        </div>
+    </div>
+    <div class="modal-body">
+        <div class="card" style="margin:0">
+            <div class="card-body">
+                <div id="map" style="width:100%; height:400px;"></div>
+                <div class="d-flex flex-row" style="margin-top:1rem">
+                    <div class="form-group d-flex flex-row" style="margin:0">
+                        <input class="form-control wt20" type="text" [(ngModel)]="search_map" (keyup.enter)="searchAddressToCoordinateInput()">
+                        <button class="btn btn-info" style="margin-left:0.5rem" (click)="searchAddressToCoordinateInput()">검색</button>
+                    </div>
+                    <div class="form-group d-flex flex-row ml-auto" style="margin:0">
+                        <button class="btn btn-info" (click)="d('select clicked')">선택</button>
+                        <button class="btn brn-secondary" style="margin-left:0.5rem" (click)="d('reset clicked'); locationSelectItem = {name: '', position: {}};">초기화</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<!-- 콜센터 상담목록 검색 -->
+<ng-template #callcenterModal let-c="close" let-d="dismiss">
+    <div class="modal-header align-items-center">
+        <h4 class="modal-title" id="modal-basic-title">상담내역 가져오기</h4>
+        <div class="form-group" style="margin:0">
+            <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+        </div>
+    </div>
+    <div class="modal-body">
+        <div class="card" style="margin:0">
+            <div class="card-body">
+                <div class="table-responsive list-table" style="overflow:unset">
+                    <table class="brdList">
+                        <colgroup>
+                            <col width="10%">
+                            <col width="16%">
+                            <col width="11%">
+                            <col width="28%">
+                            <col width="28%">
+                            <col width="7%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>신고자</th>
+                                <th>신고자전화</th>
+                                <th>신고시간</th>
+                                <th>질문</th>
+                                <th>답변</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of callList; let i = index">
+                                <td>{{item.USER_NM}}</td>
+                                <td>{{item.TEL_NO}}</td>
+                                <!-- <td>{{item.CALL_DT}} ~ {{item.CLOSE_CALL_DT}}</td> -->
+                                <td>{{item.CALL_DT}}</td>
+                                <td style="text-align:left">{{item.QUESTION}}</td>
+                                <td style="text-align:left">{{item.ANSWER}}{{item.MEMO?' - ':''}}{{item.MEMO}}</td>
+                                <td (click)="callcenterBinding(item)">
+                                    <button class="btn btn-info" style="margin:0!important">선택</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<!-- 담당자 검색 -->
+<ng-template #showAssignModal let-c="close" let-d="dismiss">
+    <div class="modal-header align-items-center">
+        <h4 class="modal-title" id="modal-basic-title">{{assign_popup_type == 0 ? '담당자 지정' : '직원조회'}}</h4>
+        <div class="form-group" style="margin:0">
+            <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+        </div>
+    </div>
+    <div class="modal-body">
+        <div class="card" style="margin:0">
+            <div class="card-body">
+                <div class="form-group d-flex">
+                    <div class="btn radio-btn" [ngClass]="{'on': selectedPopupTab == 4}" (click)="changePopupTab(4)">
+                        부서별
+                    </div>
+                    <div class="btn radio-btn" [ngClass]="{'on': selectedPopupTab == 0}" (click)="changePopupTab(0)">
+                        인명, 업무검색
+                    </div>
+                    <div class="btn radio-btn" [ngClass]="{'on': selectedPopupTab == 3}" (click)="changePopupTab(3)">
+                        조직도
+                    </div>
+                    <div class="btn radio-btn" [ngClass]="{'on': selectedPopupTab == 1}" (click)="changePopupTab(1)">
+                        협력업체
+                    </div>
+                    <div class="btn radio-btn" [ngClass]="{'on': selectedPopupTab == 2}" (click)="changePopupTab(2)"
+                        *ngIf="reportData.cls_no">
+                        지정담당자
+                    </div>
+                    <button class="btn btn-info ml-auto" (click)="selectTempUsers()" *ngIf="assign_popup_type == 0">
+                        선택
+                    </button>
+                </div>
+                <div class="d-flex">
+                    <ng-container *ngIf="selectedPopupTab == 0 || selectedPopupTab == 4">
+                        <div class="form-group" [hidden]="!orgList || !orgList.length">
+                            <select class="form-control" name="" id="" [(ngModel)]="selectedOrgId" (change)="getOrgUser()">
+                                <option *ngIf="session.isAdmin()" value="-1">기관</option>
+                                <option *ngFor="let item of orgList; let i = index" [value]="item.id">{{item.name}}</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-left:0.5rem; width:15rem;">
+                            <input class="form-control" type="text" [placeholder]="selectedPopupTab == 0?'담당자 또는 업무명으로 검색':'부서명으로 검색'" style="width:14.5rem;"
+                                [(ngModel)]="q" (keyup.enter)="getOrgUser()">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-info" (click)="getOrgUser()">조회</button>
+                        </div>
+                    </ng-container>
+                    <ng-container *ngIf="selectedPopupTab == 1">
+                        <div class="form-group" style="width:250px;">
+                            <input class="form-control" type="text" placeholder="업체명, 서비스, 업무" style="width:240px;"
+                                [(ngModel)]="partner_nm" (keyup.enter)="getOrgUser()">
+                        </div>
+                        <div class="btn_wrap floatL marL10">
+                            <button class="btn btn-info" (click)="getOrgUser()">조회</button>
+                        </div>
+                    </ng-container>
+                </div>
+                <div class="brdList_wrap marT10">
+                    <!-- 인명, 업무검색 -->
+                    <div class="table-responsive list-table" style="overflow:unset">
+                        <table class="table" [ngStyle]="{'display': selectedPopupTab != 0 ? 'none' : ''}">
+                            <colgroup>
+                                <col width="7%" *ngIf="assign_popup_type == 0">
+                                <col width="18%">
+                                <col width="7%">
+                                <col width="30%">
+                                <col width="13%">
+                                <col width="15%">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th *ngIf="assign_popup_type == 0"></th>
+                                    <th>소속/업체</th>
+                                    <th>담당자</th>
+                                    <th>담당업무</th>
+                                    <th>직급</th>
+                                    <th>휴대전화</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of orgUserList; let i = index">
+                                    <td *ngIf="assign_popup_type == 0">
+                                        <input type="checkbox" (change)="userSelectChanged($event, item)">
+                                    </td>
+                                    <td style="text-align: left">{{item.full_dept_nm}}</td>
+                                    <td>{{item.user_nm}}</td>
+                                    <td class="task">
+                                        {{item.task_nm | slice:0:35}}{{item.task_nm && (item.task_nm).length > 35 ?
+                                        '...': ''}}
+                                        <div class="full">
+                                            {{item.task_nm}}
+                                        </div>
+                                    </td>
+                                    <td>{{item.duty_nm}}</td>
+                                    <td>{{item.cp_no}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- 부서별 담당자 -->
+                    <div class="table-responsive list-table" style="overflow:unset">
+                        <table class="table" [ngStyle]="{'display': selectedPopupTab != 4 ? 'none' : ''}">
+                            <colgroup>
+                                <col width="7%">
+                                <col width="18%">
+                                <col width="7%">
+                                <col width="30%">
+                                <col width="13%">
+                                <col width="15%">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>부서</th>
+                                    <th>담당자</th>
+                                    <th>담당업무</th>
+                                    <th>직급</th>
+                                    <th>휴대전화</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of orgDesignatedList; let i = index">
+                                    <td><input type="checkbox" (change)="userSelectChanged($event, item)"></td>
+                                    <td style="text-align: left">{{item.full_dept_nm}}</td>
+                                    <td>{{item.user_nm}}</td>
+                                    <td class="task">
+                                        {{item.task_nm | slice:0:35}}{{item.task_nm && (item.task_nm).length > 35 ?
+                                        '...': ''}}
+                                        <div class="full">{{item.task_nm}}</div>
+                                    </td>
+                                    <td>{{item.duty_nm}}</td>
+                                    <td>{{item.cp_no}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- 조직도 -->
+                    <div class="d-flex" *ngIf="selectedPopupTab == 3">
+                        <div style="width:30%">
+                            <div class="inner pad15">
+                                <select class="form-control" [(ngModel)]="org" (change)="setOrg(org)" name="orgss"
+                                    #orgss="ngModel">
+                                    <option *ngFor="let item of orgs" [value]="item.id">{{item.name}}</option>
+                                </select>
+                                <itsm-tree-view [height]="480" [checkbox]="true" [data]="depts" (OnClick)="getDeptUser($event)"></itsm-tree-view>
+                            </div>
+                        </div>
+                        <div style="width:70%; margin-left:1rem;">
+                            <div class="table-responsive list-table" style="overflow:unset">
+                                <table class="table">
+                                    <colgroup>
+                                        <col width="10%" *ngIf="assign_popup_type == 0">
+                                        <col width="15%">
+                                        <col width="10%">
+                                        <col width="25%">
+                                        <col width="15%">
+                                        <col width="25%">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th *ngIf="assign_popup_type == 0"></th>
+                                            <th>소속</th>
+                                            <th>담당자</th>
+                                            <th>담당업무</th>
+                                            <th>직급</th>
+                                            <th>휴대전화</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="max-height: 480px; overflow: scroll;">
+                                        <tr *ngFor="let item of userList; let i = index">
+                                            <td *ngIf="assign_popup_type == 0">
+                                                <input type="checkbox" (change)="userSelectChanged($event, item)">
+                                            </td>
+                                            <td>{{item.dept_nm}}</td>
+                                            <td>{{item.user_nm}}</td>
+                                            <td class="task">
+                                                {{item.task_nm | slice:0:18}}{{item.task_nm && item.task_nm.length > 18
+                                                ? '...': ''}}
+                                                <div class="full">
+                                                    {{item.task_nm}}
+                                                </div>
+                                            </td>
+                                            <td>{{item.duty_nm}}</td>
+                                            <td>{{item.cp_no}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 협력업체 -->
+                    <div class="table-responsive list-table" style="overflow:unset">
+                        <table class="table" [ngStyle]="{'display': selectedPopupTab != 1 ? 'none' : ''}">
+                            <colgroup>
+                                <col width="4%" *ngIf="assign_popup_type == 0">
+                                <col width="7%">
+                                <col width="7%">
+                                <col width="9%">
+                                <col width="10%">
+                                <col width="6%">
+                                <col width="10%">
+                                <col width="9%">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th *ngIf="assign_popup_type == 0"></th>
+                                    <th>업체명</th>
+                                    <th>소재지</th>
+                                    <th>업체전화</th>
+                                    <th>주요서비스</th>
+                                    <th>담당자</th>
+                                    <th>담당업무</th>
+                                    <th>담당자연락처</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of partnerUserList; let i = index">
+                                    <td *ngIf="assign_popup_type == 0">
+                                        <input type="checkbox" (change)="userSelectChanged($event, item)">
+                                    </td>
+                                    <td>{{item.dept_nm}}</td>
+                                    <td>{{item.company_addr}}</td>
+                                    <td>{{item.company_tel}}</td>
+                                    <td>{{item.service_txt}}</td>
+                                    <td>{{item.user_nm}}</td>
+                                    <td>{{item.role_nm}}</td>
+                                    <td>{{item.cp_no}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- 지정담당자 -->
+                    <div class="table-responsive list-table" style="overflow:unset">
+                        <table class="table" [ngStyle]="{'display': selectedPopupTab != 2 ? 'none' : ''}">
+                            <colgroup>
+                                <col width="7%" *ngIf="assign_popup_type == 0">
+                                <col width="18%">
+                                <col width="7%">
+                                <col width="25%">
+                                <col width="18%">
+                                <col width="15%">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th *ngIf="assign_popup_type == 0"></th>
+                                    <th>소속/업체</th>
+                                    <th>담당자</th>
+                                    <th>담당업무</th>
+                                    <th>직급</th>
+                                    <th>휴대전화</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of cateUserList; let i = index">
+                                    <td *ngIf="assign_popup_type == 0">
+                                        <input type="checkbox" (change)="userSelectChanged($event, item)">
+                                    </td>
+                                    <td>{{item.dept_nm}}</td>
+                                    <td>{{item.user_nm}}</td>
+                                    <td>{{item.task_nm}}</td>
+                                    <td>{{item.duty_nm}}</td>
+                                    <td>{{item.cp_no}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<!-- 담당자 검색 -->
+<ng-template #showAssignModal2 let-c="close" let-d="dismiss">
+        <div class="modal-header align-items-center">
+            <h4 class="modal-title" id="modal-basic-title">{{assign_popup_type == 0 ? '담당자 지정' : '직원조회'}}</h4>
+            <div class="form-group" style="margin:0">
+                <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="card" style="margin:0">
+                <div class="card-body">
+                    <div class="form-group d-flex">
+                        <div class="btn radio-btn" [ngClass]="{'on': selectedPopupTab == 4}" (click)="changePopupTab(4)">
+                            부서별
+                        </div>
+                        <div class="btn radio-btn" [ngClass]="{'on': selectedPopupTab == 0}" (click)="changePopupTab(0)">
+                            인명, 업무검색
+                        </div>
+                        <div class="btn radio-btn" [ngClass]="{'on': selectedPopupTab == 3}" (click)="changePopupTab(3)">
+                            조직도
+                        </div>
+                        <div class="btn radio-btn" [ngClass]="{'on': selectedPopupTab == 1}" (click)="changePopupTab(1)">
+                            협력업체
+                        </div>
+                        <div class="btn radio-btn" [ngClass]="{'on': selectedPopupTab == 2}" (click)="changePopupTab(2)"
+                            *ngIf="reportData.cls_no">
+                            지정담당자
+                        </div>
+                        <button class="btn btn-info ml-auto" (click)="selectTempUsers2()" *ngIf="assign_popup_type == 0">
+                            선택
+                        </button>
+                    </div>
+                    <div class="d-flex">
+                        <ng-container *ngIf="selectedPopupTab == 0 || selectedPopupTab == 4">
+                            <div class="form-group" [hidden]="!orgList || !orgList.length">
+                                <select class="form-control" name="" id="" [(ngModel)]="selectedOrgId" (change)="getOrgUser()">
+                                    <option *ngIf="session.isAdmin()" value="-1">기관</option>
+                                    <option *ngFor="let item of orgList; let i = index" [value]="item.id">{{item.name}}</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-left:0.5rem; width:15rem;">
+                                <input class="form-control" type="text" [placeholder]="selectedPopupTab == 0?'담당자 또는 업무명으로 검색':'부서명으로 검색'" style="width:14.5rem;"
+                                    [(ngModel)]="q" (keyup.enter)="getOrgUser()">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info" (click)="getOrgUser()">조회</button>
+                            </div>
+                        </ng-container>
+                        <ng-container *ngIf="selectedPopupTab == 1">
+                            <div class="form-group" style="width:250px;">
+                                <input class="form-control" type="text" placeholder="업체명, 서비스, 업무" style="width:240px;"
+                                    [(ngModel)]="partner_nm" (keyup.enter)="getOrgUser()">
+                            </div>
+                            <div class="btn_wrap floatL marL10">
+                                <button class="btn btn-info" (click)="getOrgUser()">조회</button>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <div class="brdList_wrap marT10">
+                        <!-- 인명, 업무검색 -->
+                        <div class="table-responsive list-table" style="overflow:unset">
+                            <table class="table" [ngStyle]="{'display': selectedPopupTab != 0 ? 'none' : ''}">
+                                <colgroup>
+                                    <col width="7%" *ngIf="assign_popup_type == 0">
+                                    <col width="18%">
+                                    <col width="7%">
+                                    <col width="30%">
+                                    <col width="13%">
+                                    <col width="15%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th *ngIf="assign_popup_type == 0"></th>
+                                        <th>소속/업체</th>
+                                        <th>담당자</th>
+                                        <th>담당업무</th>
+                                        <th>직급</th>
+                                        <th>휴대전화</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of orgUserList; let i = index">
+                                        <td *ngIf="assign_popup_type == 0">
+                                            <input type="checkbox" (change)="userSelectChanged($event, item)">
+                                        </td>
+                                        <td style="text-align: left">{{item.full_dept_nm}}</td>
+                                        <td>{{item.user_nm}}</td>
+                                        <td class="task">
+                                            {{item.task_nm | slice:0:35}}{{item.task_nm && (item.task_nm).length > 35 ?
+                                            '...': ''}}
+                                            <div class="full">
+                                                {{item.task_nm}}
+                                            </div>
+                                        </td>
+                                        <td>{{item.duty_nm}}</td>
+                                        <td>{{item.cp_no}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 부서별 담당자 -->
+                        <div class="table-responsive list-table" style="overflow:unset">
+                            <table class="table" [ngStyle]="{'display': selectedPopupTab != 4 ? 'none' : ''}">
+                                <colgroup>
+                                    <col width="7%">
+                                    <col width="18%">
+                                    <col width="7%">
+                                    <col width="30%">
+                                    <col width="13%">
+                                    <col width="15%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>부서</th>
+                                        <th>담당자</th>
+                                        <th>담당업무</th>
+                                        <th>직급</th>
+                                        <th>휴대전화</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of orgDesignatedList; let i = index">
+                                        <td><input type="checkbox" (change)="userSelectChanged($event, item)"></td>
+                                        <td style="text-align: left">{{item.full_dept_nm}}</td>
+                                        <td>{{item.user_nm}}</td>
+                                        <td class="task">
+                                            {{item.task_nm | slice:0:35}}{{item.task_nm && (item.task_nm).length > 35 ?
+                                            '...': ''}}
+                                            <div class="full">{{item.task_nm}}</div>
+                                        </td>
+                                        <td>{{item.duty_nm}}</td>
+                                        <td>{{item.cp_no}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 조직도 -->
+                        <div class="d-flex" *ngIf="selectedPopupTab == 3">
+                            <div style="width:30%">
+                                <div class="inner pad15">
+                                    <select class="form-control" [(ngModel)]="org" (change)="setOrg(org)" name="orgss"
+                                        #orgss="ngModel">
+                                        <option *ngFor="let item of orgs" [value]="item.id">{{item.name}}</option>
+                                    </select>
+                                    <itsm-tree-view [height]="480" [checkbox]="true" [data]="depts" (OnClick)="getDeptUser($event)"></itsm-tree-view>
+                                </div>
+                            </div>
+                            <div style="width:70%; margin-left:1rem;">
+                                <div class="table-responsive list-table" style="overflow:unset">
+                                    <table class="table">
+                                        <colgroup>
+                                            <col width="10%" *ngIf="assign_popup_type == 0">
+                                            <col width="15%">
+                                            <col width="10%">
+                                            <col width="25%">
+                                            <col width="15%">
+                                            <col width="25%">
+                                        </colgroup>
+                                        <thead>
+                                            <tr>
+                                                <th *ngIf="assign_popup_type == 0"></th>
+                                                <th>소속</th>
+                                                <th>담당자</th>
+                                                <th>담당업무</th>
+                                                <th>직급</th>
+                                                <th>휴대전화</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="max-height: 480px; overflow: scroll;">
+                                            <tr *ngFor="let item of userList; let i = index">
+                                                <td *ngIf="assign_popup_type == 0">
+                                                    <input type="checkbox" (change)="userSelectChanged($event, item)">
+                                                </td>
+                                                <td>{{item.dept_nm}}</td>
+                                                <td>{{item.user_nm}}</td>
+                                                <td class="task">
+                                                    {{item.task_nm | slice:0:18}}{{item.task_nm && item.task_nm.length > 18
+                                                    ? '...': ''}}
+                                                    <div class="full">
+                                                        {{item.task_nm}}
+                                                    </div>
+                                                </td>
+                                                <td>{{item.duty_nm}}</td>
+                                                <td>{{item.cp_no}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 협력업체 -->
+                        <div class="table-responsive list-table" style="overflow:unset">
+                            <table class="table" [ngStyle]="{'display': selectedPopupTab != 1 ? 'none' : ''}">
+                                <colgroup>
+                                    <col width="4%" *ngIf="assign_popup_type == 0">
+                                    <col width="7%">
+                                    <col width="7%">
+                                    <col width="9%">
+                                    <col width="10%">
+                                    <col width="6%">
+                                    <col width="10%">
+                                    <col width="9%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th *ngIf="assign_popup_type == 0"></th>
+                                        <th>업체명</th>
+                                        <th>소재지</th>
+                                        <th>업체전화</th>
+                                        <th>주요서비스</th>
+                                        <th>담당자</th>
+                                        <th>담당업무</th>
+                                        <th>담당자연락처</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of partnerUserList; let i = index">
+                                        <td *ngIf="assign_popup_type == 0">
+                                            <input type="checkbox" (change)="userSelectChanged($event, item)">
+                                        </td>
+                                        <td>{{item.dept_nm}}</td>
+                                        <td>{{item.company_addr}}</td>
+                                        <td>{{item.company_tel}}</td>
+                                        <td>{{item.service_txt}}</td>
+                                        <td>{{item.user_nm}}</td>
+                                        <td>{{item.role_nm}}</td>
+                                        <td>{{item.cp_no}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 지정담당자 -->
+                        <div class="table-responsive list-table" style="overflow:unset">
+                            <table class="table" [ngStyle]="{'display': selectedPopupTab != 2 ? 'none' : ''}">
+                                <colgroup>
+                                    <col width="7%" *ngIf="assign_popup_type == 0">
+                                    <col width="18%">
+                                    <col width="7%">
+                                    <col width="25%">
+                                    <col width="18%">
+                                    <col width="15%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th *ngIf="assign_popup_type == 0"></th>
+                                        <th>소속/업체</th>
+                                        <th>담당자</th>
+                                        <th>담당업무</th>
+                                        <th>직급</th>
+                                        <th>휴대전화</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of cateUserList; let i = index">
+                                        <td *ngIf="assign_popup_type == 0">
+                                            <input type="checkbox" (change)="userSelectChanged($event, item)">
+                                        </td>
+                                        <td>{{item.dept_nm}}</td>
+                                        <td>{{item.user_nm}}</td>
+                                        <td>{{item.task_nm}}</td>
+                                        <td>{{item.duty_nm}}</td>
+                                        <td>{{item.cp_no}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+
+<!-- 푸시/문자 전송 모달 -->
+<ng-template #sendModal let-c="close" let-d="dismiss">
+    <div class="modal-header align-items-center">
+        <h4 class="modal-title" id="modal-basic-title">{{popupTitle}}</h4>
+        <div class="form-group" style="margin:0">
+            <button type="button" class="btn btn-inverse" (click)="popupText=''; d('Cross click'); send_check='0'">닫기</button>
+        </div>
+    </div>
+    <div class="modal-body">
+        <div class="card" style="margin:0">
+            <div class="card-body">
+              <!-- 처리중 처리완료 처리불가 -->
+              <div *ngIf="talk_mode == 0" class="form-group d-flex flex-row">
+                   <div class="title wt10">* 공무원 알림톡 전송</div>
+                   <div>
+                      <input type="radio" style="margin:0 0.5rem" id="nonsend" name="send_check" [(ngModel)]="send_check" value="0">
+                      <label for="nonsend">미전송</label>
+                   </div>
+                   <div>
+                      <input type="radio" style="margin:0 0.5rem" id="send" name="send_check" [(ngModel)]="send_check" value="1" checked>
+                      <label for="send">전송</label>
+                   </div>
+              </div>
+              <div *ngIf="talk_mode == 1 || send_check == 1">
+                  <div class="form-group d-flex flex-row">
+                      <div class="title wt8">*수신자:</div>
+                      <input class="form-control" [disabled]="recv_type == 1" type="text" [(ngModel)]="recv_nm">
+                  </div>
+                  <div class="form-group d-flex flex-row" *ngIf="recv_type != 1">
+                      <div class="title wt8">*전화번호:</div>
+                      <input class="form-control" type="text" [(ngModel)]="recv_tel">
+                  </div>
+                  <!-- <div class="form-group d-flex flex-row" *ngIf="recv_type != 1">
+                      <div class="title wt8">*발신자 번호:</div>
+                      <input class="form-control" type="text" [(ngModel)]="recv_tel">
+                  </div> -->
+                  <!-- 처리중 처리완료 처리불가 -->
+                  <div class="form-group d-flex flex-row" *ngIf="send_type == 0">
+                      <div class="title wt8">*처리상태</div>
+                      <div *ngIf="recv_type != 4" >
+                          <input type="radio" style="margin:0 0.5rem" id="ing"  name="talk_var_state" [(ngModel)]="talk_var_state" value="1" checked>
+                          <label for="ing">처리중</label>
+                      </div>
+                      <div >
+                          <input *ngIf="recv_type != 4" type="radio" style="margin:0 0.5rem" id="done"  name="talk_var_state" [(ngModel)]="talk_var_state" value="2" >
+                          <label for="done">처리완료</label>
+                      </div>
+                      <div *ngIf="recv_type != 4">
+                          <input type="radio" style="margin:0 0.5rem" id="impossible"  name="talk_var_state" [(ngModel)]="talk_var_state" value="3">
+                          <label for="impossible">처리불가</label>
+                      </div>
+                  </div>
+                  <div class="form-group d-flex flex-row" let>
+                      <div class="title wt8">*발송방법</div>
+                      <div>
+                          <input type="radio" style="margin:0 0.5rem" id="direct" name="send_mode" [(ngModel)]="send_mode" value="0" checked>
+                          <label for="direct">즉시발송</label>
+                      </div>
+                      <div>
+                          <input type="radio" style="margin:0 0.5rem" id="book" name="send_mode" [(ngModel)]="send_mode" value="1">
+                          <label for="book">예약발송</label>
+                      </div>
+                  </div>
+                  <div class="form-group d-flex flex-row">
+                      <div class="title wt8">발신방법:</div>
+                      {{send_type == 0? '알림톡': 'PUSH & 알림톡 (푸시와 알림톡을 함께 발송합니다)'}}
+                  </div>
+                  <div class="form-group">
+                      <textarea class="form-control" style="height:10rem;" [(ngModel)]="popupTextValue" [disabled]="recv_type == 1">{{popupText}}</textarea>
+                  </div>
+                  <div class="form-group d-flex flex-row">
+                      <button class="btn btn-info ml-auto" [disabled]="popupText.length == 0" (click)="recv_type >= 3 ? save(true, true) : sendNoti(send_mode)">전송하기</button>
+                  </div>
+                  <div class="w625">
+                      *예약발송은 익일 09시에 발송합니다.<br />
+                  </div>
+              </div>
+              <div *ngIf="talk_mode == 0 && send_check == 0">
+                  <div class="form-group d-flex flex-row" >
+                      <div class="title">처리 내역을 적어주세요.</div>
+                 </div>
+                 <div class="form-group">
+                     <textarea class="form-control" style="height:10rem;" [(ngModel)]="popupTextValue">{{popupText}}</textarea>
+                 </div>
+                  <div class="form-group d-flex flex-row">
+                      <button class="btn btn-info ml-auto" style="margin-left:0.5rem" [disabled]="popupText.length == 0"  (click)="save(true, true)">완료하기</button>
+                  </div>
+              </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<!-- 접수이첩 모달 -->
+<ng-template #showChangeDutyModal let-c="close" let-d="dismiss">
+    <div class="modal-header align-items-center">
+        <h4 class="modal-title" id="modal-basic-title">접수이첩</h4>
+        <div class="form-group" style="margin:0">
+            <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+        </div>
+    </div>
+    <div class="modal-body">
+        <div class="card" style="margin:0">
+            <div class="card-body">
+                <div class="form-group d-flex">
+                    <div class="wt8 title">기관</div>
+                    <div class="form-group wt14" style="margin:0">
+                        <select class="form-control" [(ngModel)]="duty_item.org_no" (change)="getDutyList()">
+                            <option value="">기관</option>
+                            <option [value]="item.id" *ngFor="let item of orgList;">{{item.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group d-flex">
+                    <div class="wt8 title">당직장소</div>
+                    <div class="form-group wt14" style="margin:0">
+                        <select class="form-control" [(ngModel)]="duty_item.duty_site" (change)="getDutyList()">
+                            <option value="">당직장소</option>
+                            <option [value]="item.id" *ngFor="let item of locationList;">{{item.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group d-flex">
+                    <div class="wt8 title">당직자</div>
+                    <div class="form-group wt14" style="margin:0">
+                        <select class="form-control" [(ngModel)]="duty_item.official_id">
+                            <option value="">당직자</option>
+                            <option [value]="item.official_id" *ngFor="let item of dutyUserList;">{{item.user_nm}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group d-flex justify-content-center">
+                    <button type="button" class="btn btn-info" style="margin-right:0.5rem" (click)="changeDuty()">접수이첩</button>
+                    <button type="button" class="btn btn-danger" style="margin-right:0.5rem" (click)="d('Cancel')">취소</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+
+<!-- 취소 전송 모달 -->
+<ng-template #cancelModal let-c="close" let-d="dismiss">
+    <div class="modal-header align-items-center">
+        <h4 class="modal-title" id="modal-basic-title">접수 취소</h4>
+        <div class="form-group" style="margin:0">
+            <button type="button" class="btn btn-inverse" (click)="popupText=''; d('Cross click')">닫기</button>
+        </div>
+    </div>
+    <div class="modal-body">
+        <div class="card" style="margin:0">
+            <div class="card-body">
+              <!-- 처리중 처리완료 처리불가 -->
+              <div class="form-group d-flex flex-row">
+                   <div class="title">취소 사유를 적어주세요.</div>
+              </div>
+              <div class="form-group">
+                  <textarea class="form-control" style="height:10rem;" [(ngModel)]="popupTextValue">{{popupText}}</textarea>
+              </div>
+              <div class="form-group d-flex flex-row">
+                 <button class="btn btn-info ml-auto" (click)="reportCancel()">취소하기</button>
+             </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<div class="print-area" id="printArea">
+    <h1>지진피해 조사대장</h1>
+    <h2>작성자정보</h2>
+    <div class="print-area">
+        <p>작성자: {{reportData.civil_nm}}</p>
+        <p>전화번호: {{reportData.civil_tel_no}}</p>
+        <p>작성일시: {{reportData.receipt_dttm | date }}</p>
+    </div>
+    <div class="print-area">
+        <h2>피해개요</h2>
+        <p>○ 위치: {{locationSelectItem.name}}</p>
+        <h2>피해내용</h2>
+        <pre>{{complaintTextValue}}</pre>
+        <h2>피해사진</h2>
+        <img *ngIf="reportData.image_url1" [src]="reportData.image_url1">
+        <img *ngIf="reportData.image_url2" [src]="reportData.image_url2">
+        <img *ngIf="reportData.image_url3" [src]="reportData.image_url3">
+        <img *ngIf="reportData.image_url4" [src]="reportData.image_url4">
+    </div>
+</div>

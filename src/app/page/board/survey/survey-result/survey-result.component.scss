@@ -1,0 +1,19 @@
+@import '../../../../../styles.scss';
+.list-table{
+    margin-top:1rem;
+    letter-spacing: -0.06rem;
+    tr th, tr td{
+        text-align: center;
+        border:1px solid $tb-border-color;
+        vertical-align: middle;
+    }
+    tr th{
+        background-color:$tb-col-color;
+        vertical-align: middle;
+    }
+    
+    tbody .highlight:hover{
+        background-color: $tb-hover-color;
+        cursor:pointer;
+    }
+}

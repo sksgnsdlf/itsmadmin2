@@ -1,0 +1,47 @@
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-lg-12">
+        <h5 class="card-title">모바일 플랫폼 누적 가입 자 수</h5>
+        <div style="font-size: 2.8rem;text-align:center !important;">{{members |number}} 명</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-lg-4">
+        <h5 class="card-title">회원 가입 추이</h5>
+        <canvas baseChart [datasets]="joinData" [labels]="lineChartLabels" [options]="lineChartOptions" 
+        [colors]="[{backgroundColor: 'rgba(255, 99, 132, 0.2)', borderColor: 'rgba(255,99,132,1)'}]" [legend]="lineChartLegend" [chartType]="lineChartType"></canvas>
+      </div>
+      <div class="col-lg-4">
+        <h5 class="card-title">이용 현황</h5>
+        <canvas baseChart [datasets]="appData" [labels]="lineChartLabels" [options]="lineChartOptions" 
+        [colors]="[{backgroundColor: 'rgba(54, 162, 235, 0.2)', borderColor: 'rgba(54, 162, 235,1)'}]" [legend]="lineChartLegend" [chartType]="lineChartType"></canvas>
+      </div>
+      <div class="col-lg-4">
+        <h5 class="card-title">바로응답현황
+          <div style="text-decoration: underline" class="floatR"><a style="color: blue;" href="http://www.pohang.go.kr/answer/map.do"
+              target="_blank">바로응답맵</a></div>
+        </h5>
+        <canvas baseChart [datasets]="cmplData" [labels]="lineChartLabels" [options]="lineChartOptions" [colors]="lineChartColors"
+          [legend]="lineChartLegend" [chartType]="lineChartType"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-lg-12">
+        <h5 class="card-title">나의 바로응답 접수현황</h5>
+        <itsm-table [table]="listTable" clickable="true" (onRowClicked)="goDetail($event)"></itsm-table>
+        <ngb-pagination class="d-flex justify-content-center" [collectionSize]="collectionSize" [(page)]="page"
+          (pageChange)="search($event)"></ngb-pagination>
+      </div>
+
+    </div>
+  </div>
+</div>

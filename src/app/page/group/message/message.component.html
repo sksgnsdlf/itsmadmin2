@@ -1,0 +1,149 @@
+<!-- 단체 선택 select -->
+<society-select (OnChange) = "optionSelected($event)"></society-select>
+
+<!-- search 부분 -->
+<div class="search-container">
+  <div class="form-group">
+    <label for="typeahead-basic" style="width:8rem">전송방법</label>
+    <select class="form-control" [(ngModel)]="searchForm.method">
+      <option [value]="null">전체</option>
+      <option value="1">PUSH</option>
+      <option value="2">PUSH->SMS</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="search-title">등록일자</label>
+    <itsm-calendar [(fromDt)]="searchForm.startDate" [(toDt)]="searchForm.endDate" title="등록일자"></itsm-calendar>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic" style="width:8rem">제목,본문</label>
+    <input id="typeahead-basic" class="form-control" type="text" [(ngModel)]="searchForm.search" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">발신명</label>
+    <input id="typeahead-basic" class="form-control" type="text" [(ngModel)]="searchForm.sender" />
+  </div>
+  <button type="button" class="btn btn-info" (click)="searchPost()">조회</button>
+</div>
+<!-- 푸시 리스트테이블 -->
+<div class="col-lg-12" style="padding:0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <colgroup>
+            <col width="5%">
+            <col width="20%">
+            <col width="">
+            <col width="8%">
+            <col width="">
+            <col width="10%">
+            <col width="14%">
+            <col width="14%">
+            <col width="">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>푸시 제목</th>
+              <th>전송방법</th>
+              <th>발신명</th>
+              <th>발신자(소속)</th>
+              <th>R/S, SMS</th>
+              <th>발송 일시</th>
+              <th>예약 발송 일시</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of list; let i = index" (click)="getRecvs(item.id)" style="cursor: pointer;" [ngClass]="{active: selected == item.id}">
+              <td class="noLLine">{{item.id}}</td>
+              <td style="text-align: left;"><span class="ico_r" *ngIf="item.reserved == '1'"><img src="assets/images/sub/ico_r.gif"
+                    alt="미발송"></span>{{item.title}}</td>
+              <td>{{item.method}}</td>
+              <td>{{item.sender}}</td>
+              <td>{{item.name}}</td>
+              <td>{{item.readCnt}}/{{item.totalCnt}}, {{item.smsCnt}}</td>
+              <td>{{item.sendDate}}</td>
+              <td>{{item.reserved!='2'?item.reserveDate:'예약취소'}}</td>
+              <td>
+                <div class="btn_wrap">
+                  <a (click)="$event.stopPropagation(); openText(content, item);"  class="btn bg_purple">본문보기</a>
+                </div>
+                <div class="btn_wrap" *ngIf="item.reserved == '1'">
+                  <a (click)="$event.stopPropagation();cancelRevserdMsg(item)" class="btn">취소</a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="list-pagination">
+  <ngb-pagination class="d-flex justify-content-center" (pageChange)="searchPost($event)" [collectionSize]="collectionSize"
+    [maxSize]="MaxPageSize" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+  <div class="total-page" style="text-align: center">총 {{total}} 건, {{totalPage}} 페이지 </div>
+</div>
+
+<!-- 푸시 받은 회원리스트테이블 -->
+<div class="col-lg-12" style="padding:0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table">
+          <colgroup>
+            <col width="8%">
+            <col width="10%">
+            <col width="20%">
+            <col width="8%">
+            <col width="8%">
+            <col width="20%">
+            <col width="20%">
+            <col width="12%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>성명</th>
+              <th>신분 구분</th>
+              <th>전화번호</th>
+              <th>앱설치 유무</th>
+              <th>단말기</th>
+              <th>읽음 일시</th>
+              <th>SMS 발송일시</th>
+              <th>에러 내용</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of recvs">
+              <td class="noLLine">{{item.name}}</td>
+              <td>{{item.role}}</td>
+              <td>{{item.tel}}</td>
+              <td>{{item.app=='1'?'Y':'N'}}</td>
+              <td>{{item.deviceModel}}</td>
+              <td>{{item.readDate}}</td>
+              <td>{{item.smsDate}}</td>
+              <td>{{item.error}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 본문보기 모달 -->
+<ng-template #content let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">본문 </h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body" [innerHtml]='pushText'>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info" (click)="d('Save click')">확인</button>
+  </div>
+</ng-template>

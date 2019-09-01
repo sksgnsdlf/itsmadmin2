@@ -1,0 +1,47 @@
+
+<div class="mb-3 col-10" style="text-align: right;">
+  <button style="display: inline;" type="button" class="btn btn-inverse" (click)="refresh()">새로고침</button>
+</div>
+<div class="row">
+  <div class="col-5">
+    <div class="card">
+      <div class="card-body" *ngIf="ready">
+        <h5 class="card-title">서버 정보</h5>
+        <h6>서버 상태 - <span>{{server.health.status}}</span></h6>
+        <h6>디스크상태</h6>
+        <p>전체 - {{server.health.diskSpace.total}}, 여유공간 - {{server.health.diskSpace.free}}</p>
+        <hr />
+        <h6>서버 정보</h6>
+        <p>자바 버전 - {{server.info.app.java.target}}</p>
+        <p>인코딩 - {{server.info.app.encoding}}</p>
+        <hr />
+        <h6>상세 정보</h6>
+        <p>전체 메모리 - {{server.metrics.mem}}, 여유 메모리 - {{server.metrics['mem.free']}}</p>
+        <p>프로세서 수 - {{server.metrics.processors}}, 스래드 수 - {{server.metrics.threads}}</p>
+        <p>서버 실행시간 - {{server.metrics.uptime}}, 프로세스 실행시간 - {{server.metrics['instance.uptime']}}</p>
+        <p>평균 시스템로드 - {{server.metrics['systemload.average']}}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-5">
+    <div class="card">
+      <div class="card-body" *ngIf="ready">
+        <h5 class="card-title">브로커 정보</h5>
+        <h6>클라이언트</h6>
+        <p>전체 클라이언트 - {{broker['clients/total']['clients/total']}}</p>
+        <p>온라인 클라이언트 - {{broker['clients/connected']["clients/connected"]}}</p>
+        <p>오프라인 클라이언트 - {{broker['clients/disconnected']["clients/disconnected"]}}</p>
+        <p>최대 클라이언트 수 - {{broker['clients/maximum']['clients/maximum']}}</p>
+        <hr />
+        <h6>메시지</h6>
+        <p>받은 메시지 수 - {{broker['load/messages/received']['load/messages/received/15min']}}</p>
+        <p>보낸 메시지 수 - {{broker['load/messages/sent']['load/messages/sent/15min']}}</p>
+        <hr />
+        <h6>브로커</h6>
+        <p>브로커 버전 - {{broker.version.version}}</p>
+        <p>브로커 실행시간 - {{broker.uptime.uptime}}</p>
+      </div>
+    </div>
+  </div>
+</div>
+

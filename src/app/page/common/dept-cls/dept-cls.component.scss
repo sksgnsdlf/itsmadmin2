@@ -1,0 +1,27 @@
+@import '../../../../styles.scss';
+.title{
+    width:100%;
+    text-align: center;
+    font-weight:bold;
+    margin-bottom:1rem;
+}
+.list{
+    text-align: center; 
+    width:100%; 
+    padding:0.5rem;
+    cursor:pointer;
+    border:1px solid $tb-border-color;
+    border-bottom:none;
+}
+.list:last-child{
+    border-bottom:1px solid $tb-border-color;
+}
+.dept-list{
+    text-align:left;
+    width:100%;
+    padding-top:0.5rem;
+    cursor:pointer;
+}
+.clicked{
+    background-color:$tb-hover-color;
+}

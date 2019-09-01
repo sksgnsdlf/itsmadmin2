@@ -1,0 +1,56 @@
+
+<div class="row">
+  <div class="col">
+    <!-- Card -->
+    <div class="card">
+      <div class="card-body">
+          <div class="card-text">
+            <ng-content select="[filter=src]"></ng-content>
+            <table class="table">
+              <thead>
+                <th><input type="checkbox" (change)="selectAll(src, $event.target.checked)"></th>
+                <th *ngFor="let item of header">{{item.name}}</th>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of src">
+                  <td><input type="checkbox" [(ngModel)]="item.selected"></td>
+                  <td *ngFor="let _ of header">{{item[_.key]}}</td>
+                </tr>
+              </tbody>
+            </table>
+            <ng-content select="ngb-pagination[pagination=src]"></ng-content>
+          </div>
+      </div>
+    </div>
+    <!-- Card -->
+  </div>
+  <div class="col shrink" style="flex-basis:0.75rem">
+    <img style="width:1.5rem" (click)="add()" src="assets/images/arr_right_btn.gif" alt=""/>
+    <img style="width:1.5rem" (click)="remove()" src="assets/images/arr_left_btn.gif" alt=""/>
+  </div>
+  <div class="col">
+    <!-- Card -->
+    <div class="card">
+      <div class="card-body">
+          <h4 class="card-title" *ngIf="title">{{title}}</h4>
+          <div class="card-text">
+            <ng-content select="[filter=dest]"></ng-content>
+            <table class="table">
+              <thead>
+                <th><input type="checkbox" (change)="selectAll(dest, $event.target.checked)"></th>
+                <th *ngFor="let item of header">{{item.name}}</th>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of dest">
+                  <td><input type="checkbox" [(ngModel)]="item.selected"></td>
+                  <td *ngFor="let _ of header">{{item[_.key]}}</td>
+                </tr>
+              </tbody>
+            </table>
+            <ng-content select="ngb-pagination[pagination=dest]"></ng-content>
+          </div>
+      </div>
+    </div>
+    <!-- Card -->
+  </div>
+</div>

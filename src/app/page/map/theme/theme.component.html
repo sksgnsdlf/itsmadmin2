@@ -1,0 +1,55 @@
+<div >
+        <div style="float: right">
+            <button class="btn btn-info" style="margin-right:1rem;" (click)="goback()"> 등록</button>
+        </div>
+        <div>
+            <input class="form-control" type="text" style="width:35em; margin-right:1rem;" >
+            <button class="btn btn-info">조회</button>
+          </div>
+        
+      </div>
+      <br><br>
+      <div class="col-lg-12" style="padding:0">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive list-table"> 
+                    <table class="table">
+                        <colgroup>
+                            <col width="10%">
+                            <col width="60%">
+                            <col width="15%">
+                            <col width="15%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th class="noLLine">No</th>
+                                <th>테마지도 명</th>
+                                <th>등록자</th>
+                                <th>등록일시</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="highlight" style="text-align: center">
+                                <td class="noLLine">1</td>
+                                <td >2</td>
+                                <td >3</td>
+                                <td >4</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="list-pagination">
+                    <div class="total-page" style="text-align: right">
+                      페이지당 표시수
+                        <select>
+                          <option value="10">10</option>
+                          <option value="20">20</option>
+                          <option value="30">30</option>
+                        </select>
+                        총 {{total}} 건, {{totalPage}} 페이지 
+                        <ngb-pagination class="d-flex justify-content-center" (pageChange)="getList($event)" [collectionSize]="collectionSize" [maxSize]="maxPage" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+                      </div>
+                  </div>
+            </div>
+        </div>
+      </div>

@@ -1,0 +1,59 @@
+<div class="search-society">
+    <div class="card">
+        <div class="card-body">
+            <div class="form-group">
+                <label for="typeahead-basic">단체 선택</label>
+                <select class="form-control" name="societySearch" [(ngModel)]="societyNo" (change)="societySelected()" *ngIf="user_auth != 'sys'"
+                    #societySearch="ngModel">
+                    <option value='null'>단체를 선택해주세요</option>
+                    <option *ngFor="let item of list" [ngValue]="item.society_no">{{item.society_nm}}</option>
+                </select>
+                <button type="button" class="btn btn-primary align-self-center" (click)="societySelected()" *ngIf="user_auth != 'sys'" >조회</button>
+
+                <input id="typeahead-basic" class="form-control" type="text" name="societyNm" [(ngModel)]="societyName"  *ngIf="user_auth == 'sys'"
+                placeholder="단체를 선택해 주세요." #societyNm="ngModel" disabled/>
+                <button type="button" class="btn btn-primary align-self-center" (click)="openModal(content)" *ngIf="user_auth == 'sys'" >검색</button>
+            </div>
+            <div class="form-group">
+                <button *ngFor="let btn of buttons" type="button" class="btn" [ngClass]="[btn.class]" (click)="buttonClicked(btn)">{{btn.name}}</button>&nbsp;
+            </div>
+        </div>
+    </div>
+    <ng-template #content let-c="close" let-d="dismiss">
+        <div class="modal-header">
+            <h4 class="modal-title">기관단체검색</h4>
+            <button type="button" class="close" aria-label="Close" (click)="d('Cross click')"> <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group d-flex flex-row align-items-center justify-content-center">
+                <label for="typeahead-basic" style="margin:0; width:4rem; text-align: right">단체명</label>
+                <input id="typeahead-basic" class="form-control medium" type="text" name="sender" [(ngModel)]="searchForm.society_nm" style="width:70%; margin-left:1rem;"
+                    placeholder="단체 명" #sender="ngModel" (keyup.enter)="searchSociety(1)" />
+                <button type="button" class="btn btn-primary align-self-center"  style="margin-left:1rem;" (click)="searchSociety(1)">검색</button>
+            </div>
+            <div class="table-responsive list-table scroll" style="height: 400px;">
+                <table class="table">
+                    <colgroup>
+                        <col width="40%">
+                        <col width="60%">
+                    </colgroup>
+                    <thead  style="text-align: center; background: #e5e5e5; line-height: 1.5; color: rgb(51, 51, 51); letter-spacing: -0.06em;">
+                        <tr>
+                            <th>기관명</th>
+                            <th>주소</th>
+                        </tr>
+                    </thead>
+                    <tbody style="text-align: center;">
+                        <tr class="highlight" *ngFor="let item of masterList" (click)="societySelected(item);d('Cross click')">
+                            <td style="text-align: center;">{{item.society_nm}}</td>
+                            <td style="text-align: left;">{{item.addr1}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <ngb-pagination class="d-flex justify-content-center" (pageChange)="searchSociety($event)" [collectionSize]="collectionSize"
+            [maxSize]="maxPageSize" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+        </div>
+    </ng-template>
+</div>

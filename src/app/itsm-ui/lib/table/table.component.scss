@@ -1,0 +1,5 @@
+@import '../../../../styles.scss';
+tbody .highlight:hover{
+    background-color: $tb-hover-color;
+    cursor:pointer;
+}

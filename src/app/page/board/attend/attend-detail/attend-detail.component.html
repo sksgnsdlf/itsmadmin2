@@ -1,0 +1,137 @@
+<div class="form-group button-group d-flex justify-content-end">
+  <button type="button" style="margin-right: 5px;" class="btn btn-inverse" (click)="backClicked()">돌아가기</button><!-- 뒤로가기 -->
+</div>
+<!-- 게시물 정보 -->
+<div class="attend-info-container">
+  <!-- 행사정보 -->
+  <div *ngIf="postInfo.board_typ == '2'" class="card">
+    <div style="padding:1rem;padding-bottom:0;font-weight: bold">행사 정보</div>
+    <div class="card-body">
+      <!-- 행사 간략 정보 테이블 -->
+      <itsm-table [table]="eventTable"></itsm-table>
+      <!-- 비콘 정보 테이블 -->
+      <itsm-table [table]="beaconTable"></itsm-table>
+    </div>
+  </div>
+  <!-- 교육강좌 정보 -->
+  <div *ngIf="postInfo.board_typ == '3'" class="card">
+      <div style="padding:1rem;padding-bottom:0;font-weight: bold">교육·강좌 정보</div>
+      <div class="card-body">
+        <!-- 교육강좌 간략 정보 테이블 -->
+        <itsm-table [table]="lectureTable"></itsm-table>
+        <!-- 비콘 정보 테이블 -->
+        <itsm-table [table]="beaconTable"></itsm-table>
+        <!-- 교육강좌 테이블 -->
+        <itsm-table [table]="lectureListTable" clickable="true" (onRowClicked)="getUser(1, $event)"></itsm-table>
+        <div class="list-pagination">
+          <ngb-pagination class="d-flex justify-content-center" (pageChange)="getDetail(false,$event)" [collectionSize]="collectionSize" [maxSize]="MaxPageSize" [(page)]="lecturePage" aria-label="Default pagination"></ngb-pagination>
+          <div class="total-page" style="text-align: center">총 {{lectureTotal}} 건, {{lectureTotalPage}} 페이지 </div>
+        </div>
+      </div>
+    </div>
+</div>
+<div class="attend-info-container">
+  <!-- 참여자 명단 -->
+  <div class="card">
+    <div class="d-flex flex-row justify-content-between" style="padding:1rem">
+      <div style="font-weight: bold">{{postInfo.board_typ == '2'?'참여자 목록':'출결내역'}}</div>
+    </div>
+    <div class="search-container">
+      <div *ngIf="postInfo.board_typ == '2'" class="form-group">
+          <label for="typeahead-basic">참여일자</label>
+          <itsm-calendar noRange="true" [(fromDt)]="searchForm.join_dttm" title="가입일자"></itsm-calendar>
+      </div>
+      <div class="form-group">
+          <label for="typeahead-basic" class="wt6">이름ㆍ연락처</label>
+          <input id="typeahead-basic" class="form-control wt14" name="nameTel" type="text" [(ngModel)]="searchForm.nameOrTel" #nameTel="ngModel"/>
+      </div>
+      <button type="button" class="btn btn-info" (click)="openFindUserModal(findUserModal)">조회</button>
+      <div class="btn-container ml-auto">
+        <button *ngIf="postInfo.board_typ == '3'" type="button" class="btn btn-info" (click)="openAttendDetailModal(attendDetailModal, null, true); modal_typ='add';">수기등록</button>
+        <button type="button" class="btn btn-info" (click)="getExcel()">엑셀저장</button>
+      </div>
+    </div> 
+    <div class="card-body">
+      <itsm-table *ngIf="userTable.attr && postInfo.board_typ=='2'" [table]="userTable"></itsm-table>
+      <itsm-table *ngIf="userTable.attr && postInfo.board_typ=='3'" [table]="userTable" clickable="true" (onRowClicked)="openAttendDetailModal(attendDetailModal,$event);modal_typ='detail'"></itsm-table>
+    </div>
+    <div class="list-pagination">
+      <ngb-pagination class="d-flex justify-content-center" (pageChange)="getUser($event)" [collectionSize]="attendUsercollectionSize" [maxSize]="attendUserPageSize" [(page)]="attendUserPage" aria-label="Default pagination"></ngb-pagination>
+      <div class="total-page" style="text-align: center">총 {{attendUserTotal}} 건, {{attendUserTotalPage}} 페이지</div>
+    </div>
+  </div>
+</div>
+<!-- 이하 팝업들 -->
+<!-- 출결 포스트 상세(수정) -->
+<ng-template #attendDetailModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">{{modal_typ=='detail'?'출결 상세정보':'출결 수기 등록'}}</h4>
+    <div class="form-group" style="margin:0">
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div id="applModal" class="modal-body">
+    <div class="card" style="margin:0">
+      <div class="card-body">
+        <itsm-table [table]="modalTable"></itsm-table>
+        <form #saveForm="ngForm">
+          <div class="d-flex flex-row">
+            <div class="form-group col-6">
+              <label for="typeahead-basic" class="col-3">이름</label>
+              <input id="typeahead-basic" class="form-control" type="text" [(ngModel)]="userDetail.user_nm" name="userNm" required #userNm="ngModel" readonly/>
+              <div *ngIf="userNm.invalid && (userNm.dirty || userNm.touched)" class="alert alert-danger">
+                <div *ngIf="userNm.errors.required"> 필수항목입니다. </div>
+              </div>
+            </div>
+            <div *ngIf="modal_typ=='add'" class="form-group">
+              <button type="button" class="btn btn-info" (click)="openModal(findUserModal)">검색</button>
+            </div>
+          </div>
+          <div class="form-group col-6" style="margin-bottom:0">
+            <label for="typeahead-basic" class="col-3">휴대전화</label>
+            <input id="typeahead-basic" class="form-control" type="text" [(ngModel)]="userDetail.cp_no" name="cpNo" required #cpNo="ngModel" readonly/>
+            <div *ngIf="cpNo.invalid && (cpNo.dirty || cpNo.touched)" class="alert alert-danger">
+              <div *ngIf="cpNo.errors.required"> 필수항목입니다. </div>
+            </div>
+          </div>
+          <div class="form-group col-6" style="margin-bottom:0">
+            <label for="typeahead-basic" class="col-3">입장시간</label>
+            <ngb-timepicker [(ngModel)]="in_time" [meridian]="true" name="inTime" #inTime="ngModel"></ngb-timepicker>
+          </div>
+          <div class="form-group col-6" style="margin-bottom:0">
+            <label for="typeahead-basic" class="col-3">퇴장시간</label>
+            <ngb-timepicker [(ngModel)]="out_time" [meridian]="true" name="outTime" #outTime="ngModel"></ngb-timepicker>
+          </div>
+          <div class="form-group justify-content-center">
+            <button type="button" class="btn btn-info" style="margin-right:1rem" (click)="postUser()">{{add_or_revise?'등록':'저장'}}</button>
+            <button type="button" class="btn btn-inverse" (click)="d('Cross click')">취소</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</ng-template>
+<!-- 회원검색 모달 -->
+<ng-template #findUserModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">회원검색</h4>
+    <div class="form-group" style="margin:0">
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div id="applModal" class="modal-body" style="max-height:30rem;overflow-y: scroll">
+    <div class="card" style="margin:0;">
+      <div class="card-body">
+        <div class="d-flex flex-row">
+          <div class="form-group col-6">
+            <input id="typeahead-basic" class="form-control" type="text" placeholder="이름ㆍ연락처" (keyup.enter)="findUser()" [(ngModel)]="nameOrTel"/>
+          </div>
+          <div class="form-group">
+            <button type="button" class="btn btn-info" (click)="findUser()">검색</button>
+          </div>
+        </div>
+        <itsm-table [table]="findUserTable" clickable="true" (onRowClicked)="getSelectedUser($event);d('user selected')"></itsm-table>
+      </div>
+    </div>
+  </div>
+</ng-template>

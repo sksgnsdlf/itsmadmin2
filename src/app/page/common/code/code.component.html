@@ -1,0 +1,50 @@
+<div class="row">
+  <div class="col-3">
+    <itsm-tree-view [data]="data" (OnClick)="select($event)"></itsm-tree-view>
+  </div>
+  <div class="col-6">
+      <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">{{edit?'수정 - ' + code.id:'신규'}}</h4>
+        <form #codeForm="ngForm" (ngSubmit)="save()">
+          <div style="text-align: right;">
+            <button style="display: inline;" *ngIf="edit" type="button" class="btn btn-inverse" (click)="edit = false;codeForm.resetForm({})">신규</button>
+          </div>
+          <div class="form-group">
+            <label for="cls">코드분류</label>
+            <input id="cls" name="cls" class="form-control" required minlength="3" [(ngModel)]="code.id" #cls="ngModel">
+            <div *ngIf="cls.invalid && (cls.dirty || cls.touched)" class="alert alert-danger">
+                <div *ngIf="cls.errors.required"> 필수항목입니다. </div>
+                <div *ngIf="cls.errors.minlength"> 3자리 이상 입력하세요. </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="name">코드</label>
+            <input id="cd" name="cd" class="form-control" required [(ngModel)]="code.code" #cd="ngModel">
+            <div *ngIf="cd.invalid && (cd.dirty || cd.touched)" class="alert alert-danger">
+                <div *ngIf="cd.errors.required"> 필수항목입니다. </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="name">코드명</label>
+            <input id="name" name="name" class="form-control" required [(ngModel)]="code.cd_nm" #name="ngModel">
+            <div *ngIf="name.invalid && (name.dirty || name.touched)" class="alert alert-danger">
+                <div *ngIf="name.errors.required"> 필수항목입니다. </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="ord">출력순서</label>
+            <input id="ord" name="ord" class="form-control" [(ngModel)]="code.ord">
+          </div>
+          <div class="form-group">
+            <label for="txt">코드설명</label>
+            <input id="txt" name="txt" class="form-control" [(ngModel)]="code.txt">
+          </div>
+          <button *ngIf="!edit" type="button" style="margin-right: 5px;" class="btn btn-inverse" (click)="codeForm.resetForm({})">초기화</button>
+          <button *ngIf="edit" type="button" style="margin-right: 5px;" class="btn btn-danger" (click)="delete()">삭제</button>
+          <button type="submit" style="margin-right: 5px;" class="btn btn-info" [disabled]="!codeForm.valid">저장</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

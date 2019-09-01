@@ -1,0 +1,298 @@
+<!-- 단체 선택 select -->
+<society-select (OnChange) = "optionSelected($event)" [buttons]="buttons" (OnBtnClicked)="btnClicked($event, [sendPushModal, inviteModal])"></society-select>
+
+<!-- search 부분 -->
+<div class="search-container">
+  <div class="form-group">
+      <label for="typeahead-basic">회원분류</label>
+      <div class="option-container">
+        <select class="form-control" name="userCls" [(ngModel)]="searchForm.user_cls" (change)="optionSelected('userCls')" #userCls="ngModel">
+            <option [value]="null">선택</option>
+            <option *ngFor="let item of options.userCls" [ngValue]="item.user_cls">{{item.cls_nm}}</option>
+        </select>
+        <select class="form-control" name="userClsAttr" [(ngModel)]="searchForm.user_cls_cd" #userClsAttr="ngModel">
+            <!-- <option [value]="null">선택</option> -->
+            <option *ngFor="let item of clsAttr" [ngValue]="item.cd">{{item.cd_nm}}</option>
+        </select>
+      </div>
+  </div>
+
+  <div class="form-group">
+      <label for="typeahead-basic" style="width:12rem!important">이름ㆍ휴대전화</label>
+      <input id="typeahead-basic" class="form-control" name="nameTel" type="text" [(ngModel)]="searchForm.nmOrTel" #nameTel="ngModel"/>
+  </div>
+  <div class="form-group">
+      <label class="search-title">가입일자</label>
+      <itsm-calendar [(fromDt)]="searchForm.fromDt" [(toDt)]="searchForm.toDt" title="가입일자"></itsm-calendar>
+  </div>
+
+  <button type="button" class="btn btn-info align-self-center" (click)="searchUser(1, 'btn')">조회</button>
+</div>  
+<!-- 테이블 -->
+<div class="col-lg-12" style="padding:0">
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive"> 
+        <table class="table">
+          <colgroup>
+            <col width="5%">
+            <col width="5%">
+            <col width="10%">
+            <col width="15%">
+            <col width="6%">
+            <col width="12%">
+            <col width="10%">
+            <col width="10%">
+            <col width="10%">
+            <col width="17%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th><input type="checkbox" style="transform:scale(1.5)" (click)="selectAllUser()"/></th>
+              <th>이름</th>
+              <th>휴대전화</th>
+              <th>앱설치</th>
+              <th>회원종류</th>
+              <th>회원구분</th>
+              <th>회원상태</th>
+              <th>유료회원</th>
+              <th>가입일시</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlight clickable" *ngFor="let item of userList; let idx = index" (click)="getUserDetail(userDetailModal, item)">
+              <td>{{idx+1}}</td>
+              <td (click)="item.selected = !item.selected; $event.stopPropagation()"><input type="checkbox" [checked]="item.selected" style="transform:scale(1.5)"/></td>
+              <td>{{item.user_nm}}</td>
+              <td>{{item.cp_no?item.cp_no:item.tel_no?item.tel_no:''}}</td>
+              <td>{{item.app_install_yn}}</td>
+              <td>{{item.mbr_typ_nm}}</td>
+              <td>{{item.mngr_cd_nm}}</td>
+              <td>{{item.user_state_nm}}</td>
+              <td>{{item.user_pay_typ}}</td>
+              <td>{{item.join_dttm}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="list-pagination">
+  <ngb-pagination class="d-flex justify-content-center" (pageChange)="searchUser($event)" [collectionSize]="collectionSize" [maxSize]="maxPageSize" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+  <div class="total-page" style="text-align: center">총 {{total}} 건, {{totalPage}} 페이지 </div>
+</div>
+
+
+<!-- 회원초대 모달 -->
+<ng-template #inviteModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">회원초대</h4>
+    <div class="form-group">
+      <button type="button" class="btn btn-info" (click)="getInviteForm()">초대양식 받기</button>&nbsp;
+      <button type="button" class="btn btn-info" (click)="openFile(inputFile)">Excel 일괄초대</button>&nbsp;
+      <input #inputFile [hidden]="true" type="file" (change)="addInviteListFromExcel($event)">
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div class="modal-body d-flex flex-column">
+    <div class="card" style="margin:0">
+      <div class="card-body" style="padding:0">
+        <input id="typeahead-basic" class="form-control" type="text" [(ngModel)]="push.title" placeholder="메세지제목"/>
+        <div class="floatL marL20" style="width: 100%;">
+          <div class="boxType03">
+            <div class="inner pad10">
+              <!-- PUSH -->
+              <!-- <itsm-ckeditor #ck [ngStyle]="{'display': 'block'}" [(ngModel)]="messageEditor" [language]="'ko'"></itsm-ckeditor> -->
+              <!-- //PUSH -->
+              <!-- SMS -->
+              <textarea id="text-area" [ngStyle]="{'display': 'block'}" class="sms-editor" [(ngModel)]="inviteMsg" (keyup)="checkByteLength()" placeholder="40자 글자 제한이 있습니다. (80byte)" cols="30" rows="5" style="width: 100%"></textarea>
+              <!-- //SMS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin:0;margin-top:2rem;">
+      초대명단<hr>
+      <div class="card-body" style="padding:0">
+        <!-- 초대명단 추가 입력 폼 및 메세지 보내기 버튼 -->
+        <div class="inviteUser-group d-flex flex-row">
+          <div class="form-group col-3">
+              <label for="typeahead-basic">*성명</label>
+              <input id="typeahead-basic" class="form-control" name="userNm" type="text" [(ngModel)]="inviteForm.user_nm" #userNm="ngModel"/>
+          </div>
+          <div class="form-group col-3">
+              <label for="typeahead-basic">*휴대전화</label>
+              <input id="typeahead-basic" class="form-control" name="cpNo" type="text" [(ngModel)]="inviteForm.cp_no" #cpNo="ngModel"/>
+          </div>
+          <div class="form-group align-self-end">
+            <button type="submit" class="btn btn-info" (click)="addInviteList()">추가</button>
+          </div>
+          <div class="form-group align-self-end ml-auto">
+            <button type="button" class="btn btn-info" (click)="send()">메세지 보내기</button>
+          </div>
+        </div>
+        <!-- 초대명단 multi select -->
+        <itsm-multi-select [(src)]="tempInviteList" [(dest)]="inviteList" [header]="header" title="초대명단">
+          <div filter="src">
+            <label style="font-size:18px">예비명단</label>
+          </div>
+        </itsm-multi-select>
+      </div>
+    </div>
+  </div>
+</ng-template>
+<!-- 푸시발송 모달 -->
+<ng-template #sendPushModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">메세지전송</h4>
+    <div class="form-group">
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div class="modal-body d-flex flex-column">
+    <div class="card" style="margin:0">
+      <div class="card-body" style="padding:0">
+        <input id="typeahead-basic" class="form-control" type="text" [(ngModel)]="push.title" placeholder="메세지제목"/>
+        <div class="floatL marL20" style="width: 100%;margin-top:0.5rem;">
+          <div class="boxType03">
+            <div class="inner pad10">
+              <a (click)="showTemplate(templateModal)" class="push_add_btn layer_popup" style="font-size: 0.8em; background: gray; color: #fff; padding: 2px 10px;cursor:pointer">자주쓰는 문구</a>
+              <!-- PUSH -->
+              <itsm-ckeditor #ck [ngStyle]="{'display': 'block'}" [(ngModel)]="pushMsg" [language]="'ko'"></itsm-ckeditor>
+              <!-- //PUSH -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group align-self-center" style="margin-top:0.5rem">
+      <button type="button" class="btn btn-info" (click)="send()">메세지 보내기</button>
+    </div>
+  </div>
+</ng-template>
+<!-- 템플릿 메세지 모달 -->
+<!-- 팝업 -->
+<ng-template #templateModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">템플릿 찾기</h4>
+    <div class="form-group">
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div class="modal-body d-flex flex-column">
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive"> 
+          <table class="table">
+            <colgroup>
+              <col width="75%">
+              <col width="15%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>상용문구</th>
+                <th>삭제</th>
+                <th>선택</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of templates">
+                <td class="innerHtml align-middle text-left" [innerHtml]="item.text"></td>
+                <td class="align-middle text-left">
+                  <button type="button" class="btn btn-danger" (click)="deleteTemplate(item.id)">삭제</button>
+                </td>
+                <td class="align-middle text-left">
+                  <button type="button" class="btn btn-info" (click)="selectTemplate(item.text);d('finish')">선택</button>
+                </td>
+              </tr>																		
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <textarea class="template" style="margin:1.25rem; margin-top:0" [(ngModel)]="templateText" id="" cols="30" rows="5"></textarea>
+    <div class="d-flex justify-content-center">
+      <button type="button" class="btn btn-info" (click)="saveTemplate()">추가</button>
+    </div>
+  </div>
+</ng-template>
+<!-- //팝업 -->
+
+<!-- 회원상세 모달 -->
+<ng-template #userDetailModal let-c="close" let-d="dismiss" size="lg">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">회원상세정보</h4>
+    <div class="form-group">
+      <button type="button" class="btn btn-info" (click)="updUserDetail()">저장</button>&nbsp;
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div class="modal-body">
+      <!-- 회원정보 -->
+      <div>회원정보</div>
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive" style="overflow:unset">
+            <table class="table">
+              <colgroup>
+                <col width="20%">
+                <col width="30%">
+                <col width="20%">
+                <col width="30%">
+              </colgroup>
+              <tbody>
+                <tr *ngFor="let row of table">
+                  <!-- [ngStyle]="{'background-color':(col.typ == 'label'&&col.auth=='read only')?'#f2f2f2':(col.typ=='text'?'#bdd7ee':'')}" -->
+                  <!-- label color : #f2f2f2 -->
+                  <!-- read only color : #bdd7ee -->
+                  <td *ngFor="let col of row; let idx = index" [attr.colspan]="row.length==2&&idx==1?3:1" [ngClass]="{'tb-row-label':col.typ=='label'}" style="text-align: left;">
+                    <div *ngIf="col.typ == 'label' || col.typ == 'text'">{{col.value}}</div>
+                    <div *ngIf="col.typ == 'select'" class="form-group col-5" style="margin:0" >
+                      <select class="form-control" [(ngModel)]="reviseForm.user_cls[col.user_cls-1].user_cls_cd" [disabled]="col.user_cls==3 && col.disabled?true:false">
+                          <option *ngFor="let item of options.userClsAttr[col.user_cls]" [ngValue]="item.cd">{{item.cd_nm}}</option>
+                      </select>
+                    </div>
+                    <div *ngIf="col.typ == 'calendar'" style="display:flex; flex-direction: row; align-items: center;">
+                      <input type="checkbox" [checked]="reviseForm.user_cls[3].user_cls_cd=='유료'?true:false" (change)="reviseForm.user_cls[3].user_cls_cd = (reviseForm.user_cls[3].user_cls_cd=='무료'?'유료':'무료')">
+                      &nbsp;{{reviseForm.user_cls[3].user_cls_cd}}&nbsp;&nbsp;
+                      <itsm-calendar [(fromDt)]="reviseForm.user_cls[3].start_dt" [(toDt)]="reviseForm.user_cls[3].close_dt"></itsm-calendar>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>    
+      <!-- 단체 가입 현황 -->
+      <div>단체 가입 현황</div>
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <colgroup>
+                <col width="30%">
+                <col width="70%">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>단체명</th>
+                  <th>주소</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let society of societyListUserIn">
+                  <td style="text-align: left;">{{society.society_nm}}</td>
+                  <td style="text-align: left;">{{society.addr}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>  
+  </div>
+</ng-template>

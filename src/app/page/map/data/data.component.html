@@ -1,0 +1,78 @@
+<div class="d-flex flex-row row-mb align-items-center">
+        <div class="wt4 title">분류</div>
+        <select class="form-control wt8" [(ngModel)]="org_no">
+        <option value="">전체</option>
+        <option *ngFor="let item of orgList" [value]="item.id">{{item.name}}</option>
+        </select>
+        <select class="form-control wt8" [(ngModel)]="org_no" style="margin-right:5rem;">
+        <option  value="">전체</option>
+        <option *ngFor="let item of orgList" [value]="item.id">{{item.name}}</option>
+        </select>
+        
+        <label for="typeahead-basic" class="wt5">등록일</label>
+          <itsm-calendar [(fromDt)]="from_dt" [(toDt)]="to_dt" title="등록일자" style="margin-right:1rem;"></itsm-calendar>
+          <button type="button" class="btn btn-info" style="margin-right:1rem;" (click)="getList(1)">조회</button>
+      </div>
+      <br><br>
+      <div class="col-lg-12" style="padding:0">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive list-table"> 
+                    <table class="table">
+                        <colgroup>
+                            <col width="5%">
+                            <col width="23%">
+                            <col width="9%">
+                            <col width="9%">
+                            <col width="9%">
+                            <col width="9%">
+                            <col width="9%">
+                            <col width="9%">
+                            <col width="9%">
+                            <col width="9%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th class="noLLine">No</th>
+                                <th>장소명</th>
+                                <th>측정일시</th>
+                                <th>등록일시</th>
+                                <th>data1</th>
+                                <th>data2</th>
+                                <th>data3</th>
+                                <th>data4</th>
+                                <th>data5</th>
+                                <th>data6</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="highlight" style="text-align: center">
+                                <td class="noLLine">ㅏ</td>
+                                <td >ㅑ</td>
+                                <td >ㅓ</td>
+                                <td >ㅕ</td>
+                                <td >ㅗ</td>
+                                <td >ㅛ</td>
+                                <td >ㅜ</td>
+                                <td >ㅠ</td>
+                                <td >ㅡ</td>
+                                <td >ㅣ</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="list-pagination">
+                    <div class="total-page" style="text-align: right">
+                      페이지당 표시수
+                        <select>
+                          <option value="10">10</option>
+                          <option value="20">20</option>
+                          <option value="30">30</option>
+                        </select>
+                        총 {{total}} 건, {{totalPage}} 페이지 
+                        <ngb-pagination class="d-flex justify-content-center" (pageChange)="getList($event)" [collectionSize]="collectionSize" [maxSize]="maxPage" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+                      </div>
+                  </div>
+            </div>
+        </div>
+      </div>

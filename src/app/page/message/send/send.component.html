@@ -1,0 +1,237 @@
+<form #saveForm="ngForm" (ngSubmit)="send()">
+  <div class="card" style="margin:1rem">
+    <div class="row" style="padding:1rem;padding-bottom:0;">
+      <div class="form-group col-2">
+        <label class="push-label" for="typeahead-basic">전송방법
+          <div *ngIf="method.invalid && (method.dirty || method.touched)" class="alert alert-danger">
+            <div *ngIf="method.errors.required"> 필수항목입니다. </div>
+          </div>
+        </label>
+        <div class="d-flex flex-row">
+          <select class="form-control" name="method" [(ngModel)]="pushMethod" (change)="pushMethodChanged()" required
+            #method="ngModel">
+            <option [value]="null">전체</option>
+            <option value="1">PUSH</option>
+            <option value="2">PUSH->SMS</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group col-6">
+        <label class="push-label" for="typeahead-basic">푸시제목
+          <div *ngIf="title.invalid && (title.dirty || title.touched)" class="alert alert-danger">
+            <div *ngIf="title.errors.required"> 필수항목입니다. </div>
+          </div>
+        </label>
+        <input id="typeahead-basic" class="form-control" type="text" name="title" [(ngModel)]="push.title" placeholder="푸시 제목"
+          required #title="ngModel">
+
+      </div>
+      <div class="form-group col-3">
+        <label for="typeahead-basic">발신명 <div *ngIf="sender.invalid && (sender.dirty || sender.touched)" class="alert alert-danger">
+            <div *ngIf="sender.errors.required"> 필수항목입니다. </div>
+          </div></label>
+        <input id="typeahead-basic" class="form-control" type="text" name="sender" [(ngModel)]="push.sender"
+          placeholder="발신 명" required #sender="ngModel" />
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin:1rem">
+    <div class="row" style="padding:1rem;padding-bottom:0;padding-bottom:0;min-height:443px">
+      <div class="form-group col-3">
+        <input [(ngModel)]="push.isReserve" name="check" [value]="true" type="checkbox" id="reservation" #check="ngModel"><label
+          for="reservation">예약
+          발송</label>
+        <itsm-calendar [(fromDt)]="push.reserveDate" [noRange]="true"></itsm-calendar>
+        <div class="input-group mb-3">
+          <input type="time" class="form-control" format="hh:mm" [(ngModel)]="push.reserveTime" name="reserveTime "
+            [disabled]="!push.isReserve" #reserveTime="ngModel" />
+          <div class="input-group-append">
+            <span class="input-group-text"><i class="icon-clock"></i></span>
+          </div>
+        </div>
+        <div>
+          <p style="margin: 8px 5px; font-size: 0.8em; font-weight: bold;">푸시발송시 알림창에 표시할 사진을 선택합니다. (안드로이드 전용)</p>
+          <input #inputFile (change)="checkFileType($event)" type="file">
+        </div>
+        <div *ngIf="pushMethod == '2'">
+          <p style="margin: 15px 0px 5px 0px; font-size: 0.8em; font-weight: bold;">앱 미설치자에게 앱 설치 안내 추가문자 발송</p>
+          <input type="checkbox" id='sms' [(ngModel)]="push.appSms" name="appSms" #appSms="ngModel">
+          <label for="sms">문자메시지</label>
+          <!-- <input type="checkbox" id='kakao' style="margin-left: 10px;" [(ngModel)]="push.appKakao"> -->
+          <!-- <label for="kakao">카카오톡</label> -->
+        </div>
+      </div>
+      <div class="form-group col-9">
+        <div class="form-group col-12">
+          <button type="button" class="btn btn-secondary align-self-center" [ngClass]="{on: selectedEditor == 0}"
+            (click)="selectedEditor = 0">PUSH</button>
+          <button type="button" class="btn btn-secondary align-self-center" style="margin-left:0.5rem" [ngClass]="{on: selectedEditor == 1 }"
+            *ngIf="pushMethod == '2'" (click)="selectedEditor = 1">SMS</button>
+          <div *ngIf="!messageEditor" class="alert alert-danger push-alert">
+            <div> PUSH는 필수항목입니다. </div>
+          </div>
+          <div *ngIf="!smsEditor && pushMethod == '2'" class="alert alert-danger push-alert">
+            <div> SMS는 필수항목입니다. </div>
+          </div>
+          <button type="button" class="btn btn-primary align-items-end" style="float:right;" (click)="showTemplate(content)">자주쓰는
+            문구</button>
+        </div>
+        <!-- PUSH -->
+        <itsm-ckeditor (onLoad)="OnEditorLoaded()" name="ckedit" #ck [ngStyle]="{'display': selectedEditor != 0 ? 'none' : 'block'}" [(ngModel)]="messageEditor"
+          [language]="'ko'" required #ckedit="ngModel"></itsm-ckeditor>
+        <!-- //PUSH -->
+        <!-- SMS -->
+        <textarea [ngStyle]="{'display': selectedEditor != 1 ? 'none' : 'block'}" class="sms-editor" [(ngModel)]="smsEditor"
+          [required]="selectedEditor == 1" placeholder="40자 글자 제한이 있습니다. (80byte)" cols="30" rows="5" style="width: 100%"
+          name="smseditor" #smseditor="ngModel"></textarea>
+        <!-- //SMS -->
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin:1rem">
+    <div class="row" style="padding:1rem;padding-bottom:0;">
+      <div class="col-3">
+          <p style="margin: 0px; margin-bottom: 5px; font-size: 0.9em; font-weight: bold;">선택한
+            {{recvTab==0?'조직':'그룹'}}과
+            선택한 수신대상자에게 푸시메시지를 발송합니다.</p>
+          <div class="form-group">
+            <button type="button" class="btn btn-secondary align-self-center" [ngClass]="{on: recvTab == 0}" (click)="recvTab = 0;clearRecv()">조직</button>
+            <button type="button" class="btn btn-secondary align-self-center" [ngClass]="{on: recvTab == 1 }" (click)="recvTab = 1;clearRecv()">그룹</button>
+          </div>
+        <div>
+          <select [ngStyle]="{'display': recvTab != 0 ? 'none' : ''}" class="form-control" [(ngModel)]="org" (change)="setOrg(org)" name="orgss" #orgss="ngModel">
+            <option *ngFor="let item of orgs" [value]="item.id">{{item.name}}</option>
+          </select>
+          <itsm-tree-view [height]="400" [checkbox]="true" [data]="depts" [ngStyle]="{'display': recvTab != 0 ? 'none' : ''}" (OnClick)="selecteDept($event)"></itsm-tree-view>
+          <itsm-tree-view [height]="440" [checkbox]="true" [data]="groups" [ngStyle]="{'display': recvTab != 1 ? 'none' : ''}" (OnClick)="showGroupMember($event.id)"></itsm-tree-view>
+        </div>
+      </div>
+      <div class="col-1">
+      </div>
+      <div class="col-3">
+        <h4>구성원 리스트</h4>
+        <div class="table-responsive list-table scroll" style="height: 600px;">
+          <table class="table ">
+            <colgroup>
+              <col width="10%">
+              <col width="25%">
+              <col width="50%">
+              <col width="15%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th><input type="checkbox" [(ngModel)]="memSelectAll" (change)="selectAll(members, memSelectAll)" name="memsSelectedA"
+                    #memsSelectedA="ngModel"></th>
+                <th>성명</th>
+                <th>소속</th>
+                <th>앱</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of members">
+                <td><input type="checkbox" [(ngModel)]="item.selected" name="memsSelected" #memsSelected="ngModel"></td>
+                <td>{{item.name}}</td>
+                <td>{{item.dept}}</td>
+                <td>{{item.app>0?'Y':'N'}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-1">
+        <div style="padding-top:195px;" class="d-flex flex-column">
+          <button type="button" class="btn align-self-center" style="margin-bottom:20px" (click)="add()"><i class="icon-arrow-right"></i></button>
+          <button type="button" class="btn align-self-center" (click)="remove()"><i class="icon-arrow-left"></i></button>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <h4>수신대상자</h4>
+        <div class="table-responsive list-table scroll" style="height: 600px;">
+          <table class="table">
+            <colgroup>
+              <col width="10%">
+              <col width="25%">
+              <col width="50%">
+              <col width="15%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th><input type="checkbox" [(ngModel)]="recvSelectAll" (change)="selectAll(recvs, recvSelectAll)" name="recvsSelectedA"
+                    #recvsSelectedA="ngModel"></th>
+                <th>성명</th>
+                <th>소속</th>
+                <th>앱</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of recvs">
+                <td><input type="checkbox" [(ngModel)]="item.selected" name="recvsSelected" #recvsSelected="ngModel"></td>
+                <td>{{item.name}}</td>
+                <td>{{item.dept}}</td>
+                <td>{{item.app>0?'Y':'N'}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-1">
+      </div>
+    </div>
+  </div>
+  <div class="form-group fixed">
+    <ngb-alert [dismissible]="false" *ngIf="showAlert">
+      <strong *ngIf="saveResult">{{saveString}}</strong>
+      <strong *ngIf="!saveForm.valid">필수사항을 입력해주세요.</strong>
+      <strong *ngIf="saveForm.valid && !saveResult">{{saveString}}</strong>
+    </ngb-alert>
+    <!-- <button type="button" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-inverse" (click)="saveForm.resetForm({});">초기화</button> -->
+    <!-- <button type="button" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-inverse" (click)="goList()">목록으로</button> -->
+    <button type="button" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-inverse" (click)="saveTemplate(messageEditor)">템플릿저장</button>
+    <button type="submit" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-info" (click)="alertControl()"
+      [disabled]="!saveForm.valid">전송</button>
+  </div>
+</form>
+<!-- 게시물 공개설정  모달 -->
+<ng-template #content let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">템플릿 찾기 </h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="table-responsive scroll" style="height: 400px;">
+      <table class="table">
+        <colgroup>
+          <col width="75%">
+          <col width="15%">
+          <col width="10%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>상용문구</th>
+            <th>삭제</th>
+            <th>선택</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of templates">
+            <td class="innerHtml" [innerHtml]="item.text"></td>
+            <td>
+              <button type="button" class="btn btn-secondary" (click)="deleteTemplate(item.id)">삭제</button>
+            </td>
+            <td>
+              <button type="button" class="btn btn-info" (click)="selectTemplate(item.text); c('')">선택</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <textarea class="template" [(ngModel)]="templateText" name="template" cols="80" rows="5" #template="ngModel"></textarea>
+      <button type="button" class="btn btn-info align-items-center" (click)="saveTemplate()">추가</button>
+    </div>
+  </div>
+</ng-template>

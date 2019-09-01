@@ -1,0 +1,28 @@
+@import '../../../../styles.scss';
+.list-table{
+    letter-spacing: -0.06rem;
+    tr th, tr td{
+        text-align: center;
+        border:1px solid $tb-border-color;
+    }
+    tr th{
+        background-color:$tb-col-color;
+    }
+    
+    tbody .highlight:hover{
+        background-color: $tb-hover-color;
+        cursor:pointer;
+    }
+}
+.radio-btn{
+    cursor:pointer;
+    padding:0.5rem; 
+    margin-right:0.5rem;
+    background-color:$tb-col-color; 
+    border-radius:5px;
+}
+.on{
+    background-color: #745af2!important;
+    color:white!important;
+    a{ color:white!important; }
+}

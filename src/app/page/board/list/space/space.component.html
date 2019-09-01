@@ -1,0 +1,176 @@
+<form #saveForm="ngForm" (ngSubmit)="save()">
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>시설공간 명</label>
+    <input id="typeahead-basic" name="roomNm" type="text" required [(ngModel)]="info.room_nm" class="form-control medium"
+      #roomNm="ngModel" />
+    <div *ngIf="roomNm.invalid && (roomNm.dirty || roomNm.touched)" class="alert alert-danger">
+      <div *ngIf="roomNm.errors.required"> 필수항목입니다. </div>
+    </div>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>시설공간 설명</label>
+    <itsm-ckeditor (onLoad)="OnEditorLoaded()" name="ckedit" #ck [ngStyle]="{'display': 'block'}" required [(ngModel)]="info.room_txt" [language]="'ko'"
+      #ckedit="ngModel"></itsm-ckeditor>
+    <div *ngIf="ckedit.invalid && (ckedit.dirty || ckedit.touched)" class="alert alert-danger">
+      <div *ngIf="ckedit.errors.required"> 필수항목입니다. </div>
+    </div>
+  </div>
+  <!-- 대표이미지 -->
+  <div class="form-group">
+    <label for="typeahead-basic">대표이미지 등록</label>
+    <div [ngStyle]="{'display': (!image && !thumbInfo.img_url )?'none':'block'}" style="width:50%; height:50%;">
+      <img style="width: 100%; height:100%;" [src]="thumbInfo.img_url?thumbInfo.img_url:image" lt="">
+    </div>
+    <input #inputImage style="display: none;" (change)="checkImageType($event)" type="file">
+    <button type="button" [ngStyle]="{'margin-left':(!image && !thumbInfo.img_url )?'none': '1rem'}" class="btn btn-info"
+      (click)="openImage()">가져오기</button>
+    <button type="button" [ngStyle]="{'margin-left':(!image && !thumbInfo.img_url )?'none': '1rem'}" class="btn btn-info"
+      (click)="deleteImage(contentCheck)">파일삭제</button>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic">문의전화</label>
+    <input id="typeahead-basic" name="helpdeskTel" type="text" [(ngModel)]="info.helpdesk_tel" class="form-control medium"
+      #helpdeskTel="ngModel" />
+    <div *ngIf="helpdeskTel.invalid && (helpdeskTel.dirty || helpdeskTel.touched)" class="alert alert-danger">
+      <div *ngIf="helpdeskTel.errors.required"> 필수항목입니다. </div>
+    </div>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>운영상태</label>
+    <select class="form-control" name="operState" required [(ngModel)]="info.oper_state" #operState="ngModel">
+      <option *ngFor="let item of options" [ngValue]="item.id">{{item.name}}</option>
+    </select>
+    <div *ngIf="operState.invalid && (operState.dirty || operState.touched)" class="alert alert-danger">
+      <div *ngIf="operState.errors.required"> 필수항목입니다. </div>
+    </div>
+  </div>
+  <!-- 필수값 -->
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>예약안내</label>
+    <textarea class="form-control long" name="rsrvInfo" rows="5" required [(ngModel)]="info.rsrv_info" #rsrvInfo="ngModel"></textarea>
+    <div *ngIf="rsrvInfo.invalid && (rsrvInfo.dirty || rsrvInfo.touched)" class="alert alert-danger">
+      <div *ngIf="rsrvInfo.errors.required"> 필수항목입니다. </div>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">예약사이트</label>
+    <input id="typeahead-basic" name="linkUrl" type="text" [(ngModel)]="info.link_url" class="form-control medium"
+      #linkUrl="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">장소 위치</label>
+    <input id="typeahead-basic" name="addr1" type="text" class="form-control medium addr1" [(ngModel)]="info.addr1"
+      readonly #addr1="ngModel" />
+    <button type="button" class="btn btn-info" style="margin-left:1rem;" (click)="openMap(content22)">지도에서 찾기</button>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">장소 상세</label>
+    <input id="typeahead-basic" name="addr2" type="text" class="form-control long addr2" [(ngModel)]="info.addr2"
+      #addr1="ngModel" />
+  </div>
+  <!-- <div class="form-group">
+    <label for="typeahead-basic">우편번호</label>
+    <input id="typeahead-basic" name="zip" type="text" class="form-control short" [(ngModel)]="info.zip"
+      readonly #zip="ngModel" />
+  </div> -->
+  <div class="form-group">
+    <label for="typeahead-basic">기본이용요금</label>
+    <input id="typeahead-basic" name="baseAmt" type="text" [(ngModel)]="info.base_amt" class="form-control short"
+      #baseAmt="ngModel" />원
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic"><span>*</span>표시순서</label>
+    <input id="typeahead-basic" name="displayOrd" type="number" min="0" required [(ngModel)]="info.disp_ord" class="form-control short"
+      #displayOrd="ngModel" />
+    <div *ngIf="displayOrd.invalid && (displayOrd.dirty || displayOrd.touched)" class="alert alert-danger">
+      <div *ngIf="displayOrd.errors.required"> 필수항목입니다. </div>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">시설 대분류</label>
+    <input id="typeahead-basic" name="facilityCls1" type="text" [(ngModel)]="info.facility_cls1" class="form-control medium"
+      #facilityCls1="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">시설 중분류</label>
+    <input id="typeahead-basic" name="facilityCls2" type="text" [(ngModel)]="info.facility_cls2" class="form-control medium"
+      #facilityCls2="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">시설 소분류</label>
+    <input id="typeahead-basic" name="facilityCls3" type="text" [(ngModel)]="info.facility_cls3" class="form-control medium"
+      #facilityCls3="ngModel" />
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">시설건립일</label>
+    <itsm-calendar [(fromDt)]="info.build_dt" [noRange]="true"></itsm-calendar>
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">건물면적</label>
+    <input id="typeahead-basic" name="buildingArea" type="number" [(ngModel)]="info.building_area" class="form-control medium"
+      #buildingArea="ngModel" />㎡
+  </div>
+  <div class="form-group">
+    <label for="typeahead-basic">토지면적</label>
+    <input id="typeahead-basic" name="landArea" type="number" [(ngModel)]="info.land_area" class="form-control medium"
+      #landArea="ngModel" />㎡
+  </div>
+
+  <div class="form-group fixed">
+    <ngb-alert [dismissible]="false" *ngIf="showAlert">
+      <strong *ngIf="saveResult">{{saveString}}</strong>
+      <strong *ngIf="!saveForm.valid">필수사항을 입력해주세요.</strong>
+      <strong *ngIf="saveForm.valid && !saveResult">{{saveString}}</strong>
+    </ngb-alert>
+    <!-- <button type="button" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-inverse" (click)="saveForm.resetForm({});">초기화</button> -->
+    <button type="button" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-inverse" (click)="goList()">목록으로</button>
+    <button type="button" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-inverse" (click)="delete()"
+      [disabled]="!room_no">삭제</button>
+    <button type="submit" style="align-self:flex-end; margin-left: 1rem;" class="btn btn-info" (click)="alertControl()"
+      [disabled]="!saveForm.valid">저장</button>
+  </div>
+</form>
+
+<!-- 지도에서 찾기 모달 -->
+<ng-template #content22 let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">지도에서 찾기</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div id="map" style="width:100%; height:400px; margin-bottom: 1rem;"></div>
+    <div class="form-group form-modal">
+      <div class="input-group input-modal">
+        <input type="text" class="form-control" [(ngModel)]="search_map" (keyup.enter)="searchAddressToCoordinateInput()">
+        <div class="input-group-append" (click)="searchAddressToCoordinateInput()">
+          <span class="input-group-text"><i class="mdi mdi-account-search" style="width:1rem"></i></span>
+        </div>
+      </div>
+      <button type="button" class="btn btn-info" style=" margin-left:0.3rem;" (click)="d('Cross click')">선택</button>
+      <button type="button" class="btn btn-info" style=" margin-left:0.3rem;" (click)="d('Cross click'); clearMapData()">초기화</button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- 확인 모달 -->
+<ng-template #contentCheck let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">삭제 </h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    이미지가 서버에서 삭제됩니다. 정말로 삭제하시겠습니까 ?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-info" (click)="d('Save click')">취소</button>
+    <button type="button" class="btn btn-info" (click)="c('Cross click')">삭제</button>
+  </div>
+</ng-template>

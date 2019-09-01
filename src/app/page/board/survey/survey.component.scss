@@ -1,0 +1,8 @@
+@import '../../../../styles.scss';
+tr th, tr td{
+    text-align:center;
+}
+tbody .highlight:hover{
+    background-color: $tb-hover-color;
+    cursor:pointer;
+}

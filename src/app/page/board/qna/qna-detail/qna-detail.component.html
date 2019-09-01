@@ -1,0 +1,39 @@
+<div class="form-group button-group d-flex justify-content-end" style="margin:0">
+  <button type="button" style="margin-right: 5px;" class="btn btn-inverse" (click)="backClicked()">돌아가기</button><!-- 뒤로가기 -->
+</div>
+
+<form>
+  <div *ngIf="qnaList && qnaList.question" class="card">
+    <div class="card-body">
+      <div class="form-group">
+        <label for="typeahead-basic">게시물 제목</label>
+        <input id="typeahead-basic" class="form-control" name="subj" type="text" [(ngModel)]="qnaList.question[0].subj" #subj="ngModel" readonly/>
+      </div>
+      <div *ngIf="qnaList && qnaList.question" class="form-group rows">
+        <label class="search-title">게시물 내용</label>
+        <div class="form-control" [innerHtml]="qnaList.question[0].post_txt" ></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="form-group">
+        <label class="search-title">질문</label>
+        <itsm-table *ngIf="qnaTable" [table]="qnaTable" clickable="true" (onRowClicked)="setAnsTable($event)"></itsm-table>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">    
+      <div class="form-group">
+        <label class="search-title">답변</label>
+        <itsm-table *ngIf="ansTable" [table]="ansTable" (onRowChanged)="setChangedAns($event)"></itsm-table>
+      </div>
+    </div>
+  </div>
+  <div class="form-group d-flex flex-row justify-content-end">
+    <button type="button" style="margin-right: 5px;" class="btn btn-info" (click)="save()">저장</button>
+    <button type="button" style="margin-right: 5px;" class="btn btn-danger" (click)="delete()">답변삭제</button>
+    <button *ngIf="user_auth == 'sys'" type="button" style="margin-right: 5px;" class="btn btn-danger" (click)="deleteQuestion()">질문삭제</button>
+  </div>
+</form>

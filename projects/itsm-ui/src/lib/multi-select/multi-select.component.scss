@@ -1,0 +1,26 @@
+.col {
+    display: flex;
+    align-items: stretch;
+
+    .card {
+        width: 100%;
+    }
+}
+
+.shrink {
+    flex-grow: 0;
+    display: flex;
+    justify-content: center;
+    flex-flow: column;
+
+    img {
+        margin-bottom: 5px;
+    }
+}
+
+thead {
+    background: #f4f4f4;
+    th:first-of-type {
+        width: 1%;
+    }
+}

@@ -1,0 +1,36 @@
+@import '../../../../styles.scss';
+.list-table{
+    letter-spacing: -0.06rem;
+    tr th, tr td{
+        text-align: center;
+        border:1px solid $tb-border-color;padding : 0.3rem;
+    }
+    tr th{
+        background-color:$tb-col-color;
+    }
+    
+    tbody .highlight:hover{
+        background-color: $tb-hover-color;
+        cursor:pointer;
+    }
+}
+itsm-tree-view{
+    /deep/.card{
+        border:1px solid lightgray;
+    }
+}
+.form-group{
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    label{
+        flex-basis:45%;
+        margin:0;
+        text-align: right;
+        padding-right:1rem;
+        span{
+            color:red;
+        }
+    }
+}

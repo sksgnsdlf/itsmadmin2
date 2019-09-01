@@ -1,0 +1,169 @@
+<div class="d-flex">
+  <!-- left card -->
+  <div class="card" style="height:40rem; width:37rem;">
+    <div class="card-body">
+      <div class="form-group d-flex align-items-center">
+        <label style="margin:0">업체명</label>
+        <input class="form-control wt12" type="text" [(ngModel)]="search_partner" style="margin-left:0.5rem" (keyup.enter)="getPartnerList()">
+        <button class="btn btn-primary" (click)="getPartnerList()" style="margin-left:0.5rem">조회</button>
+        <div class="d-flex ml-auto">
+          <button class="btn btn-primary" *ngIf="selectedPartnerIdx != -1" (click)="add_or_update_partner(true);openModal(coopModal,'lg')">수정</button>
+          <button class="btn btn-primary" style="margin-left:0.5rem" (click)="add_or_update_partner(false);openModal(coopModal,'lg')">추가</button>
+        </div>
+      </div>
+      <!-- cate_body -->
+      <div class="table-responsive list-table" style="height: 33.5rem; border-top:1px solid black">
+        <table class="table" style="overflow-y:auto">
+          <colgroup>
+            <col width="24%">
+            <col width="22%">
+            <col width="24%">
+            <col width="22%">
+            <col width="8%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>협력 업체 명</th>
+              <th>주소</th>
+              <th>주요 서비스</th>
+              <th>전화번호</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlight" *ngFor="let item of partnerList; let idx = index; trackBy:trackByFn" (click)="selectPartner(idx)">
+              <td (click)="getPartnerDetail(item,idx)" style="vertical-align: middle">{{item.partner_nm}}</td>
+              <td (click)="getPartnerDetail(item, idx)" style="vertical-align: middle">{{item.addr}}</td>
+              <td (click)="getPartnerDetail(item, idx)" style="vertical-align: middle">{{item.service_txt}}</td>
+              <td (click)="getPartnerDetail(item, idx)" style="vertical-align: middle">{{item.tel_no}}</td>
+              <td style="vertical-align: middle">
+                <button (click)="delete_partner(item.partner_no)" class="btn btn-primary">삭제</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!-- //left -->
+
+  <!-- right -->
+  <div class="card" style="height:40rem; width:37rem; margin-left:1rem;" *ngIf="selectedPartnerIdx != -1">
+    <div class="card-body">
+      <div class="form-group d-flex align-items-center">
+        총 {{register_info.members.length}}명
+        <div class="d-flex ml-auto form-group" style="margin:0">
+          <input class="form-control wt12" type="text" [(ngModel)]="search_member" placeholder="이름, 전화 번호 검색" (keyup.enter)="getPartnerDetail(register_info, selectedPartnerIdx)">
+          <button class="btn btn-primary" style="margin-left:0.5rem" (click)="getPartnerDetail(register_info, selectedPartnerIdx)">조회</button>
+          <button class="btn btn-primary" style="margin-left:0.5rem" (click)="addMember();openModal(coopMemberModal,'lg')">추가</button>
+          <button class="btn btn-primary" style="margin-left:0.5rem" (click)="deleteSelectedMember();">삭제</button>
+        </div>
+      </div>
+      <!-- cate_body -->
+      <div class="table-responsive list-table" style="height:33.5rem">
+        <table class="table" style="overflow-y:auto">
+          <colgroup>
+            <col width="10%">
+            <col width="18%">
+            <col width="18%">
+            <col width="18%">
+            <col width="18%">
+            <col width="18%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>선택</th>
+              <th>직원 번호</th>
+              <th>이름</th>
+              <th>업무명</th>
+              <th>일반 전화</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlight" (click)="editMember(item);openModal(coopMemberModal,'lg')" *ngFor="let item of register_info.members; let idx = index">
+              <td><input type="checkbox" [(ngModel)]="item.selected" (click)="selectMember(item);$event.stopPropagation()"></td>
+              <td>{{item.user_no?item.user_no:'-'}}</td>
+              <td class="name">{{item.staff_nm}}</td>
+              <td>{{item.role_nm}}</td>
+              <td>{{item.cp_no}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!-- //right -->
+</div>
+
+<ng-template #coopModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">협력 업체 {{this.register_info['partner_no']?'수정':'등록'}}</h4>
+    <div class="form-group" style="margin:0">
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div class="modal-body">
+    <div class="card">
+      <div class="card-body">
+        <div class="form-group d-flex align-items-center">
+          <label class="wt8" style="margin:0">*협력업체명</label>
+          <input class="form-control" type="text" [(ngModel)]="register_info.partner_nm" placeholder="">
+        </div>
+        <div class="form-group d-flex align-items-center">
+          <label class="wt8" style="margin:0">주소</label>
+          <input class="form-control" type="text" [(ngModel)]="register_info.addr" placeholder="">
+        </div>
+        <div class="form-group d-flex align-items-center">
+          <label class="wt8">사업자 번호</label>
+          <input class="form-control" type="text" [(ngModel)]="register_info.cop_reg_no" placeholder="">
+        </div>
+        <div class="form-group d-flex align-items-center">
+          <label class="wt8" style="margin:0">전화번호</label>
+          <input class="form-control" type="text" [(ngModel)]="register_info.tel_no" placeholder="">
+        </div>
+        <div class="form-group d-flex align-items-center">
+          <label class="wt8" style="margin:0">주요 서비스</label>
+          <input class="form-control" type="text" [(ngModel)]="register_info.service_txt" placeholder="">
+        </div>
+        <div class="form-group d-flex align-items-center">
+          <button *ngIf="!register_info['partner_no']" (click)="savePartner('add')" class="btn btn-primary ml-auto">등록</button>
+          <button *ngIf="register_info['partner_no']" (click)="savePartner('update')" class="btn btn-primary ml-auto">수정</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- 추가 팝업 -->
+<ng-template #coopMemberModal let-c="close" let-d="dismiss">
+  <div class="modal-header align-items-center">
+    <h4 class="modal-title" id="modal-basic-title">협력 업체 직원 {{this.register_mem_info.user_no?'수정':'등록'}}</h4>
+    <div class="form-group" style="margin:0">
+      <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+    </div>
+  </div>
+  <div class="modal-body">
+    <div class="card">
+      <div class="card-body">
+        <div class="form-group d-flex align-items-center">
+          <label class="wt8">이름</label>
+          <input class="form-control" type="text" [(ngModel)]="register_mem_info.staff_nm" placeholder="">
+        </div>
+        <div class="form-group d-flex align-items-center">
+          <label class="wt8" style="margin:0">휴대 전화</label>
+          <input class="form-control" type="text" [(ngModel)]="register_mem_info.cp_no" placeholder="">
+        </div>
+        <div class="form-group d-flex align-items-center">
+          <label class="wt8" style="margin:0">업무명</label>
+          <input class="form-control" type="text" [(ngModel)]="register_mem_info.role_nm" placeholder="">
+        </div>
+        <div class="form-group d-flex align-items-center">
+          <button *ngIf="!register_mem_info.staff_no" (click)="saveMember('add')" class="btn btn-primary ml-auto">등록</button>
+          <button *ngIf="register_mem_info.staff_no" (click)="saveMember('update')" class="btn btn-primary ml-auto">수정</button>
+          <button *ngIf="register_mem_info.staff_no" (click)="delete_memeber()" class="btn btn-primary" style="margin-left:0.5rem">이 직원 삭제</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+<!-- //팝업 -->
