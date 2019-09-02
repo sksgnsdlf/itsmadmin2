@@ -1,0 +1,50 @@
+<div class="row">
+    <div class="col-3" > 
+            <itsm-tree-view [data]="data" [searchShow]="false" (OnClick)="select(1,$event)"></itsm-tree-view>
+    </div>
+</div>
+<div class="row">
+    <div class="col-3" >
+        <itsm-tree-view [data]="data2" [searchShow]="false" (OnClick)="select(2,$event)"></itsm-tree-view>
+      </div>
+    <div class="col-6" >
+        <div class="card" >
+            <div class="card-body">
+              <form #clsForm1="ngForm" (ngSubmit)="save()">
+                <div class="table-responsive list-table" style="text-align: center"> 
+                    <table class="table" >
+                    <colgroup>
+                        <col width="15%">
+                        <col width="85%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>순서</th>
+                            <th>신고 항목</th>
+                        </tr>
+                    </thead>
+                    <tbody> 
+                        <ng-container *ngFor="let item of list;">
+                        <tr>
+                            <td style="text-align: center">{{item.disp_ord}}</td>
+                            <td style="text-align: center">{{item.report_txt}}</td>
+                        </tr>
+                        </ng-container>
+                    </tbody>
+                    </table>
+                </div> 
+                <div >
+                <label style="margin-left: 1rem; margin-right: 1rem;">신고항목</label>
+                <input class="form-control" type="text" style="width:86%;"  [(ngModel)]="secondlist.report_txt" ><br> <!-- -->
+                <label style="margin-left: 1rem; margin-right: 1rem; margin-top: 1rem" >표시순서</label>
+                <input class="form-control" type="text" style="width:10%;" [(ngModel)]="secondlist.disp_ord" > <!-- [(ngModel)]=""--> <!--  -->
+                </div>
+                    <!-- 버튼 -->  
+                    <button type="submit" style="margin-right: 5px;" class="btn btn-info float-right" >저장</button>
+                    <!-- <button type="button" style="margin-right: 5px;" class="btn btn-danger float-right" >삭제</button>
+                    <button type="button" style="margin-right: 5px;" class="btn btn-inverse float-right">분류추가</button> -->
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -113,6 +113,7 @@ export const ROUTES: RouteInfo[] = [
     extralink: false,
     submenu: [
       { path: '/map/cls', title: '분류관리', icon: '', class: '', label: '', labelClass: '', extralink: false, submenu: [] },
+      { path: '/map/report', title: '오류신고항목관리', icon: '', class: '', label: '', labelClass: '', extralink: false, submenu: [] },
       { path: '/map/place', title: '장소관리', icon: '', class: '', label: '', labelClass: '', extralink: false, submenu: [] },
       { path: '/map/data', title: '연계데이터관리', icon: '', class: '', label: '', labelClass: '', extralink: false, submenu: [] },
       { path: '/map/theme', title: '테마지도관리', icon: '', class: '', label: '', labelClass: '', extralink: false, submenu: [] },

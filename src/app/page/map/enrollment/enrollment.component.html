@@ -26,7 +26,7 @@
                 <div class="d-flex flex-row row-mb align-items-center">
                     <div class="wt8 title" >소분류</div>
                         <div> 
-                            <div class="table-responsive list-table" style="height:5.1rem;"> <!-- style="border: 1px solid" class="table-responsive list-table" --> 
+                            <div class="table-responsive list-table" style="height:5.1rem;">
                                 <table style="text-align: center; ">
                                 <thead>
                                     <tr>
@@ -138,12 +138,6 @@
                         <div class="wt8 title">요일별설정</div> 
                     <div class="category"> 
                         <!-- 스위치 버튼-->
-                        <!--
-                            <label class="switch switch-left-right">
-                                                <input class="switch-input" type="checkbox">
-                                                <span class="switch-label" data-on="On" data-off="Off"></span> <span class="switch-handle"></span> 
-                                            </label>
-                        -->
                             <span style="font-weight: bold">요일별 운영시간 설정</span>
                             <div class="item-container">
                                     <div class="anil_nepal"  > 
@@ -341,39 +335,39 @@
                 <div class="card-body">
                     <div class="d-flex" style="margin-bottom:1rem;">
                             <div class="btn radio-btn" [ngClass]="{'on': receipt_typ == '0'}"><a (click)="receipt_typ = '0'; reView()">리뷰</a></div>
-                            <div class="btn radio-btn" [ngClass]="{'on': receipt_typ == '1'}"><a (click)="receipt_typ = '1';">오류신고</a></div>
-                            <div class="btn radio-btn" [ngClass]="{'on': receipt_typ == '2'}"><a (click)="receipt_typ = '2';">불편신고</a></div>
-                            <div class="btn radio-btn" [ngClass]="{'on': receipt_typ == '3'}"><a (click)="receipt_typ = '3'; ">데이터</a></div>
+                            <div class="btn radio-btn" [ngClass]="{'on': receipt_typ == '1'}"><a (click)="receipt_typ = '1'; reError()">오류신고</a></div>
+                            <div class="btn radio-btn" [ngClass]="{'on': receipt_typ == '2'}"><a (click)="receipt_typ = '2'; reIncon()">불편신고</a></div>
                     </div>
-                    <div class="table-responsive list-table"> 
+                    <div *ngIf="receipt_typ == '0'">
+                        <div class="table-responsive list-table" > 
                                 <table class="table">
-                                <colgroup>
-                                    <col width="10%">
-                                    <col width="45%">
-                                    <col width="10%">
-                                    <col width="15%">
-                                    <col width="20%">
-                                </colgroup>
-                                <thead>
-                                    <tr>
-                                        <th class="noLLine">No</th>
-                                        <th>리뷰내용</th>
-                                        <th>평점</th>
-                                        <th>작성자</th>
-                                        <th>작성일시</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="highlight" style="text-align: center" *ngFor="let item of reViewlist; let i = index">
-                                        <td class="noLLine">{{total - ((this.page-1) * this.pageSize + i)}}</td>
-                                        <td >{{item.txt}}</td>
-                                        <td >{{item.rate_score}}</td>
-                                        <td >{{item.user_nm}}</td>
-                                        <td >{{item.reg_dttm}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                          </div> 
+                                    <colgroup>
+                                        <col width="10%">
+                                        <col width="45%">
+                                        <col width="10%">
+                                        <col width="15%">
+                                        <col width="20%">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th class="noLLine">No</th>
+                                            <th>리뷰내용</th>
+                                            <th>평점</th>
+                                            <th>작성자</th>
+                                            <th>작성일시</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="highlight" style="text-align: center" *ngFor="let item of reViewlist; let i = index" (click)="select(item); open(contentModal1)">
+                                            <td class="noLLine">{{total - ((this.page-1) * this.pageSize + i)}}</td>
+                                            <td >{{item.txt}}</td>
+                                            <td >{{item.rate_score}}</td>
+                                            <td >{{item.user_nm}}</td>
+                                            <td >{{item.reg_dttm}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                        </div> 
                         <div class="list-pagination">
                             <div class="total-page" style="text-align: right">
                               <ngb-pagination class="d-flex justify-content-center" (pageChange)="paging($event)" [collectionSize]="collectionSize" [maxSize]="maxPage" 
@@ -382,127 +376,85 @@
                            </div>
                        </div>
                     </div>
-                  </div>
-                </div>
-    <br><br><br><br><br>
-    <div class="col-lg-12" style="padding:0">
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive list-table"> 
-                        <table class="table">
-                        <colgroup>
-                            <col width="7%">
-                            <col width="64%">
-                            <col width="17%">
-                            <col width="22%">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th class="noLLine">No</th>
-                                <th>오류신고내용</th>
-                                <th>작성자</th>
-                                <th>작성일시</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="highlight" style="text-align: center">
-                                <td class="noLLine">ㅂ</td>
-                                <td >ㅅ</td>
-                                <td >ㅇ</td>
-                                <td >ㅈ</td>
-                            </tr>
-                        </tbody>
-                        </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-12" style="padding:0">
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive list-table"> 
-                    <table class="table">
-                        <colgroup>
-                            <col width="7%">
-                            <col width="52%">
-                            <col width="12%">
-                            <col width="17%">
-                            <col width="22%">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th class="noLLine">No</th>
-                                <th>불편신고내용</th>
-                                <th>처리상태</th>
-                                <th>작성자</th>
-                                <th>작성일시</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="highlight" style="text-align: center">
-                                <td class="noLLine">ㅊ</td>
-                                <td >ㅋ</td>
-                                <td >ㅌ</td>
-                                <td >ㅍ</td>
-                                <td >ㅎ</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-12" style="padding:0">
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive list-table"> 
-                    <table class="table">
-                        <colgroup>
-                            <col width="7%">
-                            <col width="10%">
-                            <col width="9%">
-                            <col width="9%">
-                            <col width="15%">
-                            <col width="10%">
-                            <col width="10%">
-                            <col width="10%">
-                            <col width="10%">
-                            <col width="10%">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th class="noLLine">No</th>
-                                <th>대기환경지수</th>
-                                <th>초미세먼지</th>
-                                <th>미세먼지</th>
-                                <th>이산화탄소</th>
-                                <th>일산화탄소</th>
-                                <th>오존</th>
-                                <th>아황산가스</th>
-                                <th>측정일시</th>
-                                <th>등록일시</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="highlight" style="text-align: center">
-                                <td class="noLLine">ㅏ</td>
-                                <td >ㅑ</td>
-                                <td >ㅓ</td>
-                                <td >ㅕ</td>
-                                <td >ㅗ</td>
-                                <td >ㅛ</td>
-                                <td >ㅜ</td>
-                                <td >ㅠ</td>
-                                <td >ㅡ</td>
-                                <td >ㅣ</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <!-- 오류신고-->
+                    <div *ngIf="receipt_typ == '1'">
+                            <div class="table-responsive list-table"> 
+                                <table class="table">
+                                    <colgroup>
+                                        <col width="7%">
+                                        <col width="64%">
+                                        <col width="17%">
+                                        <col width="22%">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th class="noLLine">No</th>
+                                            <th>오류신고내용</th>
+                                            <th>작성자</th>
+                                            <th>작성일시</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="highlight" style="text-align: center"  *ngFor="let item of reErrorlist; let i = index" (click)="select(item); open(contentModal2)">
+                                            <td class="noLLine">{{total - ((this.page-1) * this.pageSize + i)}}</td>
+                                            <td >{{item.txt}}</td>
+                                            <td >{{item.user_nm}}</td>
+                                            <td >{{item.reg_dttm}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                              </div>
+                        <div class="list-pagination">
+                                <div class="total-page" style="text-align: right">
+                                <ngb-pagination class="d-flex justify-content-center" (pageChange)="paging2($event)" [collectionSize]="collectionSize" [maxSize]="maxPage" 
+                                [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+                                총 {{total}} 건, {{totalPage}} 페이지
+                                </div>
+                        </div>
+                    </div>
+                    <!-- 불편신고 -->
+                    <div *ngIf="receipt_typ == '2'">
+                            <div class="table-responsive list-table"> 
+                                <table class="table">
+                                    <colgroup>
+                                        <col width="7%">
+                                        <col width="50%">
+                                        <col width="10%">
+                                        <col width="8%">
+                                        <col width="25%">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th class="noLLine">No</th>
+                                            <th>불편신고내용</th>
+                                            <th>처리상태</th>
+                                            <th>작성자</th>
+                                            <th>작성일시</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="highlight" style="text-align: center"  *ngFor="let item of reInconlist; let i = index" (click)="select(item); open(contentModal3)">
+                                            <td class="noLLine">{{total - ((this.page-1) * this.pageSize + i)}}</td>
+                                            <td >{{item.txt}}</td>
+                                            <td >{{item.proc_state_nm}}</td>
+                                            <td >{{item.user_nm}}</td>
+                                            <td >{{item.reg_dttm}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="list-pagination">
+                                <div class="total-page" style="text-align: right">
+                                <ngb-pagination class="d-flex justify-content-center" (pageChange)="paging2($event)" [collectionSize]="collectionSize" [maxSize]="maxPage" 
+                                [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+                                총 {{total}} 건, {{totalPage}} 페이지
+                                </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
     </div>
-    
+
     <!-- 지도 모달 -->
     <ng-template #mapModal let-c="close" let-d="dismiss">
         <div class="modal-header align-items-center">
@@ -530,7 +482,7 @@
         </div>
     </ng-template>
 
-    <!-- 소분류 추가-->
+    <!-- 소분류 추가모달-->
     <ng-template #smallpartModal2 let-c="close" let-d="dismiss">
             <div class="modal-header align-items-center">
                 <h4 class="modal-title" id="modal-basic-title">소분류</h4>
@@ -546,12 +498,9 @@
                         </div>
                         <div class="form-group d-flex">
                             <div class="category">
-                                <!-- <span style="font-weight: bold">분류를 선택해주세요</span> -->
                                 <div class="item-container">
                                     <div class="item" *ngFor="let item of smallpart"> 
-                                        <!-- [ngClass]="{'selected': item1.id == reportData.cls_no}"-->    
-                                        <!--  let i = index; let item of partnerUserList; let i = index, (click)="checkCateChanged(item);" -->
-                                        <input type="checkbox" (change)="userSelectChanged($event, item)"> <!-- -->
+                                        <input type="checkbox" (change)="userSelectChanged($event, item)"> 
                                         <label>{{item.cls_nm}}</label>
                                     </div>
                                 </div>
@@ -560,4 +509,89 @@
                     </div>
                 </div>
             </div>
-        </ng-template>
+    </ng-template>
+
+    <!-- 리뷰 상세모달-->
+    <ng-template #contentModal1 let-c="close" let-d="dismiss">
+            <div class="modal-header align-items-center">
+                <h4 class="modal-title" id="modal-basic-title">리뷰 상세보기</h4>
+                <div class="form-group" style="margin:0">
+                    <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="card" style="margin:0">
+                    <div class="card-body">            
+                        <div class="form-group d-flex">
+                            <div class="category1">
+                                    <div class="item"> 
+                                        <label>No번호 -> {{review_no}}</label> <br>
+                                        <label>게시글번호 -> {{place_no}}</label> <br>
+                                        <label>리뷰내용-> {{txt}}</label> <br>
+                                        <label>평점 ->  {{rate_score}}</label> <br>
+                                        <label>작성자 -> {{user_nm}}</label> <br>
+                                        <label>등록일자 -> {{reg_dttm}}</label> <br>
+                                        <label>수정일자 -> {{upd_dttm}}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </ng-template>
+
+    <!-- 오류신고 상세모달-->
+    <ng-template #contentModal2 let-c="close" let-d="dismiss">
+            <div class="modal-header align-items-center">
+                <h4 class="modal-title" id="modal-basic-title">오류신고 상세보기</h4>
+                <div class="form-group" style="margin:0">
+                    <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="card" style="margin:0">
+                    <div class="card-body">            
+                        <div class="form-group d-flex">
+                            <div class="category1">
+                                    <div class="item"> 
+                                        <label>No번호 -> {{report_no}}</label> <br>
+                                        <label>게시글번호 -> {{place_no}}</label> <br>
+                                        <label>리뷰내용-> {{txt}}</label> <br>
+                                        <label>작성자 -> {{user_nm}}</label> <br>
+                                        <label>등록일자 -> {{reg_dttm}}</label> <br>
+                                        <label>수정일자 -> {{upd_dttm}}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </ng-template>
+
+    <!-- 불편신고 상세모달-->
+    <ng-template #contentModal3 let-c="close" let-d="dismiss">
+            <div class="modal-header align-items-center">
+                <h4 class="modal-title" id="modal-basic-title">불편신고 상세보기</h4>
+                <div class="form-group" style="margin:0">
+                    <button type="button" class="btn btn-inverse" (click)="d('Cross click')">닫기</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="card" style="margin:0">
+                    <div class="card-body">            
+                        <div class="form-group d-flex">
+                            <div class="category1">
+                                    <div class="item"> 
+                                        <label>No번호 -> {{complaint_no}}</label> <br>
+                                        <label>게시글번호 -> 게시글번호가 api에 없음 {{place_no}}</label> <br>
+                                        <label>리뷰내용-> {{txt}}</label> <br>
+                                        <label>뭔지모르겟음 ->  {{proc_state}}</label> <br>
+                                        <label>작성자 -> {{user_nm}}</label> <br>
+                                        <label>등록일자 -> {{reg_dttm}}</label> <br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </ng-template>

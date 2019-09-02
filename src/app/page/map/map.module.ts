@@ -13,9 +13,10 @@ import { NoticeComponent } from './notice/notice.component';
 import { SuggestComponent } from './suggest/suggest.component';
 import { EnrollmentComponent } from './enrollment/enrollment.component';
 import { ThemeenrollmentComponent } from './themeenrollment/themeenrollment.component';
+import { ReportComponent } from './report/report.component';
 
 @NgModule({
-  declarations: [ClsComponent, PlaceComponent, DataComponent, ThemeComponent, NoticeComponent, SuggestComponent, EnrollmentComponent, ThemeenrollmentComponent],
+  declarations: [ClsComponent, PlaceComponent, DataComponent, ThemeComponent, NoticeComponent, SuggestComponent, EnrollmentComponent, ThemeenrollmentComponent, ReportComponent],
   imports: [
     CommonModule,
     RouterModule.forChild(MapRoutes),

@@ -143,10 +143,9 @@ paging(page) {
       this.collectionSize = this.totalPage * 10;
       // 배열방식으로 되어있는 data값을 list에 다 넣어줌
       this.list = element.data;
-    });
-    console.log("page => "+ page);
-    console.log("queryString => "+ queryString);
-    console.log("this.pageSize2 => "+this.pageSize);
+      console.log("element => "+ JSON.stringify(element));
+    }); 
+    
   }
 
   // 페이징 부가처리

@@ -1,0 +1,66 @@
+@import '../../../../styles.scss';
+.list-table{
+    letter-spacing: -0.06rem;
+    tr th, tr td{
+        text-align: center;
+        border:1px solid $tb-border-color;
+    }
+    tr th{
+        background-color:$tb-col-color;
+    }
+    
+    tbody .highlight:hover{
+        background-color: $tb-hover-color;
+        cursor:pointer;
+    }
+}
+
+
+//분류를 선택해주세요 
+.category{
+    border: 1px solid black;
+    background: white;
+    width: 30rem;
+    float: right;
+    padding: 10px;
+    height:40rem;
+    .item-container {
+        overflow-y: scroll;
+        height: 37rem;
+        
+        .item {
+            cursor: pointer;
+            margin: 5px 0px;
+            padding: 0px 5px;
+        }
+
+        .selected {
+            font-size: 20px;
+            font-weight: 700;
+        }
+    }
+}
+
+.category2{
+    border: 1px solid white;
+    background: white;
+    width: 26.7rem;
+    float: right;
+    padding: 10px;
+    height:40rem;
+    .item-container2 {
+        overflow-y: scroll;
+        height: 39rem;
+        
+        .item {
+            cursor: pointer;
+            margin: 5px 0px;
+            padding: 0px 5px;
+        }
+
+        .selected {
+            font-size: 20px;
+            font-weight: 700;
+        }
+    }
+}

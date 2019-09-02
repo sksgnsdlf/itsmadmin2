@@ -1,11 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef, OnChanges, SimpleChanges, DoCheck, Input, Renderer, ViewChild , ElementRef } from '@angular/core';
-import { ResourceService } from '../../../services/resource.service';
+import { Component, OnInit, ChangeDetectorRef, Renderer, ViewChild , ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
-import { UserProvider } from '../../../providers/user';
-import { ONESTOP_COMPLATE_CITIZENMSG} from '../../../../config';
 import { LoginSession } from '../../../services/login.session';
-import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef , ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { MapProvider } from '../../../providers/map';
 import { MaxPageSize } from '../../../../config';
 
@@ -18,217 +15,10 @@ declare let daum: any;
   styleUrls: ['./enrollment.component.scss']
 })
 export class EnrollmentComponent implements OnInit {
-  @Input()
-  test: string;
-  reportData: any = {};
-  wasSuccessed: boolean = false;
-  q;
-  
-  categoryList: Array<any> = [];
-  showed_category_list: Array<any> = [];
-  cateSearchTxt: string = "";
-  selectedCate: any = {};
-  procList: Array<any> = [];
-  asgnStateList: Array<any> = [];
-  replyMethod: Array<any> = [];
-  dueDayMethod: Array<any> = [];
-  selectedImg: string = "";
-  dueDate: string = "";
-  btn_description: string="";
-
-  isCallcenterMember: boolean = false;
-  callList:any = [];//콜센터 상담목록
-  assign_popup_type: number = 0; // 0: 담당자 배정, 1: 직원 조회
-  orgList: Array<any> = [];
-  selectedOrgId: number = 1;
-  selectedPopupTab: number = 4; // 0:인명, 업무검색, 1:협력업체, 2:지정담당자, 3:조직도, 4:부서별
-  user_nm: string = "";
-  task_nm: string = "";
-  partner_nm: string = "";
-  orgUserList: Array<any> = [];
-  partnerUserList: Array<any> = [];
-  cateUserList: Array<any> = [];
-  orgDesignatedList: Array<any> = [];
-  userList: Array<any> = [];
-  selectedUserList: Array<any> = [];
-  tempSelectedUserList: Array<any> = [];
-  tempIdx: number = 0;
-  will_saved_user_list: Array<any> = [];
-
-  menualList: Array<any> = [];
-  showed_menual_list: Array<any> = [];
-  searchTxt: string = "";
-
-  geocoder = new daum.maps.services.Geocoder();
-  map: any = {};
-  mapOptions: any = {
-    level: 3,
-    center: new daum.maps.LatLng(36.0190238, 129.3433917)
-  };
-  locationSelectItem: any = { position: {}, name: '', dongmyun: '' };
-  location: any = new daum.maps.LatLng(36.0190238, 129.3433917);
-  infoWindow: any = new daum.maps.InfoWindow({
-    zindex:1
-  });
-  marker: any = {};
-  search_map: string = "";
-
-  officerNotiQueue: Array<any> = [];
-
-  showChangeDutyPopup: boolean = false;
-  duty_item: any = {
-    org_no: '1',
-    duty_site: '10',
-    official_id: ''
-  };
-  locationList: Array<any> = [];
-  dutyUserList: Array<any> = [];
-
-  cate_changed: boolean = false;
-  is_editable: boolean = true;
-  selected_hst_img: string = "";
-
-  ps = null;
-
-  something_changed: boolean = false;
-  //조직도 관련
-  orgs: any = [];
-  org:number = 1;
-  depts: Array<any> = [];
-
-  bizInfo : any = {msg:null,code:null};//비즈톡 정보
-  bizInfoCitizen : any = {msg:null,code:null};//비즈톡 정보
-  deptMasterUser:any;//부서별 대표 유저 정보
-  talk_var_state:string = '1';//알림톡 처리상태 변수
-  popupTitle: string = "";
-  popupText: string = "";
-  popupTextLength: number = 0;
-  talk_mode:string = '1';  // 1 : 처리완료 알림톡, 0: 알림톡 전송
-  send_mode:string = '0';  //0:즉시발송, 1: 예약발송
-  send_check = "0";
-  recv: any;
-  recv_nm: string = "";
-  recv_tel: string = "";
-  recv_type: number = 0; // 0: 민원인, 1: 담당자
-  send_type: number = 0; // 0: 문자, 1: PUSH -> SMS
-  receipt_typ = '0';
-  complate_citizen_msg = ONESTOP_COMPLATE_CITIZENMSG;
-
-  picList: Array<any> = [];
-  
-  // 내가한것 ------------------------------------------------------
-
-   // API값
-//   place : any = {
-//     place_no: "",
-//     place_nm: "",
-//     place_disp: "",
-//     theme_cls: "",
-//     theme_cls_nm: "",
-//     place_cls: "",
-//     place_cls_nm: "",
-//     txt: "",
-//     oper_state: "",
-//     oper_state_nm: "",
-//     place_figure: "",
-//     place_figure_nm: "",
-//     post_no: "",
-//     addr1: "",
-//     addr2: "",
-//     lat: "",
-//     lon: "",
-//     points: "",
-//     gpx_url: "",
-//     img_url: "",
-//     thumb_url: "",
-//     open_time: "",
-//     tel1: "",
-//     tel2: "",
-//     link_url: "",
-//     ref_cd: "",
-//     etc: "",
-//     use_yn: "",
-//     user_no: "",
-//     user_nm: "",
-//     reg_dttm: "",
-//     upd_dttm: "",
-//     place_cls_list: [
-//         {
-//             cls_cd: "",
-//             cls_nm: ""
-//         },
-//         {
-//             cls_cd: "",
-//             cls_nm: ""
-//         }
-//     ],
-//     place_time_list: [
-//         {
-//             day_cd: "",
-//             day_nm: "",
-//             open_time: "",
-//             close_time: "",
-//             day_off: ""
-//         },
-//         {
-//             day_cd: "",
-//             day_nm: "",
-//             open_time: "",
-//             close_time: "",
-//             day_off: ""
-//         },
-//         {
-//             day_cd: "",
-//             day_nm: "",
-//             open_time: "",
-//             close_time: "",
-//             day_off: ""
-//         },
-//         {
-//             day_cd: "",
-//             day_nm: "",
-//             open_time: "",
-//             close_time: "",
-//             day_off: ""
-//         },
-//         {
-//             day_cd: "",
-//             day_nm: "",
-//             open_time: "",
-//             close_time: "",
-//             day_off: ""
-//         },
-//         {
-//             day_cd: "",
-//             day_nm: "",
-//             open_time: "",
-//             close_time: "",
-//             day_off: ""
-//         },
-//         {
-//             day_cd: "",
-//             day_nm: "",
-//             open_time: "",
-//             close_time: "",
-//             day_off: ""
-//         },
-//         {
-//             day_cd: "",
-//             day_nm: "",
-//             open_time: "",
-//             close_time: "",
-//             day_off: ""
-//         }
-//     ]
-// }
-
   @ViewChild("inputFile1") inputFile1: ElementRef;
-  place : any = [];
+  place : any = {};
 
-  //운영시간 , 요일별설정 선택값
-  daytype: string = "1";
 
-  // --분류변수--
   // 대분류
   place_cls1 = -1; 
 
@@ -237,13 +27,36 @@ export class EnrollmentComponent implements OnInit {
 
   // 대분류에 맞는 소분류값
   smallpart:any;
-  
-  // ..
+
+  // 소분류 선택, 리스트
   tempSelectedUserList1: Array<any> = [];
   selectedLinkList: Array<any> = [];
 
+  // 소분류 모달
+  tempIdx: number = 0;
+  assign_popup_type: number = 0; 
 
-  // 위도, 경도좌표
+  // 이미지
+  picList: Array<any> = [];
+  is_editable: boolean = true;
+  selectedImg: string = "";
+
+  // 지도
+  search_map: string = "";
+  marker: any = {};
+  locationSelectItem: any = { position: {}, name: '', dongmyun: '' };
+  location: any = new daum.maps.LatLng(36.0190238, 129.3433917);
+  infoWindow: any = new daum.maps.InfoWindow({
+    zindex:1
+  });
+  mapOptions: any = {
+    level: 3,
+    center: new daum.maps.LatLng(36.0190238, 129.3433917)
+  };
+  map: any = {};
+  geocoder = new daum.maps.services.Geocoder();
+
+  // (지도)위도, 경도좌표
   lat;
   lon;
   addr1;
@@ -258,7 +71,10 @@ export class EnrollmentComponent implements OnInit {
 
   no : any = {
     place_no: ""
-}
+  }
+
+  //운영시간 , 요일별설정 선택값
+  daytype: string = "1";
 
   // 페이징변수
   total: number = 0;
@@ -268,29 +84,51 @@ export class EnrollmentComponent implements OnInit {
   maxPage:number = MaxPageSize;
   collectionSize:number = 10;
 
+  // 리스트클릭변수
+ 
+  receipt_typ: string = "0";
+
 
   // 리뷰리스트
   reViewlist = [];
 
+  // 오류신고리스트
+  reErrorlist = [];
 
+  // 불편신고리스트
+  reInconlist = [];
 
-  
+  // 리스트3개클릭시 모달, 객체변수
+  body: any = {};
+  modal: NgbModalRef;
 
-  // 모름
-  tmp_flag = false;
-  constructor(private mapprovider: MapProvider, private resourceService: ResourceService, private route: ActivatedRoute, 
-    private router: Router, private userProvider: UserProvider, private cdRef: ChangeDetectorRef,  public ref: ChangeDetectorRef, 
-    public loginSession: LoginSession,public renderer: Renderer, private session: LoginSession, private modalService: NgbModal) { }
+  // 리뷰, 오류신고, 불편신고 리스트내용 받을 값
+  review_no ;
+  place_no ;
+  txt ;
+  user_nm ;
+  reg_dttm ;
+  upd_dttm ;
+  rate_score ;
+  report_no;
+  complaint_no;
+  proc_state ; 
+  // org:number = 1;
+  // ps = null;
+
+  // ---------------------------------------------------
+  constructor(private mapprovider: MapProvider, private route: ActivatedRoute, private router: Router, public ref: ChangeDetectorRef,
+    public loginSession: LoginSession,public renderer: Renderer, private modalService: NgbModal) { }
 
   ngOnInit() {
     // place에서 리스트 클릭시 번호체크 + 해당 데이터를 가져옴
     this.route.queryParams.subscribe(no=>{
       // console.log("no.place_no=>"+JSON.stringify(no.place_no));
-      
+ 
       // place_no이 없으면 장소등록창, 잇으면 장소수정창
       this.no.place_no = no.place_no;
       // console.log("this.no.place_no-=>"+JSON.stringify(this.no.place_no));
-      if(no){
+      if(no.place_no){
         this.mapprovider.place.get(no.place_no)
         .subscribe((data:any)=>{
           // API전체값
@@ -304,42 +142,24 @@ export class EnrollmentComponent implements OnInit {
           this.picList = [data.img_url];
           }
 
-          this.reView();
-
           // 요일별 설정
           this.place.place_time_list = data.place_time_list;
 
-          // 여기서 나중에 이미지값 넣는것도 해야할듯
-          // this.=this.picList
+          // 리뷰
+          this.reView();
 
+          // 오류신고
+          this.reError();
 
-          // console.log("this.place=>"+JSON.stringify(this.place));
-
-         // console.log("JSON.stringify(this.place) => " + JSON.stringify(this.place))// 디비에서넘겨받은값
-          // console.log("JSON.stringify(data) => " + JSON.stringify(data));
-          // console.log("JSON.stringify(this.place) =>" +  JSON.stringify(this.place));
-          // // console.log("JSON.stringify(data.place_time_list) => " + JSON.stringify(data.place_time_list));
-          // console.log(" => " + JSON.stringify(this.place));
-          // console.log(" => " + JSON.stringify(this.place.place_time_list));
-          // console.log("123 => " + (this.place.place_time_list[7].day_off));
-          // console.log("456 => " + JSON.stringify(this.place.place_time_list[7].open_time));
-          // if(this.place.place_cls_nm != data1.place_cls_nm){
-          //   console.log(1);
-          // }
-          // else if (this.place.place_cls_nm != data1.place_cls_nm){
-          //   console.log(2);
-          // }
-          
-          //  console.log("this.place=>" + JSON.stringify(this.place) );
-          //  console.log("data.addr1=>" + JSON.stringify(data.addr1) );
-
-            // console.log("data1.place_cls_cd=>" + JSON.stringify(data1.place_cls));
-            // console.log("this.place.place_cls_cd=>" + JSON.stringify(this.place.place_cls));
-            // console.log("this.place.place_cls_list[0].cls_nm=>" + JSON.stringify(this.place.place_cls_list[0].cls_nm));
-            // console.log("this.place.place_cls_list=>" + JSON.stringify(this.place.place_cls_list.cls_cd));
-            // console.log("this.place.place_cls_list=>" + JSON.stringify(this.place.place_cls_list.cls_nm));
-            // console.log("this.place.place_cls_nm=>" + this.place.place_cls_nm);
+          // 불편신고
+          this.reIncon();
         });
+      }
+      else
+      {
+        this.place = {
+          place_cls : 1
+        }
       }
     });
 
@@ -353,213 +173,15 @@ export class EnrollmentComponent implements OnInit {
     // 리뷰
     this.reView();
 
+    // 오류신고
+    this.reError();
 
-
-
-    // 확인해야함
-    this.ps = new daum.maps.services.Places();
-    this.getDueDayMethod();
-    this.getProc();
-    this.getOrg();
-    this.getAsgnState();
-    this.getLocation();
-  }
-  setOrg(org = 1) {
-    this.resourceService.getDept(org, '')
-      .then((_: any) => {
-        let lvl1, lvl2;
-        this.depts = [];
-        for (let row of _) {
-          let item: any = {
-            id: row.id,
-            orgNo: row.orgNo,
-            name: row.name,
-            selected: false,
-            expanded: false,
-            sub: []
-          };
-
-          if (row.lvl == 1) {
-            lvl1 = this.depts.length;
-            this.depts.push(item);
-          } else if (row.lvl == 2) {
-            lvl2 = this.depts[lvl1].sub.length;
-            this.depts[lvl1].sub.push(item);
-          } else {
-            if (this.depts[lvl1].sub[lvl2])
-              this.depts[lvl1].sub[lvl2].sub.push(item);
-            else
-              this.depts[lvl1].sub.push(item);
-          }
-        }
-      })
-      .catch(err => console.error(err));
-  }
-  openModal(content, size = null, customClass=null){
-    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title', size:size, windowClass:customClass }).result.then((result) => {
-      // console.log(`Closed with: ${result}`);
-    }, (reason) => {
-      console.log(`Dismissed ${this.getDismissReason(reason)}`);
-    });
-  }
-  private getDismissReason(reason: any): string {
-    if (reason === ModalDismissReasons.ESC) {
-      return 'by pressing ESC';
-    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-      return 'by clicking on a backdrop';
-    } else {
-      return  `with: ${reason}`;
-    }
-  }
-
-  // onChange(event :Event){
-  //   console.log("aaa");
-  //   this.something_changed = true;
-  // }
-
-
-  bigCate(){
-    if(this.place.place_cls != this.data.place_cls){
-      this.place.place_cls_list= [];
-    }
-    else if(this.place.place_cls == this.data.place_cls){
-      this.place.place_cls_list = this.data.place_cls_list;
-    }
-  }
-
-  textareaInput(ev, from, item = null) {
-    try {
-      if(from == 'res') {
-        this.reportData.answer_txt = ev.target.value;
-      }
-      else if(from == 'proc_txt') {
-        item.proc_txt = ev.target.value;
-        item.edited = true;
-      }
-    } catch (e) {
-      console.info('could not set textarea-value');
-    }
-  }
-
-  get complaintTextValue () {
-    return this.reportData.complaints_txt;
-  }
-
-  set complaintTextValue (v) {
-    try {
-      this.reportData.complaints_txt = v;
-    }
-    catch(e) {
-
-    };
-  }
-
-  refresh() {
-    if(this.something_changed){
-      let r = confirm("작성한 내용을 취소하고 새로 등록을 하시겠습니까?");
-      if (r == true) {
-        //this.router.navigate(['/onestop/report'], {queryParams: {no:0}});
-        //this.router.navigate(['/onestop/report'], { replaceUrl: true });
-        this.refreshItem();
-      }
-    }else{
-      //this.router.navigate(['/onestop/report'], {queryParams: {no:0}});
-      this.refreshItem();
-    }
-  }
-
-  refreshItem(){
-    this.reportData = {};
-    this.locationList = [];
-    this.dutyUserList = [];
-    this.selectedUserList = [];
-    this.locationSelectItem = { position: {}, name: '', dongmyun: '' };
-    this.selectedCate = {};
-    this.reportData.receipt_typ = 2;
-    this.reportData.open_yn = 'N';
-    this.reportData.proc_state = "0";
-    this.reportData.return_mthd = "1";
-    this.reportData.receipt_mthd = "2";
-    this.reportData.due_day = "5"
-    this.cdRef.detectChanges();
-
-    this.something_changed = false;
-    this.is_editable = true;
+    // 불편신고
+    this.reIncon();
 
   }
 
-
-  getDueDayMethod() {
-    this.resourceService.getCode('515')
-    .then((_:any) => this.dueDayMethod = _)
-    .catch(err => console.error(err));
-  }
-
-
-  getProc() {
-    this.resourceService.getCode('510')
-    .then((_:any) => this.procList = _)
-    .catch(err => console.error(err));
-  }
-
-
-  // getOrg() {
-  //   this.resourceService.getOrg(4)
-  //   .then((_:any) => {
-  //     this.orgList = _;
-  //     this.selectedOrgId = this.session.checkAdminAndGetOrg() == -1 ? 1 : this.session.checkAdminAndGetOrg();
-  //   });
-  // }
-
-  getLocation() {
-    this.resourceService.getCode('590')
-    .then((_:any) => this.locationList = _);
-  }
-
-  getAsgnState() {
-    this.resourceService.getCode('560')
-    .then((_:any) => this.asgnStateList = _);
-  }
-
-  getDeptUser(dept) {
-    this.resourceService.getDeptUser(dept.id, dept.orgNo)
-    .then((_:any) => {
-      this.userList = [];
-      this.userList = _;
-    })
-    .catch(err => console.error(err));
-  }
-
-  getOrgUser(selectedPopupTab = this.selectedPopupTab) {
-    if (selectedPopupTab == 0) {
-      if (this.selectedOrgId == -1) {
-        alert('기관을 선택해주세요.');
-        return;
-      }
-      // else if (this.user_nm.length < 2 && this.task_nm.length < 2) {
-      //   alert('담당자 혹은 담당업무를 2자 이상 입력해주세요');
-      //   return;
-      // }
-    }
-    this.userProvider.getAll(selectedPopupTab, this.selectedOrgId, this.q, null, this.partner_nm)
-    .subscribe(
-      (data:any) => {
-        if (selectedPopupTab == 0)
-          this.orgUserList = data;
-        else if(selectedPopupTab == 1){
-          this.partnerUserList = data;
-        }else if(selectedPopupTab == 4){
-          this.orgDesignatedList = data;
-        }
-      }
-    );
-  }
-
-
-  changePopupTab(idx) {
-    this.selectedPopupTab = idx;
-  }
-
+  
 
   // 만든곳 -------------------------------------------------------------------
 
@@ -636,37 +258,35 @@ export class EnrollmentComponent implements OnInit {
               lvl: 2,                                        // 레벨2 즉, 두번째 서브메뉴
               sub: []
             });
-            // tslint:disable-next-line: triple-equals
-            // if(this.place.place_cls1 == '1'){
-            //   let smallpart1 = ;
-            // }
             if(element.upper_cd = "1"){
-              // console.log("JSON.stringify(element.cls_cd) 111=> "+JSON.stringify(element.cls_cd));
-              // console.log("JSON.stringify(element.cls_nm) 111 => "+JSON.stringify(element.cls_nm));
             }
-            // console.log("JSON.stringify(element) => "+JSON.stringify(element));
-            // console.log("JSON.stringify(element.cls_cd) 222 => "+JSON.stringify(element.cls_cd));
-            // console.log("JSON.stringify(element.cls_nm) 222=> "+JSON.stringify(element.cls_nm));
-          });                                                // 요약 - 두번째 서브메뉴 선언 + 출력(tree-view에서)을 해줌
+          });
 
-          // forEach가 2개있는데 연결 for문이 아니고 별개의 for문임
 
           level1.forEach(element => {
             let item = {
                ...element,
-              lvl: 1,                                         // 레벨1 즉, 첫번째 서브메뉴
+              lvl: 1,
               sub:[],
-              lv2:  customlv1.filter(lv2=>{                   // customlv2에서 조건에 맞는거만 리턴시킨다.
-                return lv2.upper_cd == element.cls_cd;        // 조건은 lv2.upper_cd와 element.cls_cd가 맞는것만
-                                                              // ex. 생활은 cls_cd가 1이고 주민센터는 upper_cd가 1이라서 연결해주는것
+              lv2:  customlv1.filter(lv2=>{
+                return lv2.upper_cd == element.cls_cd;
               })
-            }                                                 // 요약 - 첫번째 서브메뉴선언 + 조건에 맞는것만 첫번째 서브메뉴에 두번째 서브메뉴를 정의 및 붙여주고 출력(tree-view에서)함
+            }
             this.bigdata.push(item);
-            // console.log("JSON.stringify(this.bigdata) => " + JSON.stringify(this.bigdata))
           });
          });
     });
   }
+
+    // 대분류선택시 소분류를 비우거나 기존 대분류 DB값이 일치할때는 유지
+    bigCate(){
+      if(this.place.place_cls != this.data.place_cls){
+        this.place.place_cls_list= [];
+      }
+      else if(this.place.place_cls == this.data.place_cls){
+        this.place.place_cls_list = this.data.place_cls_list;
+      }
+    }
 
   // 소분류 모달창
     openAsgnPopup2(content, i, type) {
@@ -680,6 +300,24 @@ export class EnrollmentComponent implements OnInit {
       this.openModal(content, null, 'customModal');
       })
 
+    }
+
+  // 모달창
+    openModal(content, size = null, customClass=null){
+      this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title', size:size, windowClass:customClass }).result.then((result) => {
+        // console.log(`Closed with: ${result}`);
+      }, (reason) => {
+        console.log(`Dismissed ${this.getDismissReason(reason)}`);
+      });
+    }
+    private getDismissReason(reason: any): string {
+      if (reason === ModalDismissReasons.ESC) {
+        return 'by pressing ESC';
+      } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+        return 'by clicking on a backdrop';
+      } else {
+        return  `with: ${reason}`;
+      }
     }
 
   //  체크박스
@@ -907,7 +545,7 @@ export class EnrollmentComponent implements OnInit {
   // }
   // 리뷰,신고, 데이터 등----------------------------------------------------------------------
 
-  // 페이징 부가처리
+  // 리뷰 페이징
   reView() {
     this.paging(1);
   }
@@ -927,7 +565,6 @@ export class EnrollmentComponent implements OnInit {
       this.mapprovider.place.getReViewlist(queryString)
       .subscribe((element:any) => {
         // total값
-        //element.place_no = this.place.place_no;
         this.total = element.total;
         this.totalPage = Math.ceil(this.total/this.pageSize);
         this.collectionSize = this.totalPage * 10;
@@ -935,12 +572,91 @@ export class EnrollmentComponent implements OnInit {
         // 배열방식으로 되어있는 data값을 list에 다 넣어줌
         this.reViewlist = element.data;
         
-        // console.log("element.total => " + element.total);
-        // console.log("pageIndex => " + pageIndex);
-        // console.log("this.pageSize2 => "+this.pageSize);
-        // console.log("this.reViewlist => "+ JSON.stringify(this.reViewlist));
       });
-      // console.log("this.place.place_no => "+ JSON.stringify(this.place.place_no));
+    }
+
+  // 오류신고 페이징
+  reError() {
+    this.paging2(1);
+  }
+
+  // 페이징 부가처리
+  // getOrg() {
+  //   this.reView();
+  // }
+  
+  paging2(page) {
+    let pageIndex = page - 1;
+  
+    // pageNo(pageIndex) -> 현재 페이지값 / pageSize(this.pageSize) -> 전체페이지값(10)
+    let queryString = `${this.place.place_no}?pageNo=${pageIndex}&pageSize=${this.pageSize}`;   
+    // queryString +=  this.role ?  `&oper_state=${this.role}`: '&oper_state=1';
+  
+      this.mapprovider.place.geterrorlist(queryString)
+      .subscribe((element:any) => {
+        // total값
+        this.total = element.total;
+        this.totalPage = Math.ceil(this.total/this.pageSize);
+        this.collectionSize = this.totalPage * 10;
+
+        // 배열방식으로 되어있는 data값을 list에 다 넣어줌
+        this.reErrorlist = element.data;
+      });
+    }
+
+  // 오류신고 페이징
+  reIncon() {
+    this.paging3(1);
+  }
+  
+  paging3(page) {
+    let pageIndex = page - 1;
+  
+    // pageNo(pageIndex) -> 현재 페이지값 / pageSize(this.pageSize) -> 전체페이지값(10)
+    let queryString = `${this.place.place_no}?pageNo=${pageIndex}&pageSize=${this.pageSize}`;   
+    // queryString +=  this.role ?  `&oper_state=${this.role}`: '&oper_state=1';
+  
+      this.mapprovider.place.getinconlist(queryString)
+      .subscribe((element:any) => {
+        // total값
+        this.total = element.total;
+        this.totalPage = Math.ceil(this.total/this.pageSize);
+        this.collectionSize = this.totalPage * 10;
+
+        // 배열방식으로 되어있는 data값을 list에 다 넣어줌
+        this.reInconlist = element.data;
+      });
+    }
+
+
+  // 리뷰, 오류신고, 불편신고 클릭시 상세정보
+    select(item) {
+      // 리뷰번호
+      this.review_no = item.review_no;
+      // 게시글번호
+      this.place_no = item.place_no;
+      // 내용
+      this.txt = item.txt;
+      // 작성자
+      this.user_nm = item.user_nm;
+      // 평점
+      this.rate_score = item.rate_score;
+      // 등록일자
+      this.reg_dttm = item.reg_dttm;
+      // 수정일자
+      this.upd_dttm = item.upd_dttm;
+      // 오류신고번호
+      this.report_no = item.report_no;
+      // 불편신고번호
+      this.complaint_no = item.complaint_no;
+      // 모르는데 일단 가져옴(불편신고값)
+      this.proc_state = item.proc_state;
+
+      console.log("item = > " + JSON.stringify(item))
+    }
+  
+    open(content) {
+      this.modal = this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title', size: 'lg'});
     }
 }
 

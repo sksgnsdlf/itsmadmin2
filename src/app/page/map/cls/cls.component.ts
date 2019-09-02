@@ -172,7 +172,8 @@ export class ClsComponent implements OnInit {
               // cls_nm: element.cls_nm,
                 expanded: false,
                 sub: []
-              });
+               
+              }); 
             });                                                // 요약 - 두번째 서브메뉴 선언 + 출력(tree-view에서)을 해줌
 
             // forEach가 2개있는데 연결 for문이 아니고 별개의 for문임
@@ -246,7 +247,7 @@ export class ClsComponent implements OnInit {
       }, err=>{
         alert('저장실패!');
       });
-      // console.log("=================cls_nm"+JSON.stringify(this.cls2));
+      console.log("=================this.cls1"+JSON.stringify(this.cls1));
     }
   }
 
@@ -278,11 +279,11 @@ export class ClsComponent implements OnInit {
           
         
 
-        console.log("postData => "+JSON.stringify(postData))
+        // console.log("postData => "+JSON.stringify(postData))
       }
 
       if (files.length > 0){
-        console.log('img');
+        // console.log('img');
         let file: File = files[0];
         formData.append('file', file, file.name);
       }
@@ -296,10 +297,10 @@ export class ClsComponent implements OnInit {
               ...this.cls2,
               cls_cd: data.cls_cd 
             };
-            console.log("formData => "+JSON.stringify(formData))
-            console.log("data => "+JSON.stringify(data))
-            console.log("data.cls_cd => "+JSON.stringify(data.cls_cd))
-            console.log("this.cls2 => " +JSON.stringify(this.cls2))
+            // console.log("formData => "+JSON.stringify(formData))
+            // console.log("data => "+JSON.stringify(data))
+            // console.log("data.cls_cd => "+JSON.stringify(data.cls_cd))
+            // console.log("this.cls2 => " +JSON.stringify(this.cls2))
          this.getCode(this.selectlev1Index);
       }, err=>{
         this.edit2 = false;
@@ -346,7 +347,7 @@ export class ClsComponent implements OnInit {
   // 마커이미지
   checkFileType($event) {
     let files: FileList = $event.target.files;
-    console.log("[checkFileType]"+files.length );
+    // console.log("[checkFileType]"+files.length );
     if (files.length > 0) {
       let file: File = files[0];
       if (!file.type.includes('image/')) {
@@ -365,19 +366,19 @@ export class ClsComponent implements OnInit {
 
   openFile() {
     var ua = window.navigator.userAgent;
-    console.log("ua=>"+ ua);
+    // console.log("ua=>"+ ua);
     var msie = ua.indexOf('MSIE ');
-    console.log("msie=>"+ msie);
+    // console.log("msie=>"+ msie);
     var trident = ua.indexOf('Trident/');
-    console.log("trident=>"+ trident);
+    // console.log("trident=>"+ trident);
     if (msie > 0 || trident > 0) {
-        console.log("File=>"+JSON.stringify(this.inputFile)); 
+        // console.log("File=>"+JSON.stringify(this.inputFile)); 
         this.inputFile.nativeElement.click();
     }
     else {
       let event = new MouseEvent('click', { bubbles: true });
       this.renderer.invokeElementMethod(this.inputFile.nativeElement, 'dispatchEvent', [event]);
-      console.log("asdfasdfasdfasdf"+ JSON.stringify(this.inputFile.nativeElement));
+      // console.log("asdfasdfasdfasdf"+ JSON.stringify(this.inputFile.nativeElement));
     }
   }
 
@@ -406,9 +407,9 @@ export class ClsComponent implements OnInit {
 
   openModal(content, size = null, customClass=null){
     this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title', size:size, windowClass:customClass }).result.then((result) => {
-      console.log(`Closed with: ${result}`);
+      // console.log(`Closed with: ${result}`);
     }, (reason) => {
-      console.log(`Dismissed ${this.getDismissReason(reason)}`);
+      // console.log(`Dismissed ${this.getDismissReason(reason)}`);
     });
   }
   private getDismissReason(reason: any): string {
@@ -452,8 +453,8 @@ export class ClsComponent implements OnInit {
 
   // 바로응답분류 체크박스
   userSelectChanged1(ev, item) {
-    console.log("ev->"+JSON.stringify(ev));
-    console.log("item=>"+ JSON.stringify(item));
+    // console.log("ev->"+JSON.stringify(ev));
+    // console.log("item=>"+ JSON.stringify(item));
 
     var index = this.tempSelectedUserList1.findIndex(element => {
       return (element.id == item.id && element.name == item.name);
@@ -566,7 +567,7 @@ export class ClsComponent implements OnInit {
   
   // 담당부서 체크박스                    
   userSelectChanged2(ev) {
-    console.log('ev=>'+JSON.stringify(ev));
+    // console.log('ev=>'+JSON.stringify(ev));
     // console.log('dept=>'+JSON.stringify(depts));
     var index = this.tempSelectedUserList2.findIndex(element => {
       return (element.name == ev.name && element.id == ev.id);

@@ -2,11 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { API, UserSearchForm } from '../../config';
 import { ResponseContentType } from '@angular/http';
+import { Report } from './onestop';
 @Injectable({ providedIn: 'root' })
 
 export class MapProvider {
     public cls : Cls = new Cls(this.auth);
     public place : Place = new Place(this.auth);
+    public report : report = new report(this.auth);
 
     // public clslink : ClsLink = new ClsLink(this.auth);
     constructor(private auth: HttpClient) {
@@ -41,6 +43,28 @@ export class Cls {
     }
 }
 
+export class report {
+    private resource : string = "/place/cls/report"
+    constructor(private auth: HttpClient) { }
+
+    // 조회
+    getlist(cls_cd){
+        return this.auth.get(`${API}${this.resource}/${cls_cd}`)
+    }
+
+    // 수정 및 등록
+    post(body: any) {
+        return this.auth.post(`${API}${this.resource}`, body, {responseType:'json'});
+    }
+}
+
+
+
+
+
+
+
+
 // 장소관리
 export class Place {
     private resource: string = "/place"
@@ -67,9 +91,19 @@ export class Place {
         return this.auth.delete(`${API}${this.resource}?place_no=${body.place_no}`, {responseType:'text'});
     }
 
-    // 장소 등록/수정창 - 리스트
+    // 장소 등록/수정창 - 리뷰리스트
     getReViewlist(queryString){
-        return this.auth.get(`${API}${this.resource}/review/list/${queryString}`); //
+        return this.auth.get(`${API}${this.resource}/review/list/${queryString}`); 
+    }
+
+    // 장소 등록/수정창 - 오류신고리스트
+    geterrorlist(queryString){
+        return this.auth.get(`${API}${this.resource}/report/list/${queryString}`); 
+    }
+
+    // 장소 등록/수정창 - 불편신고리스트
+    getinconlist(queryString){
+        return this.auth.get(`${API}${this.resource}/complaint/list/${queryString}`); 
     }
 }
 
